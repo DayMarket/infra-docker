@@ -26,7 +26,7 @@ based on https://github.com/freifunkmuc/wg-access-server/pkgs/container/wg-acces
 		-e "WG_WIREGUARD_PRIVATE_KEY=`cat wg_privkey`" \
 		-p 8000:8000/tcp \
 		-p 51820:51820/udp \
-		ghcr.io/kazanexpress/wg-access-server
+		ghcr.io/daymarket/wg-access-server
 
 eventually provide `/etc/suricata/suricata.yaml` (alpine release `3.15.0` has `suricata-6.0.4-r0`)
 and custom rules e.g. as `/etc/suricata/suricata.local`.
@@ -58,4 +58,3 @@ https://github.com/freifunkmuc/wg-access-server/pkgs/container/wg-access-server
 https://www.freie-netze.org/wg-access-server/deployment/1-docker/
 
 https://github.com/freifunkMUC/wg-access-server/blob/master/Dockerfile
-
