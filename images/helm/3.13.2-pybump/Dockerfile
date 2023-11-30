@@ -1,8 +1,9 @@
 FROM alpine/helm:3.13.2
+# hadolint ignore=DL3018
 RUN apk --no-cache add \
-    "bash>=5.1.15" \
-    "curl>=7.83.1-r3" \
-    "expat>=2.4.9-r0" \
-    "libcurl>=7.83.1-r3" \
-    "py3-pip>=22.1.1-r0" && \
+    bash \
+    curl \
+    expat \
+    libcurl \
+    py3-pip && \
     pip install --no-cache-dir pybump==1.8.1

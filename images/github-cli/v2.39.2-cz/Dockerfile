@@ -2,19 +2,20 @@ FROM debian:buster-slim
 
 ENV GITHUB_CLI_VERSION="2.39.2"
 
+# hadolint ignore=DL3008
 RUN set -ex && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-    ca-certificates=20200601~deb10u2 \
-    curl=7.64.0-4+deb10u2 \
-    git=1:2.20.1-2+deb10u3 \
-    python3=3.7.3-1 \
-    python3-pip=18.1-5 \
-    python3-termcolor=1.1.0-2 \
-    python3-setuptools=40.8.0-1 && \
+    ca-certificates \
+    curl \
+    git \
+    python3 \
+    python3-pip \
+    python3-termcolor \
+    python3-setuptools && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir "commitizen==3.12"
+RUN pip3 install --no-cache-dir "commitizen==3.12.0"
 
 RUN set -ex && \
     curl -L "https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_checksums.txt" -o checksums.txt && \
