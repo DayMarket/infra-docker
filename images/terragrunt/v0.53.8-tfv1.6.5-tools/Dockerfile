@@ -13,7 +13,9 @@ RUN cp ./tfmask /tfmask
 FROM ghcr.io/kazanexpress/tf-toolbox:0.1.1 as toolbox
 
 FROM alpine/terragrunt:1.3.9 as builder
-RUN apk add --no-cache "bash>=5.1.15" "curl=>7.80.0" && \
+# hadolint ignore=DL3018
+RUN apk add --no-cache bash curl && \
+    apk add --no-cache --upgrade curl && \
     curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh > /install.sh && \
     /bin/bash /install.sh
 
