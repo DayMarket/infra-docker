@@ -2,7 +2,7 @@
 
 This repository contains dockerfiles and builds public docker images from them.
 
-Check available docker images [here](https://github.com/orgs/daymarket/packages?repo_name=ke-infra-docker).
+Check available docker images [here](https://github.com/orgs/daymarket/packages?repo_name=infra-docker).
 
 ## Instructions
 

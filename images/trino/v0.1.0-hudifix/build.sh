@@ -60,7 +60,7 @@ fi
 
 echo "🧱 Preparing the image build context directory"
 # CHANGE
-WORK_DIR="/ke-infra-docker/images/trino/trino-build"
+WORK_DIR="/infra-docker/images/trino/trino-build"
 cp "$trino_server" "${WORK_DIR}/"
 cp "$trino_client" "${WORK_DIR}/"
 tar -C "${WORK_DIR}" -xzf "${WORK_DIR}/trino-server-${TRINO_VERSION}.tar.gz"

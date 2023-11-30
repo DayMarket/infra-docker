@@ -17,7 +17,7 @@ jobs:
 
       - name: lint commit message
         run: |
-          git config --global --add safe.directory /__w/ke-infra-docker/ke-infra-docker
+          git config --global --add safe.directory /__w/infra-docker/infra-docker
           cz check -m "$(git log -1 --pretty=%B)"
 
       - name: bump & push
