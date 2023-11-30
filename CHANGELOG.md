@@ -1,3 +1,13 @@
+## v0.194.0 (2023-11-30)
+
+### Fix
+
+- namings
+
+### Feat
+
+- **terragrunt**: add new image (#1)
+
 ## v0.193.0 (2023-11-28)
 
 ### Fix
