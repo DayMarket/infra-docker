@@ -6,4 +6,4 @@ RUN apk --no-cache add \
     expat \
     libcurl \
     py3-pip && \
-    pip install --no-cache-dir pybump==1.8.1
+    pip install --no-cache-dir pybump==1.11.5
