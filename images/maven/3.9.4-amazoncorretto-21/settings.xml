@@ -131,12 +131,12 @@ under the License.
     </server>
     -->
     <server>
-      <id>ke-repo-releases</id>
+      <id>um-repo-releases</id>
       <username>${env.SERVER_USERNAME}</username>
       <password>${env.SERVER_PASSWORD}</password>
     </server>
     <server>
-      <id>ke-repo-snapshots</id>
+      <id>um-repo-snapshots</id>
       <username>${env.SERVER_USERNAME}</username>
       <password>${env.SERVER_PASSWORD}</password>
     </server>
@@ -221,12 +221,12 @@ under the License.
     -->
 
     <profile>
-      <id>KE</id>
+      <id>UM</id>
       <repositories>
         <repository>
-          <id>ke-repo-releases</id>
-          <name>Repository for KE RELEASES</name>
-          <url>https://nexus.kznexpress.ru/repository/maven-releases/</url>
+          <id>um-repo-releases</id>
+          <name>Repository for UM RELEASES</name>
+          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-releases/</url>
           <releases>
             <enabled>true</enabled>
           </releases>
@@ -235,9 +235,9 @@ under the License.
           </snapshots>
         </repository>
         <repository>
-          <id>ke-repo-snapshots</id>
-          <name>Repository for KE SNAPSHOTs</name>
-          <url>https://nexus.kznexpress.ru/repository/maven-snapshots/</url>
+          <id>um-repo-snapshots</id>
+          <name>Repository for UM SNAPSHOTs</name>
+          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-snapshots/</url>
           <releases>
             <enabled>false</enabled>
             <updatePolicy>always</updatePolicy>
@@ -285,7 +285,7 @@ under the License.
     -->
   </profiles>
   <activeProfiles>
-    <activeProfile>KE</activeProfile>
+    <activeProfile>UM</activeProfile>
   </activeProfiles>
  
 </settings>
