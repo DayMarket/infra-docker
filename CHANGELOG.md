@@ -1,3 +1,9 @@
+## v0.196.1 (2023-12-14)
+
+### Fix
+
+- add proxy ke maven for settings.xml (#5)
+
 ## v0.196.0 (2023-12-07)
 
 ### Feat
