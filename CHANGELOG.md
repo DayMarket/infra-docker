@@ -1,3 +1,13 @@
+## v0.197.0 (2023-12-14)
+
+### Feat
+
+- add new proxy ke maven for settings.xml (#7)
+
+### Fix
+
+- Docker image and tags for settings-xml proxy (#9)
+
 ## v0.196.1 (2023-12-14)
 
 ### Fix
