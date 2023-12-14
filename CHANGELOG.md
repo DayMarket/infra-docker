@@ -1,3 +1,9 @@
+## v0.198.0 (2023-12-14)
+
+### Feat
+
+- added UM maven group repo for build (DUTY-2305) (#10)
+
 ## v0.197.0 (2023-12-14)
 
 ### Feat
