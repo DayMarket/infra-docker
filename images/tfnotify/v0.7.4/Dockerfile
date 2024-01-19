@@ -10,7 +10,7 @@ RUN CGO_ENABLED=0 GOOS=$(go env GOHOSTOS) GOARCH=$(go env GOHOSTARCH) go install
 RUN cp "$GOPATH/bin/tfnotify" /tfnotify
 
 
-FROM alpine:3.16.7
+FROM alpine:3.18.5
 
 COPY --from=build /tfnotify /usr/bin/tfnotify
 

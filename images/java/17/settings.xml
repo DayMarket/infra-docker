@@ -226,7 +226,7 @@ under the License.
         <repository>
           <id>ke-repo-releases</id>
           <name>Repository for KE RELEASES</name>
-          <url>https://nexus.kznexpress.ru/repository/maven-releases/</url>
+          <url>https://nexus.infra.cluster.kznexpess.com/repository/maven-releases/</url>
           <releases>
             <enabled>true</enabled>
           </releases>
@@ -237,7 +237,7 @@ under the License.
         <repository>
           <id>ke-repo-snapshots</id>
           <name>Repository for KE SNAPSHOTs</name>
-          <url>https://nexus.kznexpress.ru/repository/maven-snapshots/</url>
+          <url>https://nexus.infra.cluster.kznexpess.com/repository/maven-snapshots/</url>
           <releases>
             <enabled>false</enabled>
             <updatePolicy>always</updatePolicy>
