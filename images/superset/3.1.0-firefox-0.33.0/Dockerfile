@@ -4,7 +4,7 @@ LABEL maintainer="Yuriy Gavrilin <yuriy@kazanexpress.ru>"
 
 USER root
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends -y firefox-esr=115.3.0esr-1~deb12u1 libsnappy-dev=1.1.9-3 && \
+    apt-get install -y --no-install-recommends -y firefox-esr=115.5.0esr-1~deb12u1 libsnappy-dev=1.1.9-3 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
