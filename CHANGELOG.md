@@ -1,3 +1,31 @@
+## v0.200.0 (2024-01-19)
+
+### Feat
+
+- merge from KE
+- Новая версия образа maven jdk 17 для нового Nexus
+- Новая версия образа maven jdk 11 для нового Nexus
+- Новая версия образа maven jdk 11 для нового Nexus и вернул 3 версию
+- Новая версия образа maven jdk 11 для нового Nexus
+- Новая версия образа maven jdk 11 для нового Nexus (#246)
+- **jiralert**: add exclude labels (#240)
+- add new postfix image
+- **postfix**: add more config env
+- **rover**: add new version (#238)
+- **terragrunt**: add new image (#237)
+- add maven images for 11/17/21 jdks (#234)
+
+### Fix
+
+- fix proxy settings.xml (#245)
+- Create maven jdk11 parameterized (#244)
+- trigger ci
+- change code-owners to infra-review
+- change nexus url and rerun build
+- **jiralert**: add multistage build INFR-1383 (#241)
+- images/tfnotify/v0.7.4/Dockerfile to reduce vulnerabilities (#236)
+- hadolint
+
 ## v0.199.1 (2024-01-09)
 
 ### Fix
