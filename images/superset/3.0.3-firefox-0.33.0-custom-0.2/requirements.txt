@@ -1,0 +1,17 @@
+gevent~=22.10
+psycopg2~=2.9
+redis~=4.4
+clickhouse-connect==0.5.18
+Authlib~=1.2
+kafka-python~=2.0.2
+lz4~=4.0.2
+python-snappy~=0.6.1
+crc32c~=2.3
+lunarcalendar==0.0.9
+tqdm~=4.63
+pystan==3.6
+statsd==4.0.1
+shillelagh==1.1.5
+prophet==1.1.5
+trino==0.327.0
+pyhive==0.6.5
