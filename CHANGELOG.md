@@ -1,3 +1,9 @@
+## v0.202.0 (2024-01-22)
+
+### Feat
+
+- **superset:version:3.0.1-c0.2**: add superset 3.0.1-custom-0.2 (#15)
+
 ## v0.201.0 (2024-01-19)
 
 ### Feat
