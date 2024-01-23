@@ -11,7 +11,7 @@ lunarcalendar==0.0.9
 tqdm~=4.63
 pystan==3.6
 statsd==4.0.1
-shillelagh==1.1.5
+shillelagh==1.2.10
 prophet==1.1.5
 trino==0.327.0
 pyhive==0.6.5
