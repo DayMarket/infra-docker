@@ -1,3 +1,9 @@
+## v0.202.2 (2024-01-24)
+
+### Fix
+
+- **superset:libs**: fix libs for superset 3.1.0 (#16)
+
 ## v0.202.1 (2024-01-23)
 
 ### Fix
