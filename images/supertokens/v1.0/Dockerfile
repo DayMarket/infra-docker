@@ -31,8 +31,7 @@ RUN set -x \
 COPY --from=tmp --chown=supertokens /usr/lib/supertokens /usr/lib/supertokens
 COPY --from=tmp --chown=supertokens /usr/bin/supertokens /usr/bin/supertokens
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN set -x \
-	&& /bin/bash -c md5sum /usr/lib/supertokens/config.yaml | awk '{ print $1 }' >> /CONFIG_HASH && /bin/ash -c ln -s /usr/local/bin/docker-entrypoint.sh /entrypoint.sh
+RUN /bin/ash -c md5sum /usr/lib/supertokens/config.yaml | awk '{ print $1 }' >> /CONFIG_HASH && /bin/ash -c ln -s /usr/local/bin/docker-entrypoint.sh /entrypoint.sh
 EXPOSE 3567
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["supertokens", "start"]
