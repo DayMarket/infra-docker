@@ -31,7 +31,7 @@ RUN set -x \
 COPY --from=tmp --chown=supertokens /usr/lib/supertokens /usr/lib/supertokens
 COPY --from=tmp --chown=supertokens /usr/bin/supertokens /usr/bin/supertokens
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN set -o pipefail \
+RUN set -o \
 	&& ["/bin/bash", "-c", "md5sum /usr/lib/supertokens/config.yaml | awk '{ print $1 }' >> /CONFIG_HASH"]
 RUN ["/bin/bash", "-c", "ln -s /usr/local/bin/docker-entrypoint.sh /entrypoint.sh"]
 EXPOSE 3567
