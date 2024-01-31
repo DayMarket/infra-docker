@@ -17,7 +17,7 @@ FROM debian:stable-slim
 RUN groupadd supertokens && useradd -m -s /bin/bash -g supertokens supertokens
 RUN apt-get update && apt-get install -y --no-install-recommends gnupg dirmngr && rm -rf /var/lib/apt/lists/*
 ENV GOSU_VERSION 1.7
-RUN set -xo pipefail \
+RUN set -xo \
 	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/* \
 	&& wget -O -q /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
 	&& wget -O -q /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
@@ -31,8 +31,8 @@ RUN set -xo pipefail \
 COPY --from=tmp --chown=supertokens /usr/lib/supertokens /usr/lib/supertokens
 COPY --from=tmp --chown=supertokens /usr/bin/supertokens /usr/bin/supertokens
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN ["/bin/sh", "-c", "md5sum /usr/lib/supertokens/config.yaml | awk '{ print $1 }' >> /CONFIG_HASH"]
-RUN ["/bin/ash", "-c", "ln -s /usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat"]
+RUN ["/bin/bash", "-c", "md5sum /usr/lib/supertokens/config.yaml | awk '{ print $1 }' >> /CONFIG_HASH"]
+RUN ["/bin/bash", "-c", "ln -s /usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat"]
 EXPOSE 3567
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["supertokens", "start"]
