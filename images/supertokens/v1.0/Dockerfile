@@ -1,6 +1,6 @@
 FROM ubuntu:bionic-20200219 as tmp
 RUN mkdir supertokens
-WORKDIR supertokens
+WORKDIR /supertokens
 COPY core core
 COPY cli cli
 COPY downloader downloader
@@ -19,9 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends gnupg dirmngr &
 ENV GOSU_VERSION 1.7
 RUN set -x \
 	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/* \
-	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
-	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
-	&& export GNUPGHOME="$(mktemp -d)" \
+	&& wget -O -q /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
+	&& wget -O -q /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
+	&& GNUPGHOME="$(mktemp -d)" export GNUPGHOME \
 	&& gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
 	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
 	&& gpgconf --kill all \
@@ -32,7 +32,7 @@ COPY --from=tmp --chown=supertokens /usr/lib/supertokens /usr/lib/supertokens
 COPY --from=tmp --chown=supertokens /usr/bin/supertokens /usr/bin/supertokens
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN echo "$(md5sum /usr/lib/supertokens/config.yaml | awk '{ print $1 }')" >> /CONFIG_HASH
-RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
+RUN ln -s /usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 EXPOSE 3567
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["supertokens", "start"]
