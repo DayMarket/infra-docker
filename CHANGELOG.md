@@ -1,3 +1,9 @@
+## v0.204.1 (2024-02-02)
+
+### Fix
+
+- **superset:libver**: Feat add superset 3.1.0 c0.3 (#20)
+
 ## v0.204.0 (2024-02-01)
 
 ### Feat
