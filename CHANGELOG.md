@@ -1,3 +1,9 @@
+## v0.205.0 (2024-02-07)
+
+### Feat
+
+- **maven**: add image with jdk-11 and proxy (#21)
+
 ## v0.204.1 (2024-02-02)
 
 ### Fix
