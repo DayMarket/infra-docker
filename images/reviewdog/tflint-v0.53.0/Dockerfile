@@ -1,4 +1,4 @@
-FROM ghcr.io/terraform-linters/tflint:v0.53.3 as tflint
+FROM ghcr.io/terraform-linters/tflint:v0.50.3 as tflint
 
 FROM alpine:3.19
 
