@@ -1,3 +1,9 @@
+## v0.208.0 (2024-02-29)
+
+### Feat
+
+- **tflint**: upgrade version tflint (MAI-114) (#25)
+
 ## v0.207.0 (2024-02-29)
 
 ### Feat
