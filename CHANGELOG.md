@@ -1,3 +1,9 @@
+## v0.210.1 (2024-03-01)
+
+### Fix
+
+- **maven**: added mirrors to the central via nexus (#23)
+
 ## v0.210.0 (2024-03-01)
 
 ### Feat
