@@ -1,3 +1,9 @@
+## v0.209.0 (2024-03-01)
+
+### Feat
+
+- added Docker image for maven with proxy (#27)
+
 ## v0.208.1 (2024-02-29)
 
 ### Fix
