@@ -52,9 +52,7 @@ ENV LANG=C.UTF-8 \
     SUPERSET_HOME="/app/superset_home" \
     SUPERSET_PORT=8088
 
-RUN --mount=target=/var/lib/apt/lists,type=cache \
-    --mount=target=/var/cache/apt,type=cache \
-    mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
+RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
     && apt-get update -qq && apt-get install -yqq --no-install-recommends \
         build-essential \
@@ -77,15 +75,13 @@ RUN cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md 
 RUN cp /git/superset/superset-frontend/package.json /app/superset-frontend/
 RUN cp -Rf /git/superset/requirements/*.txt  /app/requirements/ 
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -r requirements/local.txt
+RUN pip install -r requirements/local.txt
 
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
 RUN cp -Rf /git/superset/superset/* /app/superset/ 
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -e . \
+RUN pip install -e . \
     && flask fab babel-compile --target superset/translations \
     && chown -R superset:superset superset/translations
 
@@ -111,9 +107,7 @@ ARG GECKODRIVER_VERSION=v0.33.0 \
 
 USER root
 
-RUN --mount=target=/var/lib/apt/lists,type=cache \
-    --mount=target=/var/cache/apt,type=cache \
-    apt-get install -yqq --no-install-recommends \
+RUN apt-get install -yqq --no-install-recommends \
         libnss3 \
         libdbus-glib-1-2 \
         libgtk-3-0 \
@@ -130,7 +124,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache \
 # Cache everything for dev purposes...
 RUN --mount=type=bind,target=./requirements/base.txt,src=./requirements/base.txt \
     --mount=type=bind,target=./requirements/docker.txt,src=./requirements/docker.txt \
-    --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements/docker.txt
 
 RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
