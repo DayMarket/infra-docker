@@ -112,7 +112,7 @@ RUN apt-get install -yqq --no-install-recommends \
     # Install GeckoDriver WebDriver
 RUN curl -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -O - | tar xfz - -C /usr/local/bin 
     # Install Firefox
-RUN curl https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 -O - | tar xfj - -C /opt 
+RUN curl "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" -O - | tar xfj - -C /opt 
 RUN ln -s /opt/firefox/firefox /usr/local/bin/firefox 
 RUN apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 # Cache everything for dev purposes...
