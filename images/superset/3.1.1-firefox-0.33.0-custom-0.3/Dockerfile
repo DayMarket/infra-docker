@@ -8,8 +8,7 @@
 ######################################################################
 ARG PY_VER=3.9-slim-bookworm
 
-ARG BUILDPLATFORM=${BUILDPLATFORM:-amd64}
-FROM --platform=${BUILDPLATFORM} node:16-bookworm-slim AS superset-node
+FROM node:16-bookworm-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
@@ -24,15 +23,12 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
 WORKDIR /app/superset-frontend
 
 ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 3.1.1 https://github.com/apache/superset.git /git/superset
-
-RUN cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh
-
-RUN cp /git/superset/superset-frontend/package.json ./ && \
+RUN git clone --depth 1 --branch 3.1.1 https://github.com/apache/superset.git /git/superset && \
+    cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
+    cp /git/superset/superset-frontend/package.json ./ && \
     cp /git/superset/superset-frontend/package-lock.json ./ && \
-    npm ci
-
-RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend 
+    npm ci && \
+    cp -Rf /git/superset/superset-frontend/* /app/superset-frontend 
 COPY ./src/superset/ /app
 
 # This seems to be the most expensive step
@@ -69,26 +65,21 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
 
 
 ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 3.1.1 https://github.com/apache/superset.git /git/superset
-
-RUN cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/
-RUN cp /git/superset/superset-frontend/package.json /app/superset-frontend/
-RUN cp -Rf /git/superset/requirements/*.txt  /app/requirements/ 
-
-RUN pip install -r requirements/local.txt
+RUN git clone --depth 1 --branch 3.1.1 https://github.com/apache/superset.git /git/superset && \
+    cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+    cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
+    cp -Rf /git/superset/requirements/*.txt  /app/requirements/ && \
+    pip install --no-cache-dir -r requirements/local.txt
 
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
-RUN cp -Rf /git/superset/superset/* /app/superset/ 
-
-RUN pip install -e . \
+RUN cp -Rf /git/superset/superset/* /app/superset/ && \
+    pip install --no-cache-dir -e . \
     && flask fab babel-compile --target superset/translations \
-    && chown -R superset:superset superset/translations
-
-RUN cp -Rf /git/superset/docker/run-server.sh /usr/bin/
-
-RUN chown -R superset:superset ./*
-RUN chmod 755 /usr/bin/run-server.sh
+    && chown -R superset:superset superset/translations && \
+    cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && \
+    chown -R superset:superset ./* && \
+    chmod 755 /usr/bin/run-server.sh
 
 USER superset
 
@@ -124,9 +115,8 @@ RUN apt-get install -yqq --no-install-recommends \
 # Cache everything for dev purposes...
 RUN --mount=type=bind,target=./requirements/base.txt,src=./requirements/base.txt \
     --mount=type=bind,target=./requirements/docker.txt,src=./requirements/docker.txt \
-    pip install -r requirements/docker.txt
-
-RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
+    pip install --no-cache-dir -r requirements/docker.txt && \
+    mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
