@@ -109,13 +109,14 @@ RUN apt-get update -qq && \
         libx11-xcb1 \
         libasound2 \
         libxtst6 \
-        wget
+        wget \
+        && rm -rf /var/lib/apt/lists/*
     # Install GeckoDriver WebDriver
 RUN curl -s -OJL https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz \
     && tar xfz geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -C /usr/local/bin
     # Install Firefox
 RUN curl -s -OJL "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" \
-    && tar xfj firefox-${FIREFOX_VERSION}.tar.bz2 -C /opt
+    && tar xfj firefox-"${FIREFOX_VERSION}".tar.bz2 -C /opt
 RUN ln -s /opt/firefox/firefox /usr/local/bin/firefox
 RUN apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 # Cache everything for dev purposes...
