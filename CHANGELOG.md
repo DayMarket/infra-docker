@@ -1,3 +1,9 @@
+## v0.211.0 (2024-03-05)
+
+### Feat
+
+- **superset:version**: feat superset add new version 3.1.1_c0.3 (#32)
+
 ## v0.210.1 (2024-03-01)
 
 ### Fix
