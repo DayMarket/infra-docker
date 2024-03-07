@@ -1,3 +1,9 @@
+## v0.211.1 (2024-03-07)
+
+### Fix
+
+- **maven**: using internal ingress for maven (#33)
+
 ## v0.211.0 (2024-03-05)
 
 ### Feat
