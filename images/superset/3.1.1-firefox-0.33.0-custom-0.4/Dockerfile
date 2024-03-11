@@ -129,6 +129,6 @@ RUN --mount=type=bind,target=./requirements/base.txt,src=./requirements/base.txt
 
 COPY requirements.txt /additional_requirements.txt
 RUN pip install --no-cache --no-cache-dir -r /additional_requirements.txt
-COPY custom/logo.png /app/superset/static/assets/images/logo.png
+COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
 USER superset
