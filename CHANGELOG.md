@@ -1,3 +1,9 @@
+## v0.211.2 (2024-03-11)
+
+### Fix
+
+- **superset:fix_dockerfile**: Fix add superset 3.1.1 c0.4 (#37)
+
 ## v0.211.1 (2024-03-07)
 
 ### Fix
