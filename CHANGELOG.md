@@ -1,3 +1,9 @@
+## v0.214.0 (2024-03-13)
+
+### Feat
+
+- added Dockerfile with ke settings (#39)
+
 ## v0.213.0 (2024-03-13)
 
 ### Feat
