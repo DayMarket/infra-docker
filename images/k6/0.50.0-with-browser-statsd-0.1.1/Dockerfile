@@ -17,7 +17,7 @@ RUN apk --no-cache add git=2.43.0-r0 && \
 
 FROM alpine:3.19 as release
 # hadolint ignore=DL3018
-RUN apk add --no-cache ca-certificates=20230506-r0 chromium-swiftshader=122.0.6261.111-r0 && \
+RUN apk add --no-cache ca-certificates=20240226-r0 chromium-swiftshader=122.0.6261.111-r0 && \
     adduser -D -u 12345 -g 12345 k6
 COPY --from=builder /tmp/k6 /usr/bin/k6
 
