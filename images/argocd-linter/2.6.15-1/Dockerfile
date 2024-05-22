@@ -17,5 +17,4 @@ RUN apt-get update && \
     chmod +x /bin/argocd-terraform-plugin && \
     chmod +x /bin/argocd-vault-plugin
 
-
 USER 999
