@@ -1,3 +1,9 @@
+## v0.217.0 (2024-05-23)
+
+### Feat
+
+- **maven**: add image with jdk-11 with central repo (#46)
+
 ## v0.216.1 (2024-05-22)
 
 ### Fix
