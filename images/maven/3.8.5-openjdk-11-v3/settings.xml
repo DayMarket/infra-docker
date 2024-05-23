@@ -247,7 +247,6 @@ under the License.
         </repository>
         <repository>
           <id>mirror</id>
-          <mirrorOf>central</mirrorOf>
           <name>Maven Central DayMarket repo.</name>
           <url>https://nexus.infra.internal.daymarket.uz/repository/maven-central/</url>
         </repository>
