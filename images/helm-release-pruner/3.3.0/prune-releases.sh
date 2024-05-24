@@ -135,10 +135,10 @@ while read release_line ; do
         counter_delete=$((counter_delete+1))
         [ -z "$dry_run" ] && helm delete --namespace $release_namespace $release_name
 
-        # Delete the namespace if there are no other helm releases in it
-        if [ "$(helm list -a --namespace $release_namespace --output json | jq ". | length")" -eq 0 ]; then
-            [ -z "$dry_run" ] && kubectl delete ns $release_namespace
-        fi
+        ## Delete the namespace if there are no other helm releases in it
+        #if [ "$(helm list -a --namespace $release_namespace --output json | jq ". | length")" -eq 0 ]; then
+        #    [ -z "$dry_run" ] && kubectl delete ns $release_namespace
+        #fi
     fi
 done < <(helm ls -a --all-namespaces --date --reverse -m 2500)
 [ $counter_delete -gt 0 ] || echo "No stale Helm charts found."
