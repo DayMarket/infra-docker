@@ -1,3 +1,9 @@
+## v0.218.1 (2024-05-24)
+
+### Fix
+
+- helm-relese-pruner change docker file (#50)
+
 ## v0.218.0 (2024-05-24)
 
 ### Feat
