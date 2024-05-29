@@ -41,6 +41,5 @@ RUN set -eux; \
     sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --install "build-tools;${BUILD_TOOLS}" "platforms;android-${TARGET_SDK}" "ndk;${NDK_VERSION}" && \
     sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --uninstall emulator
 
-
 # Set the default command
 CMD ["jshell"]
