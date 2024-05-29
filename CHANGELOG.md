@@ -1,3 +1,9 @@
+## v0.220.0 (2024-05-29)
+
+### Feat
+
+- **superset:newversion**: add superset 4.0.1_c0.4 (#54)
+
 ## v0.219.1 (2024-05-28)
 
 ### Refactor
