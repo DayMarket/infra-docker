@@ -23,7 +23,7 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
 WORKDIR /app/superset-frontend
 
 ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 3.1.3 https://github.com/apache/superset.git /git/superset && \
+RUN git clone --depth 1 --branch 4.0.1 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
     cp /git/superset/superset-frontend/package.json ./ && \
     cp /git/superset/superset-frontend/package-lock.json ./ && \
@@ -66,7 +66,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
 
 
 ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 3.1.3 https://github.com/apache/superset.git /git/superset && \
+RUN git clone --depth 1 --branch 4.1.0 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
     cp -Rf /git/superset/requirements/*.txt  /app/requirements/ && \
