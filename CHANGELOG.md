@@ -1,3 +1,9 @@
+## v0.220.1 (2024-05-29)
+
+### Refactor
+
+- verify installations (#56)
+
 ## v0.220.0 (2024-05-29)
 
 ### Feat
