@@ -12,8 +12,9 @@ ENV ANDROID_HOME ${ANDROID_SDK_ROOT}
 ENV CMDLINE_VERSION "9.0"
 ENV SDK_TOOLS "9477386"
 ENV NDK_VERSION "25.2.9519653"
+ENV CMAKE_VERSION "3.22.1"
 ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk/${NDK_VERSION}
-ENV PATH="${PATH}:/sbin:${ANDROID_SDK_ROOT}/cmdline-tools/${CMDLINE_VERSION}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/extras/google/instantapps:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}:${ANDROID_NDK_HOME}"
+ENV PATH="${PATH}:/sbin:${ANDROID_SDK_ROOT}/cmdline-tools/${CMDLINE_VERSION}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/extras/google/instantapps:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}:${ANDROID_NDK_HOME}:${ANDROID_SDK_ROOT}/cmake/${CMAKE_VERSION}/bin"
 
 # Set the default shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -37,10 +38,15 @@ RUN set -eux; \
     rm -v /tmp/tools.zip && \
     mkdir -p ~/.android/ && touch ~/.android/repositories.cfg && \
     yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses || true && \
-    sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --install "platform-tools" "extras;google;instantapps" "cmake;3.22.1" && \
+    sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --install "platform-tools" "extras;google;instantapps" "cmake;${CMAKE_VERSION}" && \
     sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --install "build-tools;${BUILD_TOOLS}" "platforms;android-${TARGET_SDK}" "ndk;${NDK_VERSION}" && \
-    sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --uninstall emulator
-
+    sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --uninstall emulator && \
+    # Verify installations
+    java -version && \
+    ${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}/aapt version && \
+    ${ANDROID_SDK_ROOT}/cmake/${CMAKE_VERSION}/bin/cmake --version && \
+    ${ANDROID_SDK_ROOT}/platform-tools/adb --version && \
+    ${ANDROID_NDK_HOME}/ndk-build --version
 
 # Set the default command
 CMD ["jshell"]
