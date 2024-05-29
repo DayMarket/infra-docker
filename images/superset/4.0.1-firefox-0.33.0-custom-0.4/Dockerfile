@@ -66,7 +66,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
 
 
 ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 4.1.0 https://github.com/apache/superset.git /git/superset && \
+RUN git clone --depth 1 --branch 4.0.1 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
     cp -Rf /git/superset/requirements/*.txt  /app/requirements/ && \
