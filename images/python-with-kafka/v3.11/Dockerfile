@@ -7,4 +7,4 @@ WORKDIR /tmp/librdkafka
 RUN ./configure --prefix=/usr  \
     && make  \
     && make install
-RUN rm -rf /tmp/librdkafka
+RUN rm -rf /tmp/librdkafka 
