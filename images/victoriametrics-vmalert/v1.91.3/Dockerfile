@@ -1,0 +1,1 @@
+FROM victoriametrics/vmalert:v1.91.3

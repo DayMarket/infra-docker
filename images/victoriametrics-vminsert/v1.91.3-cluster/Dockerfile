@@ -1,0 +1,1 @@
+FROM victoriametrics/vminsert:v1.91.3-cluster
