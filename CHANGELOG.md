@@ -1,3 +1,9 @@
+## v0.223.0 (2024-05-31)
+
+### Feat
+
+- add summerwind/actions-runner-controller:v0.27.4 (#63)
+
 ## v0.222.1 (2024-05-31)
 
 ### Fix
