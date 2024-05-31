@@ -1,0 +1,1 @@
+FROM alpine/git:2.26.2
