@@ -6,7 +6,8 @@ dirs=$(git tag -l --sort=v:refname | tail -n2 | xargs -L2 git diff --name-only -
 
 while IFS= read -r dir; do
 	cd "$dir"
-
+	pwd
+ 
 	image=$(basename "$(dirname "$dir")")
 	tag=$(basename "$dir")
 
