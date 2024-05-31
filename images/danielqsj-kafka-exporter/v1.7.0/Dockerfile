@@ -1,0 +1,1 @@
+FROM danielqsj/kafka-exporter:v1.7.0
