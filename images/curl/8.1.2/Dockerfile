@@ -1,0 +1,1 @@
+FROM curlimages/curl:8.1.2

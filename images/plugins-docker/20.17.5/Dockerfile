@@ -1,0 +1,1 @@
+FROM plugins/docker:20.17.5
