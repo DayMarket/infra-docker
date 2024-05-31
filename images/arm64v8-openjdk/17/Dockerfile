@@ -1,1 +1,1 @@
-FROM arm64v8/openjdk:17
+FROM docker.io/arm64v8/openjdk:17

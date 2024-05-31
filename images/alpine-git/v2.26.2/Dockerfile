@@ -1,1 +1,1 @@
-FROM alpine/git:2.26.2
+FROM alpine/git:v2.26.2
