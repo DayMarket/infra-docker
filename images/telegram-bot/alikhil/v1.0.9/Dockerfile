@@ -1,1 +1,0 @@
-FROM alikhil/drone-telegram:1.0.9
