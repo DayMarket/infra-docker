@@ -1,0 +1,1 @@
+FROM plugins/buildah-docker:1.2.0
