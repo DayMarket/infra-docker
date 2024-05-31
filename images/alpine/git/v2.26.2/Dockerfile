@@ -1,1 +1,1 @@
-FROM docket.io/alpine/git:v2.26.2
+FROM docker.io/alpine/git:v2.26.2
