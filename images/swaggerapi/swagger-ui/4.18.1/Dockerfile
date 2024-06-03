@@ -1,0 +1,1 @@
+FROM docker.io/swaggerapi/swagger-ui:v4.18.1
