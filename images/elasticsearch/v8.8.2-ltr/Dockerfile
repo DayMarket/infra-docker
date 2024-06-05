@@ -1,5 +1,4 @@
 FROM elastic/elasticsearch:8.8.2
-
 # install plugins
 RUN elasticsearch-plugin install --batch \
   https://github.com/KazanExpress/jmorphy2/releases/download/v0.2.6-es8.8.2/analysis-jmorphy2-0.2.6-es8.8.2.zip && \
