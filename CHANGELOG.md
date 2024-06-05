@@ -1,3 +1,9 @@
+## v0.244.1 (2024-06-05)
+
+### Fix
+
+- **superset:4.0.1_c0.5**: fix config - changed maxrow (#96)
+
 ## v0.244.0 (2024-06-05)
 
 ### Feat
