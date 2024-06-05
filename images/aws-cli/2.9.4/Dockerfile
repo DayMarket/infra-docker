@@ -1,4 +1,5 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2 as installer
+
 RUN yum update-minimal -y --security \
   && yum install -y unzip-6.0-43.amzn2 \
   && yum clean all \
