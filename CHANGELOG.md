@@ -1,3 +1,9 @@
+## v0.241.0 (2024-06-05)
+
+### Feat
+
+- **superset:newver**: Feat add superset 4.0.1 c0.4 (#91)
+
 ## v0.240.0 (2024-06-04)
 
 ### Feat
