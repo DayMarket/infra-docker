@@ -51,6 +51,7 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 ARG GF_INSTALL_PLUGINS="grafana-clickhouse-datasource,vertamedia-clickhouse-datasource,doitintl-bigquery-datasource,trino-datasource"
 
+
 RUN if [ -n "${GF_INSTALL_PLUGINS}" ]; then \
     OLDIFS=$IFS; \
     IFS=','; \
