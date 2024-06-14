@@ -1,7 +1,6 @@
 ## v0.248.1 (2024-06-13)
 
-### Fix
-
+test test
 - **images**: touch again to build MAI-379 (#105)
 
 ## v0.248.0 (2024-06-13)
