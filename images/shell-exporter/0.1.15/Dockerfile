@@ -11,7 +11,7 @@ mkdir /opt/metrics
 RUN addgroup --system --gid 1002 shell-exporter && adduser --system --uid 1002 --group shell-exporter
 
 RUN chown -R shell-exporter:shell-exporter /var/ /run /opt /tmp
-
+ 
 USER shell-exporter
 
 ENTRYPOINT [ "bash", "-c", "ln -s /opt/metrics_cm/*.sh /opt/metrics/ && /usr/bin/shell-exporter --port 9600 --f /opt/metrics" ]
