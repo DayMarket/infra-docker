@@ -1,3 +1,9 @@
+## v0.250.1 (2024-06-14)
+
+### Fix
+
+- **shell-exporter**: bump packages version MAI-379 (#109)
+
 ## v0.250.0 (2024-06-14)
 
 ### Feat
