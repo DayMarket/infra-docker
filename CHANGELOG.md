@@ -1,3 +1,9 @@
+## v0.250.0 (2024-06-14)
+
+### Feat
+
+- **shell-exporter**: touch to build MAI-379 (#108)
+
 ## v0.249.0 (2024-06-14)
 
 ### Feat
