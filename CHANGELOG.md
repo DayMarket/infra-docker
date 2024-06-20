@@ -1,3 +1,9 @@
+## v0.256.0 (2024-06-20)
+
+### Feat
+
+- bump openconnect in forti
+
 ## v0.255.0 (2024-06-20)
 
 ### Feat
