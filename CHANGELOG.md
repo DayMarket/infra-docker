@@ -1,3 +1,9 @@
+## v0.257.2 (2024-06-26)
+
+### Fix
+
+- **maven:openjdk:17**: remove mirrors from settings.xml (#117)
+
 ## v0.257.1 (2024-06-26)
 
 ### Fix
