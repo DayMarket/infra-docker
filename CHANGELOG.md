@@ -1,3 +1,9 @@
+## v0.257.0 (2024-06-26)
+
+### Feat
+
+- **maven:openjdk:proxy**: added maven:3-openjdk-17 with proxy (#115)
+
 ## v0.256.0 (2024-06-20)
 
 ### Feat
