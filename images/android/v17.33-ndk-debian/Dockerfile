@@ -14,6 +14,8 @@ ENV SDK_TOOLS "9477386"
 ENV NDK_VERSION "25.2.9519653"
 ENV CMAKE_VERSION "3.22.1"
 ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk/${NDK_VERSION}
+ENV GRADLE_VERSION "8.8"
+ENV GRADLE_HOME "/opt/gradle/gradle-${GRADLE_VERSION}
 ENV PATH="${PATH}:/sbin:${ANDROID_SDK_ROOT}/cmdline-tools/${CMDLINE_VERSION}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/extras/google/instantapps:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}:${ANDROID_NDK_HOME}:${ANDROID_SDK_ROOT}/cmake/${CMAKE_VERSION}/bin"
 
 # Set the default shell
@@ -41,12 +43,18 @@ RUN set -eux; \
     sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --install "platform-tools" "extras;google;instantapps" "cmake;${CMAKE_VERSION}" && \
     sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --install "build-tools;${BUILD_TOOLS}" "platforms;android-${TARGET_SDK}" "ndk;${NDK_VERSION}" && \
     sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --uninstall emulator && \
+     # Install Gradle
+    wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -O /tmp/gradle.zip && \
+    mkdir -p /opt/gradle && \
+    unzip -qq /tmp/gradle.zip -d /opt/gradle && \
+    rm -v /tmp/gradle.zip && \
     # Verify installations
     java -version && \
     ${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}/aapt version && \
     ${ANDROID_SDK_ROOT}/cmake/${CMAKE_VERSION}/bin/cmake --version && \
     ${ANDROID_SDK_ROOT}/platform-tools/adb --version && \
-    ${ANDROID_NDK_HOME}/ndk-build --version
+    ${ANDROID_NDK_HOME}/ndk-build --version && \
+    gradle --version
 
 # Set the default command
 CMD ["jshell"]
