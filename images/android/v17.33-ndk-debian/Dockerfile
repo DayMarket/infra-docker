@@ -15,7 +15,7 @@ ENV NDK_VERSION "25.2.9519653"
 ENV CMAKE_VERSION "3.22.1"
 ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk/${NDK_VERSION}
 ENV GRADLE_VERSION "8.8"
-ENV GRADLE_HOME "/opt/gradle/gradle-${GRADLE_VERSION}
+ENV GRADLE_HOME "/opt/gradle/gradle-${GRADLE_VERSION}"
 ENV PATH="${PATH}:/sbin:${ANDROID_SDK_ROOT}/cmdline-tools/${CMDLINE_VERSION}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/extras/google/instantapps:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}:${ANDROID_NDK_HOME}:${ANDROID_SDK_ROOT}/cmake/${CMAKE_VERSION}/bin"
 
 # Set the default shell
