@@ -7,7 +7,7 @@
 # Stage 1: Setup Go environment and build custom k6 from sources using xk6 (https://github.com/grafana/xk6)
 FROM golang:1.21-alpine3.19 as builder
 WORKDIR $GOPATH/src/go.k6.io/k6
-RUN apk --no-cache add git=2.43.0-r0 && \
+RUN apk --no-cache add git=2.43.4-r0 && \
 #
     CGO_ENABLED=0 go install go.k6.io/xk6/cmd/xk6@latest && \
 # TODO - Want more extensions?! Provide additional `--with ...` lines to the following command:
