@@ -1,6 +1,6 @@
 #
 # custom superset with UZ geomap
-# base from here https://github.com/apache/superset/blob/3.1.3/Dockerfile
+# base from here https://github.com/apache/superset/blob/4.0.2/Dockerfile
 #
 
 ######################################################################
