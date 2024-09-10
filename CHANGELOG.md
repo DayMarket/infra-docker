@@ -1,3 +1,9 @@
+## v0.259.2 (2024-09-10)
+
+### Fix
+
+- replaced proxy server from cluster to internal (#125)
+
 ## v0.259.1 (2024-08-26)
 
 ### Fix
