@@ -237,7 +237,7 @@ under the License.
         <repository>
           <id>um-repo-snapshots</id>
           <name>Repository for KE SNAPSHOTs</name>
-          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-snapshots/</url>
+          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-snapshots/</url>
           <releases>
             <enabled>false</enabled>
             <updatePolicy>always</updatePolicy>

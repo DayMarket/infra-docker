@@ -230,7 +230,7 @@ under the License.
         <repository>
           <id>um-repo-releases</id>
           <name>Repository for UM RELEASES</name>
-          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-releases/</url>
+          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-releases/</url>
           <releases>
             <enabled>true</enabled>
           </releases>
@@ -241,7 +241,7 @@ under the License.
         <repository>
           <id>um-repo-snapshots</id>
           <name>Repository for UM SNAPSHOTs</name>
-          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-snapshots/</url>
+          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-snapshots/</url>
           <releases>
             <enabled>false</enabled>
             <updatePolicy>always</updatePolicy>
@@ -253,7 +253,7 @@ under the License.
         <repository>
           <id>um-repo-group</id>
           <name>Repository for UM Group</name>
-          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-public/</url>
+          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-public/</url>
           <releases>
             <enabled>true</enabled>
             <updatePolicy>always</updatePolicy>
