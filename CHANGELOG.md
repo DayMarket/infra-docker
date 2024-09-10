@@ -1,3 +1,9 @@
+## v0.259.4 (2024-09-10)
+
+### Fix
+
+- replaced settings.xml destination path (#127)
+
 ## v0.259.3 (2024-09-10)
 
 ### Fix
