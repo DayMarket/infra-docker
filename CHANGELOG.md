@@ -1,3 +1,9 @@
+## v0.259.6 (2024-09-10)
+
+### Fix
+
+- preparing folders for maven (#129)
+
 ## v0.259.5 (2024-09-10)
 
 ### Fix
