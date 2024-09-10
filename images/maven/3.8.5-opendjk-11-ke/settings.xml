@@ -237,6 +237,10 @@ under the License.
 
     <profile>
       <id>UM</id>
+      <properties>
+        <altSnapshotDeploymentRepository>snapshots::https://nexus.infra.internal.daymarket.uz/repository/maven-snapshots/</altSnapshotDeploymentRepository>
+        <altReleaseDeploymentRepository>releases::https://nexus.infra.internal.daymarket.uz/repository/maven-releases/</altReleaseDeploymentRepository>
+      </properties>
       <repositories>
         <repository>
           <id>um-repo-releases</id>
