@@ -1,3 +1,9 @@
+## v0.259.5 (2024-09-10)
+
+### Fix
+
+- replaced settings.xml destination to absolute path (#128)
+
 ## v0.259.4 (2024-09-10)
 
 ### Fix
