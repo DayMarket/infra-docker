@@ -1,3 +1,9 @@
+## v0.259.3 (2024-09-10)
+
+### Fix
+
+- replaced default deploy urls for releases and snapshots (#126)
+
 ## v0.259.2 (2024-09-10)
 
 ### Fix
