@@ -1,3 +1,9 @@
+## v0.259.9 (2024-09-11)
+
+### Fix
+
+- added another destination for settings.xml and replaced maven config default env (#133)
+
 ## v0.259.8 (2024-09-11)
 
 ### Fix
