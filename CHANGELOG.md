@@ -1,3 +1,9 @@
+## v0.259.10 (2024-09-11)
+
+### Fix
+
+- cache invalidation due to recreating dependencies directory (#134)
+
 ## v0.259.9 (2024-09-11)
 
 ### Fix
