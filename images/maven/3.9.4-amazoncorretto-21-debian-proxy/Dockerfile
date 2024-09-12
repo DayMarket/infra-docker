@@ -6,7 +6,5 @@ RUN apt-get update \
     && apt-get -y --no-install-recommends install openssh-client git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN rm -rf /root/.m2/repository && mkdir -p /root/.m2/repository
 COPY settings.xml $MAVEN_CONFIG/
 COPY settings.xml $GLOBAL_MAVEN_CONFIG_DEST/
-
