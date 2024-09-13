@@ -131,6 +131,11 @@ under the License.
     </server>
     -->
     <server>
+      <id>mirror</id>
+      <username>${env.SERVER_USERNAME}</username>
+      <password>${env.SERVER_PASSWORD}</password>
+    </server>
+    <server>
       <id>um-repo-releases</id>
       <username>${env.SERVER_USERNAME}</username>
       <password>${env.SERVER_PASSWORD}</password>
@@ -159,18 +164,12 @@ under the License.
    | server for that repository.
    |-->
   <mirrors>
-    <!-- mirror
-     | Specifies a repository mirror site to use instead of a given repository. The repository that
-     | this mirror serves has an ID that matches the mirrorOf element of this mirror. IDs are used
-     | for inheritance and direct lookup purposes, and must be unique across the set of mirrors.
-     |
     <mirror>
-      <id>mirrorId</id>
-      <mirrorOf>repositoryId</mirrorOf>
-      <name>Human Readable Name for this Mirror.</name>
-      <url>http://my.repository.com/repo/path</url>
+      <id>mirror</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Maven Central DayMarket repo.</name>
+      <url>https://nexus.infra.internal.daymarket.uz/repository/maven-central/</url>
     </mirror>
-     -->
   </mirrors>
 
   <!-- profiles
@@ -227,15 +226,11 @@ under the License.
 
     <profile>
       <id>UM</id>
-      <properties>
-        <altSnapshotDeploymentRepository>snapshots::https://nexus.infra.internal.daymarket.uz/repository/maven-snapshots/</altSnapshotDeploymentRepository>
-        <altReleaseDeploymentRepository>releases::https://nexus.infra.internal.daymarket.uz/repository/maven-releases/</altReleaseDeploymentRepository>
-      </properties>
       <repositories>
         <repository>
           <id>um-repo-releases</id>
           <name>Repository for UM RELEASES</name>
-          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-releases/</url>
+          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-releases/</url>
           <releases>
             <enabled>true</enabled>
           </releases>
@@ -246,24 +241,13 @@ under the License.
         <repository>
           <id>um-repo-snapshots</id>
           <name>Repository for UM SNAPSHOTs</name>
-          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-snapshots/</url>
+          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-snapshots/</url>
           <releases>
             <enabled>false</enabled>
             <updatePolicy>always</updatePolicy>
           </releases>
           <snapshots>
             <enabled>true</enabled>
-          </snapshots>
-        </repository>
-        <repository>
-          <id>um-repo-releases-proxy</id>
-          <name>Repository for UM RELEASES proxy KE</name>
-          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-public/</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
           </snapshots>
         </repository>
       </repositories>

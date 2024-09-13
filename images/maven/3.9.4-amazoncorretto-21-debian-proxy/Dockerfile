@@ -1,7 +1,5 @@
 FROM maven:3.9.4-amazoncorretto-21-debian
-ENV MAVEN_CONFIG=/root/.m2
-ENV GLOBAL_MAVEN_CONFIG_DEST=/usr/share/maven/conf
-
 RUN apt-get update \
     && apt-get -y --no-install-recommends install openssh-client git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+COPY settings.xml /usr/share/maven/conf/

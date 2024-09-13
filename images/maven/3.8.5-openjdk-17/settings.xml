@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -222,15 +221,11 @@ under the License.
 
     <profile>
       <id>UM</id>
-      <properties>
-        <altSnapshotDeploymentRepository>snapshots::https://nexus.infra.internal.daymarket.uz/repository/maven-snapshots/</altSnapshotDeploymentRepository>
-        <altReleaseDeploymentRepository>releases::https://nexus.infra.internal.daymarket.uz/repository/maven-releases/</altReleaseDeploymentRepository>
-      </properties>
       <repositories>
         <repository>
           <id>um-repo-releases</id>
           <name>Repository for UM RELEASES</name>
-          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-releases/</url>
+          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-releases/</url>
           <releases>
             <enabled>true</enabled>
           </releases>
@@ -241,7 +236,7 @@ under the License.
         <repository>
           <id>um-repo-snapshots</id>
           <name>Repository for UM SNAPSHOTs</name>
-          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-snapshots/</url>
+          <url>https://nexus.infra.cluster.daymarket.uz/repository/maven-snapshots/</url>
           <releases>
             <enabled>false</enabled>
             <updatePolicy>always</updatePolicy>
@@ -291,5 +286,5 @@ under the License.
   <activeProfiles>
     <activeProfile>UM</activeProfile>
   </activeProfiles>
- 
+
 </settings>
