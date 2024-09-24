@@ -8,7 +8,7 @@ WORKDIR /app/tfmask
 RUN CGO_ENABLED=0 GOOS=$(go env GOHOSTOS) GOARCH=$(go env GOHOSTARCH) go build .
 RUN cp ./tfmask /tfmask
 
-FROM ghcr.io/kazanexpress/tf-toolbox:0.2.4 as toolbox
+FROM ghcr.io/kazanexpress/tf-toolbox:0.1.1 as toolbox
 
 FROM alpine/terragrunt:1.9.5 as builder
 # hadolint ignore=DL3018
