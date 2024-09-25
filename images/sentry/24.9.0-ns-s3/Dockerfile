@@ -1,4 +1,4 @@
-FROM getsentry/sentry:24.7.1
+FROM getsentry/sentry:24.9.0
 ENV \
   # Sentry config params
   SENTRY_CONF=/etc/sentry
