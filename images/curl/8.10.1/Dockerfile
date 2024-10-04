@@ -1,5 +1,4 @@
 FROM curlimages/curl:8.10.1
 
-RUN uname -a
-
-RUN apk add --update -t --no-cache "jq>=1.7.1-r0"
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends jq=1.6-2.1
