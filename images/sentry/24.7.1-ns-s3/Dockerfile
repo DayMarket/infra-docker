@@ -2,9 +2,9 @@ FROM getsentry/sentry:24.7.1
 ENV \
   SENTRY_CONF=/etc/sentry
 
-RUN pip install --no-cache-dir --no-deps . https://github.com/pavels/sentry-s3-nodestore/releases/download/v1.0.3/sentry-s3-nodestore-1.0.3.tar.gz 
+RUN pip install --no-cache-dir --no-deps . https://github.com/pavels/sentry-s3-nodestore/releases/download/v1.0.3/sentry-s3-nodestore-1.0.3.tar.gz && \
 # pip install --no-cache-dir --no-deps . https://github.com/jbalogh/django-multidb-router/archive/refs/tags/v0.9.zip
-RUN echo <<EOF >> $SENTRY_CONF/sentry.conf.py
+echo <<EOF >> $SENTRY_CONF/sentry.conf.py
 "SENTRY_NODESTORE = 'sentry_s3_nodestore.backend.S3NodeStorage'
 SENTRY_NODESTORE_OPTIONS = {
     'bucket_name': env("NODESTORE_S3_BUCKET_NAME"),
