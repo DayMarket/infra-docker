@@ -1,4 +1,6 @@
 FROM getsentry/sentry:24.7.1
 
-RUN pip install --no-cache-dir --no-deps . https://github.com/pavels/sentry-s3-nodestore/releases/download/v1.0.3/sentry-s3-nodestore-1.0.3.tar.gz && \
+RUN apt-get update && \
+    apt-get upgrade python-virtualenv && \
+    pip install --no-cache-dir --no-deps . https://github.com/pavels/sentry-s3-nodestore/releases/download/v1.0.3/sentry-s3-nodestore-1.0.3.tar.gz && \
     pip install --no-cache-dir --no-deps . https://github.com/jbalogh/django-multidb-router/archive/refs/tags/v0.9.zip
