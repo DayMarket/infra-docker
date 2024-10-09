@@ -1,5 +1,5 @@
 FROM getsentry/sentry:24.7.1
-COPY <<"EOT" /etc/sentry/sentry.conf.py
+COPY <<"EOT">> /etc/sentry/sentry.conf.py
   \n\
   SENTRY_NODESTORE = 'sentry_s3_nodestore.backend.S3NodeStorage'\n\
   SENTRY_NODESTORE_OPTIONS = { \n\
