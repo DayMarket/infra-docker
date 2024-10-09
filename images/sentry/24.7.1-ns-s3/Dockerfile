@@ -2,7 +2,8 @@ FROM getsentry/sentry:24.7.1
 ENV \
   # Sentry config params
   SENTRY_CONF=/etc/sentry
-RUN pip install --no-cache-dir https://github.com/kanadaj/sentry-s3-nodestore/releases/download/1.0.2/sentry-s3-nodestore-1.0.2.tar.gz
+RUN pip install https://github.com/ilyakuchaev/sentry-s3-nodestore/archive/refs/heads/master.zip
+RUN pip install https://github.com/jbalogh/django-multidb-router/archive/refs/heads/master.zip
 
 RUN <<EOF cat >> $SENTRY_CONF/sentry.conf.py
 SENTRY_NODESTORE = 'sentry_s3_nodestore.backend.S3NodeStorage'
