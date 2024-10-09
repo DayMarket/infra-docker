@@ -2,7 +2,6 @@ FROM getsentry/sentry:24.7.1
 
 RUN apt-get update && \
     apt-get install -y software-properties-common --no-install-recommends && \
-    apt-add-repository universe && \
     apt-get install -y virtualenv --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
