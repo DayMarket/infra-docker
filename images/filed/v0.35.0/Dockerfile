@@ -3,7 +3,7 @@ RUN mkdir /app
 
 WORKDIR /app
 
-RUN git clone -b 'v0.35.0' --single-branch https://github.com/ozontech/file.d.git
+RUN git clone -b 'v0.35.0' --single-branch https://github.com/ozontech/file.d.git /app/
 WORKDIR /app/file.d
 RUN CGO_ENABLED=0 GOOS=$(go env GOHOSTOS) GOARCH=$(go env GOHOSTARCH) go build -o file.d ./cmd
 
