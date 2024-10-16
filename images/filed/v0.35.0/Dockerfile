@@ -1,4 +1,4 @@
-FROM golang:1.19 AS build
+FROM golang:1.21.8-alpine3.19 AS build
 RUN mkdir /app
 
 WORKDIR /app
