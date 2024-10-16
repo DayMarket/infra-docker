@@ -5,7 +5,7 @@ WORKDIR /app
 
 RUN git clone --depth 1 --branch v0.35.0 https://github.com/ozontech/file.d.git 
 WORKDIR /app/file.d
-RUN CGO_ENABLED=0 GOOS=$(go env GOHOSTOS) GOARCH=$(go env GOHOSTARCH) go build -o file.d ./cmd
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o file.d ./cmd
 
 RUN cp ./file.d /file.d
 
