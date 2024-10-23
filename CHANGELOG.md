@@ -1,3 +1,9 @@
+## v0.273.0 (2024-10-23)
+
+### Feat
+
+- **jdk**: add version with opentelemetry agent (#159)
+
 ## v0.272.0 (2024-10-16)
 
 ### Feat
