@@ -1,3 +1,9 @@
+## v0.274.1 (2024-10-30)
+
+### Fix
+
+- **maven:openjdk:17**: remove mirrors from settings.xml (#163)
+
 ## v0.274.0 (2024-10-25)
 
 ### Feat
