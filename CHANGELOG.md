@@ -1,3 +1,9 @@
+## v0.275.0 (2024-11-13)
+
+### Feat
+
+- update python image for android (#162)
+
 ## v0.274.1 (2024-10-30)
 
 ### Fix
