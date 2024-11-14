@@ -1,5 +1,5 @@
 FROM debian:12-slim
-LABEL maintainer="Gaifullin Amir <gajjfullinai@gmail.com>"
+LABEL maintainer="Artem Zanin <a.zanin@uzum.com>"
 
 ENV JAVA_VERSION=21
 ENV JAVA_HOME=/opt/java/openjdk
