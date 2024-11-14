@@ -1,18 +1,17 @@
 FROM debian:bullseye-slim
 LABEL maintainer="Gaifullin Amir <gajjfullinai@gmail.com>"
 
-ENV JAVA "17"
-ENV JAVA_VER "17.0.*"
-ENV JAVA_HOME "/usr/lib/jvm/java-${JAVA}-openjdk-amd64"
-ENV BUILD_TOOLS "34.0.0"
-ENV TARGET_SDK "34"
-ENV ANDROID_SDK_ROOT "/opt/sdk"
-ENV ANDROID_HOME ${ANDROID_SDK_ROOT}
-ENV CMDLINE_VERSION "9.0"
-ENV SDK_TOOLS "9477386"
-ENV PATH="${PATH}:/sbin"
-ENV PATH $PATH:${ANDROID_SDK_ROOT}/cmdline-tools/${CMDLINE_VERSION}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/extras/google/instantapps
-ENV PATH $PATH:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}
+ENV JAVA_VERSION=21
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+ENV BUILD_TOOLS=34.0.0
+ENV TARGET_SDK=34
+ENV ANDROID_SDK_ROOT=/opt/sdk
+ENV ANDROID_HOME=${ANDROID_SDK_ROOT}
+ENV CMDLINE_VERSION=9.0
+ENV SDK_TOOLS=9477386
+ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/${CMDLINE_VERSION}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/extras/google/instantapps
+ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
