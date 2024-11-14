@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:12-slim
 LABEL maintainer="Gaifullin Amir <gajjfullinai@gmail.com>"
 
 ENV JAVA_VERSION=21
@@ -17,15 +17,19 @@ ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN set -eux; \
-	apt-get update; \
-	apt-get install -y --no-install-recommends \
-    ca-certificates=20210119 \
-    wget=1.21* \
-    unzip=6.0* \
-    curl=7.74.* \
-    jq=1.6-* \
-    openjdk-${JAVA}-jdk-headless=${JAVA_VER} && \
-	rm -rf /var/lib/apt/lists/* && \
+ apt-get update && \
+ apt-get install -y --no-install-recommends \
+    ca-certificates \
+    wget \
+    unzip \
+    curl \
+    jq && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /opt/java && \
+    wget -O openjdk.tar.gz https://download.oracle.com/java/${JAVA_VERSION}/latest/jdk-${JAVA_VERSION}_linux-x64_bin.tar.gz && \
+    tar -xzf openjdk.tar.gz -C /opt/java && \
+    mv /opt/java/jdk-${JAVA_VERSION}* ${JAVA_HOME} && \
+    rm openjdk.tar.gz && \
     wget -q https://dl.google.com/android/repository/commandlinetools-linux-${SDK_TOOLS}_latest.zip -O /tmp/tools.zip && \
     mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
     unzip -qq /tmp/tools.zip -d ${ANDROID_SDK_ROOT}/cmdline-tools && \
