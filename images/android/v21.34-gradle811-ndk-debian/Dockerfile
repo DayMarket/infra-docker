@@ -38,17 +38,17 @@ RUN set -eux; \
     jq && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir -p /opt/java && \
-    wget -O openjdk.tar.gz https://download.oracle.com/java/${JAVA_VERSION}/latest/jdk-${JAVA_VERSION}_linux-x64_bin.tar.gz && \
+    wget --progress=dot:giga -O openjdk.tar.gz https://download.oracle.com/java/${JAVA_VERSION}/latest/jdk-${JAVA_VERSION}_linux-x64_bin.tar.gz && \
     tar -xzf openjdk.tar.gz -C /opt/java && \
     mv /opt/java/jdk-${JAVA_VERSION}* ${JAVA_HOME} && \
     rm openjdk.tar.gz && \
-    wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
+    wget --progress=dot:giga -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
     echo "${GRADLE_DOWNLOAD_SHA256} *gradle-${GRADLE_VERSION}-bin.zip" | sha256sum --check - && \
     unzip -q gradle-${GRADLE_VERSION}-bin.zip && \
     rm gradle-${GRADLE_VERSION}-bin.zip && \
     mv "gradle-${GRADLE_VERSION}" "${GRADLE_HOME}/" && \
     ln --symbolic "${GRADLE_HOME}/bin/gradle" /usr/bin/gradle && \
-    wget -q https://dl.google.com/android/repository/commandlinetools-linux-${SDK_TOOLS}_latest.zip -O /tmp/tools.zip && \
+    wget --progress=dot:giga -q https://dl.google.com/android/repository/commandlinetools-linux-${SDK_TOOLS}_latest.zip -O /tmp/tools.zip && \
     mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
     unzip -qq /tmp/tools.zip -d ${ANDROID_SDK_ROOT}/cmdline-tools && \
     mv ${ANDROID_SDK_ROOT}/cmdline-tools/* ${ANDROID_SDK_ROOT}/cmdline-tools/${CMDLINE_VERSION} && \
@@ -57,4 +57,4 @@ RUN set -eux; \
     yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses || true && \
     sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --install "platform-tools" "extras;google;instantapps" "cmake;${CMAKE_VERSION}" && \
     sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --install "build-tools;${BUILD_TOOLS}" "platforms;android-${TARGET_SDK}" "ndk;${NDK_VERSION}" && \
-    sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --uninstall emulator
+    sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --uninstall emulator \
