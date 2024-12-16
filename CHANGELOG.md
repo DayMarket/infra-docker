@@ -1,3 +1,9 @@
+## v0.278.1 (2024-12-16)
+
+### Refactor
+
+- update kubeval Dockerfile to use Alpine base image and install dependencies (#174)
+
 ## v0.278.0 (2024-12-16)
 
 ### Feat
