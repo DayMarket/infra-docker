@@ -1,1 +1,20 @@
-FROM instrumenta/kubeval:latest
+FROM alpine:3.18
+
+# Установка необходимых зависимостей
+RUN apk add --no-cache curl tar
+
+# Установка последней версии kubeval
+RUN curl -L -o kubeval.tar.gz https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz && \
+    tar xf kubeval.tar.gz && \
+    mv kubeval /usr/local/bin && \
+    rm kubeval.tar.gz
+
+# Проверка установки
+RUN kubeval --version
+
+# Рабочая директория
+WORKDIR /workdir
+
+# Точка входа
+ENTRYPOINT ["kubeval"]
+CMD ["--help"]
