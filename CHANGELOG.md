@@ -1,3 +1,9 @@
+## v0.279.0 (2024-12-16)
+
+### Feat
+
+- add Dockerfile for kubeval CI image (#175)
+
 ## v0.278.1 (2024-12-16)
 
 ### Refactor
