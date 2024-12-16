@@ -1,3 +1,9 @@
+## v0.278.0 (2024-12-16)
+
+### Feat
+
+- add Dockerfile for kubeval image (#173)
+
 ## v0.277.0 (2024-12-16)
 
 ### Feat
