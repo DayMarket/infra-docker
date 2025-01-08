@@ -16,5 +16,5 @@ RUN addgroup --system appgroup && \
 
 USER appuser
 
-# Set the command to run when the container starts
+# Set the command to run when the container starts 
 ENTRYPOINT ["python"]
