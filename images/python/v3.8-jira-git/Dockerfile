@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.8
 LABEL maintainer="Borgalinov Timur <borgalinov@gmail.com>"
 
 RUN addgroup --system appgroup && \
