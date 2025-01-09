@@ -1,3 +1,9 @@
+## v0.280.0 (2025-01-09)
+
+### Feat
+
+- **superset:**: added superset 4.1.1-firefox-0.33.0-custom-0.5 (#169)
+
 ## v0.279.2 (2025-01-08)
 
 ### Fix
