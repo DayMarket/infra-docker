@@ -6,9 +6,9 @@
 ######################################################################
 # Node stage to deal with static asset construction
 ######################################################################
-ARG PY_VER=3.9-slim-bookworm
+ARG PY_VER=3.10-slim-bookworm
 
-FROM node:16-bookworm-slim AS superset-node
+FROM node:18-bullseye-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
@@ -70,7 +70,7 @@ RUN git clone --depth 1 --branch 4.1.1 https://github.com/apache/superset.git /g
     cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
     cp -Rf /git/superset/requirements/*.txt  /app/requirements/ && \
-    pip install --no-cache-dir -r requirements/local.txt
+    pip install --no-cache-dir -r requirements/base.txt
 
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
