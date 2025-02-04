@@ -116,13 +116,13 @@ ARG GECKODRIVER_VERSION=v0.34.0 \
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN apt-get update -qq \
-    && apt-get install -yqq --no-install-recommends wget bzip2 \
-    && wget -q "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" -O - | tar xfz - -C /usr/local/bin \
-    # Install Firefox
-    && wget -q "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" -O - | tar xfj - -C /opt \
+RUN curl -s -OJL "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" \
+    && tar xfz geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -C /usr/local/bin \
+    && curl -s -OJL "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" \
+    && tar xfj firefox-"${FIREFOX_VERSION}".tar.bz2 -C /opt \
     && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
-    && apt-get autoremove -yqq --purge wget bzip2 && rm -rf /var/[log,tmp]/* /tmp/* /var/lib/apt/lists/*
+    && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
+
 # Cache everything for dev purposes...
 COPY --chown=superset:superset requirements/development.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -132,9 +132,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir --parents /usr/local/share/ca-certificates/Yandex
-RUN curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
-RUN chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
+RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
+    wget -q https://storage.yandexcloud.net/cloud-certs/CA.pem -O /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
+    chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
 RUN pip install --no-cache --no-cache-dir -r /additional_requirements.txt
