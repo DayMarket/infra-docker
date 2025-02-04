@@ -1,19 +1,13 @@
-#
-# custom superset with UZ geomap
-# base from here https://github.com/apache/superset/blob/4.1.1/Dockerfile
-#
-
-######################################################################
-# Node stage to deal with static asset construction
-######################################################################
 ARG PY_VER=3.10-slim-bookworm
 
-FROM node:18-bullseye-slim AS superset-node
+ARG BUILDPLATFORM=${BUILDPLATFORM:-amd64}
+FROM --platform=${BUILDPLATFORM} node:18-bullseye-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
 RUN apt-get update -qq \
-    && apt-get install -yqq --no-install-recommends \
+    && apt-get install \
+        -yqq --no-install-recommends \
         build-essential \
         python3 \
         git
@@ -31,7 +25,6 @@ RUN git clone --depth 1 --branch 4.1.1 https://github.com/apache/superset.git /g
     cp -Rf /git/superset/superset-frontend/* /app/superset-frontend 
 COPY ./src/superset/ /app
 
-# This seems to be the most expensive step
 RUN npm run ${BUILD_CMD}
 
 ######################################################################
@@ -48,10 +41,9 @@ ENV LANG=C.UTF-8 \
     SUPERSET_HOME="/app/superset_home" \
     SUPERSET_PORT=8088
 
-RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
+RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache_superset.egg-info requirements \
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
     && apt-get update -qq && apt-get install -yqq --no-install-recommends \
-        build-essential \
         curl \
         default-libmysqlclient-dev \
         libsasl2-dev \
@@ -67,10 +59,16 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
 
 ENV GIT_SSL_NO_VERIFY=1
 RUN git clone --depth 1 --branch 4.1.1 https://github.com/apache/superset.git /git/superset && \
-    cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
-    cp -Rf /git/superset/requirements/*.txt  /app/requirements/ && \
-    pip install --no-cache-dir -r requirements/base.txt
+    cp -Rf /git/superset/requirements/base.txt  /app/requirements/ && \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    apt-get update -qq && apt-get install -yqq --no-install-recommends \
+      build-essential \
+    && pip install --upgrade setuptools pip \
+    && pip install -r requirements/base.txt \
+    && apt-get autoremove -yqq --purge build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
@@ -94,36 +92,46 @@ CMD ["/usr/bin/run-server.sh"]
 # DEV image...
 ######################################################################
 FROM lean AS dev
-ARG GECKODRIVER_VERSION=v0.33.0 \
-    FIREFOX_VERSION=117.0.1
 
 USER root
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-RUN apt-get update -qq && \
-    apt-get install -yqq --no-install-recommends \
+RUN apt-get update -qq \
+    && apt-get install -yqq --no-install-recommends \
         libnss3 \
         libdbus-glib-1-2 \
         libgtk-3-0 \
         libx11-xcb1 \
         libasound2 \
         libxtst6 \
-        wget \
+        git \
+        pkg-config \
         && rm -rf /var/lib/apt/lists/*
-    # Install GeckoDriver WebDriver
-RUN curl -s -OJL https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz \
-    && tar xfz geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -C /usr/local/bin
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install playwright
+RUN playwright install-deps
+RUN playwright install chromium
+
+# Install GeckoDriver WebDriver
+ARG GECKODRIVER_VERSION=v0.34.0 \
+    FIREFOX_VERSION=125.0.3
+
+RUN apt-get update -qq \
+    && apt-get install -yqq --no-install-recommends wget bzip2 \
+    && wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -O - | tar xfz - -C /usr/local/bin \
     # Install Firefox
-RUN curl -s -OJL "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" \
-    && tar xfj firefox-"${FIREFOX_VERSION}".tar.bz2 -C /opt
-RUN ln -s /opt/firefox/firefox /usr/local/bin/firefox
-RUN apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
+    && wget -q https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 -O - | tar xfj - -C /opt \
+    && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
+    && apt-get autoremove -yqq --purge wget bzip2 && rm -rf /var/[log,tmp]/* /tmp/* /var/lib/apt/lists/*
 # Cache everything for dev purposes...
-RUN --mount=type=bind,target=./requirements/base.txt,src=./requirements/base.txt \
-    --mount=type=bind,target=./requirements/development.txt,src=./requirements/development.txt \
-    pip install --no-cache-dir -r requirements/development.txt && \
-    mkdir --parents /usr/local/share/ca-certificates/Yandex && \
+COPY --chown=superset:superset requirements/development.txt requirements/
+RUN --mount=type=cache,target=/root/.cache/pip \
+    apt-get update -qq && apt-get install -yqq --no-install-recommends \
+      build-essential \
+    && pip install -r requirements/development.txt \
+    && apt-get autoremove -yqq --purge build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
