@@ -103,6 +103,8 @@ RUN apt-get update -qq \
         libxtst6 \
         git \
         pkg-config \
+        bzip2 \
+        lbzip2 \
         && rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -112,7 +114,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Install GeckoDriver WebDriver
 ARG GECKODRIVER_VERSION=v0.34.0 \
-    FIREFOX_VERSION=125.0.1
+    FIREFOX_VERSION=125.0.1 
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
