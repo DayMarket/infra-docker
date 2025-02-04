@@ -121,8 +121,8 @@ RUN ln -s /opt/firefox/firefox /usr/local/bin/firefox
 RUN apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 # Cache everything for dev purposes...
 RUN --mount=type=bind,target=./requirements/base.txt,src=./requirements/base.txt \
-    --mount=type=bind,target=./requirements/docker.txt,src=./requirements/docker.txt \
-    pip install --no-cache-dir -r requirements/docker.txt && \
+    --mount=type=bind,target=./requirements/development.txt,src=./requirements/development.txt \
+    pip install --no-cache-dir -r requirements/development.txt && \
     mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
