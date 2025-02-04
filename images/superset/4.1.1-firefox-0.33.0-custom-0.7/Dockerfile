@@ -132,9 +132,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
-    wget -q https://storage.yandexcloud.net/cloud-certs/CA.pem -O /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
-    chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
+RUN mkdir --parents /usr/local/share/ca-certificates/Yandex
+RUN wget https://storage.yandexcloud.net/cloud-certs/CA.pem -O /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
+RUN chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
 RUN pip install --no-cache --no-cache-dir -r /additional_requirements.txt
