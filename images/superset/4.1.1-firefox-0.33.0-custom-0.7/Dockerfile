@@ -1,7 +1,6 @@
 ARG PY_VER=3.10-slim-bookworm
 
-ARG BUILDPLATFORM=${BUILDPLATFORM:-amd64}
-FROM --platform=${BUILDPLATFORM} node:18-bullseye-slim AS superset-node
+FROM node:18-bullseye-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
@@ -58,14 +57,14 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
 
 
 ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 4.1.1 https://github.com/apache/superset.git /git/superset && \
-    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+RUN git clone --depth 1 --branch 4.1.1 https://github.com/apache/superset.git /git/superset
+RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
-    cp -Rf /git/superset/requirements/base.txt  /app/requirements/ && \
+    cp -Rf /git/superset/requirements/base.txt  /app/requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && pip install --upgrade setuptools pip \
+    && pip install--no-cache-dir --upgrade setuptools==75.8.0 pip \
     && pip install -r requirements/base.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -107,13 +106,15 @@ RUN apt-get update -qq \
         && rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install playwright
-RUN playwright install-deps
-RUN playwright install chromium
+    pip install --no-cache-dir playwright==1.50.0 \
+    && playwright install-deps \
+    && playwright install chromium
 
 # Install GeckoDriver WebDriver
 ARG GECKODRIVER_VERSION=v0.34.0 \
     FIREFOX_VERSION=125.0.3
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update -qq \
     && apt-get install -yqq --no-install-recommends wget bzip2 \
@@ -127,7 +128,7 @@ COPY --chown=superset:superset requirements/development.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && pip install -r requirements/development.txt \
+    && pip install --no-cache-dir -r requirements/development.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 
