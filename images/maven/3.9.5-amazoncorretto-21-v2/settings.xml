@@ -145,6 +145,11 @@ under the License.
       <username>${env.SERVER_USERNAME}</username>
       <password>${env.SERVER_PASSWORD}</password>
     </server>
+    <server>
+      <id>um-repo-releases-proxy</id>
+      <username>${env.SERVER_USERNAME}</username>
+      <password>${env.SERVER_PASSWORD}</password>
+    </server>
   </servers>
 
   <!-- mirrors
