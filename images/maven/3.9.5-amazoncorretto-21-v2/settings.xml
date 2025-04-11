@@ -245,6 +245,17 @@ under the License.
             <enabled>true</enabled>
           </snapshots>
         </repository>
+        <repository>
+          <id>um-repo-releases-proxy</id>
+          <name>Repository for UM RELEASES proxy KE</name>
+          <url>https://nexus.infra.internal.daymarket.uz/repository/maven-public/</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
       </repositories>
     </profile>
 
