@@ -1,3 +1,9 @@
+## v0.288.0 (2025-04-11)
+
+### Feat
+
+- **superset:update_libs**: clickhouse 0.8.15 (#190)
+
 ## v0.287.0 (2025-03-12)
 
 ### Feat
