@@ -1,3 +1,9 @@
+## v0.289.0 (2025-04-15)
+
+### Feat
+
+- **airflow**: add Dockerfile for Apache Airflow 2.10.4 with Python 3.11 (#194)
+
 ## v0.288.0 (2025-04-11)
 
 ### Feat
