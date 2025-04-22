@@ -114,6 +114,7 @@ RUN apt-get update -qq \
         pkg-config \
         bzip2 \
         lbzip2 \
+        wget \
         && rm -rf /var/lib/apt/lists/*
 
 # RUN --mount=type=cache,target=/root/.cache/pip \
