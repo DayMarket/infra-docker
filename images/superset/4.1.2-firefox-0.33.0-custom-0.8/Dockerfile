@@ -1,12 +1,20 @@
-ARG PY_VER=3.10-slim-bookworm
+#
+# custom superset with UZ geomap
+# base from here https://github.com/apache/superset/blob/4.1.2/Dockerfile
+#
 
-FROM node:18-bullseye-slim AS superset-node
+######################################################################
+# Node stage to deal with static asset construction
+######################################################################
+ARG PY_VER=3.9-slim-bookworm
+
+FROM node:16-bookworm-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
 RUN apt-get update -qq \
     && apt-get install \
-        -yqq --no-install-recommends \
+    -yqq --no-install-recommends \
         build-essential \
         python3 \
         git
@@ -24,6 +32,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp -Rf /git/superset/superset-frontend/* /app/superset-frontend 
 COPY ./src/superset/ /app
 
+# This seems to be the most expensive step
 RUN npm run ${BUILD_CMD}
 
 ######################################################################
@@ -105,25 +114,24 @@ RUN apt-get update -qq \
         pkg-config \
         bzip2 \
         lbzip2 \
+        wget \
         && rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir playwright==1.50.0 \
-    && playwright install-deps \
-    && playwright install chromium
-
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     pip install --no-cache-dir playwright==1.50.0 \
+#     && playwright install-deps \
+#     && playwright install chromium
+# 
 # Install GeckoDriver WebDriver
 ARG GECKODRIVER_VERSION=v0.34.0 \
     FIREFOX_VERSION=125.0.3
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Install GeckoDriver WebDriver
-RUN curl -s -OJL https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz \
-    && tar xfz geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -C /usr/local/bin
+    # Install GeckoDriver WebDriver
+RUN curl -s -OJL "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" && \
+    tar xfz "geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" -C /usr/local/bin
     # Install Firefox
-RUN curl -s -OJL "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" \
-    && tar xfj firefox-"${FIREFOX_VERSION}".tar.bz2 -C /opt \
+RUN curl -s -OJL "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" && \
+    tar xfj "firefox-${FIREFOX_VERSION}.tar.bz2" -C /opt \
     && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 
@@ -141,7 +149,7 @@ RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
-RUN pip install --no-cache --no-cache-dir -r /additional_requirements.txt
+RUN  pip install --no-cache --no-cache-dir -r /additional_requirements.txt
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
 USER superset
