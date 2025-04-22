@@ -13,3 +13,5 @@ shillelagh==1.2.10
 prophet==1.1.5
 trino==0.327.0
 pyhive==0.6.5
+flask-oid=2.3.1
+flask-openid=1.3.1
