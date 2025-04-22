@@ -1,12 +1,20 @@
-ARG PY_VER=3.10-slim-bookworm
+#
+# custom superset with UZ geomap
+# base from here https://github.com/apache/superset/blob/4.1.2/Dockerfile
+#
 
-FROM node:18-bullseye-slim AS superset-node
+######################################################################
+# Node stage to deal with static asset construction
+######################################################################
+ARG PY_VER=3.9-slim-bookworm
+
+FROM node:16-bookworm-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
 RUN apt-get update -qq \
     && apt-get install \
-        -yqq --no-install-recommends \
+    -yqq --no-install-recommends \
         build-essential \
         python3 \
         git
@@ -24,6 +32,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp -Rf /git/superset/superset-frontend/* /app/superset-frontend 
 COPY ./src/superset/ /app
 
+# This seems to be the most expensive step
 RUN npm run ${BUILD_CMD}
 
 ######################################################################
@@ -61,7 +70,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
 RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
     cp -Rf /git/superset/requirements/base.txt  /app/requirements/
-RUN --mount=type=cache,target=/root/.cache/pip \
+    RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
     && pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.0 \
@@ -107,18 +116,18 @@ RUN apt-get update -qq \
         lbzip2 \
         && rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir playwright==1.50.0 \
-    && playwright install-deps \
-    && playwright install chromium
+        RUN --mount=type=cache,target=/root/.cache/pip \
+        pip install --no-cache-dir playwright==1.50.0 \
+        && playwright install-deps \
+        && playwright install chromium
+    
+    # Install GeckoDriver WebDriver
+    ARG GECKODRIVER_VERSION=v0.34.0 \
+        FIREFOX_VERSION=125.0.3
+    
+    SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install GeckoDriver WebDriver
-ARG GECKODRIVER_VERSION=v0.34.0 \
-    FIREFOX_VERSION=125.0.3
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Install GeckoDriver WebDriver
+    # Install GeckoDriver WebDriver
 RUN curl -s -OJL https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz \
     && tar xfz geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -C /usr/local/bin
     # Install Firefox
@@ -135,7 +144,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && pip install --no-cache-dir -r requirements/development.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
-
+    
 RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
