@@ -150,7 +150,7 @@ RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
-RUN pip install --no-cache --no-cache-dir -r /additional_requirements.txt
+RUN  pip install --no-cache --no-cache-dir -r /additional_requirements.txt
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
 USER superset
