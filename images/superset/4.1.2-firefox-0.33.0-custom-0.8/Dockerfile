@@ -125,8 +125,6 @@ RUN apt-get update -qq \
 ARG GECKODRIVER_VERSION=v0.34.0 \
     FIREFOX_VERSION=125.0.3
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
     # Install GeckoDriver WebDriver
 RUN "curl -s -OJL https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" \
     && "tar xfz geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -C /usr/local/bin"
