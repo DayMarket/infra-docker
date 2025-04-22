@@ -51,7 +51,7 @@ jobs:
           echo $JSON
 
           # Set output
-          echo "name=matrix::$( echo "$JSON" ) >>$GITHUB_OUTPUT"
+          echo "name=matrix::$( echo "$JSON" )" >> $GITHUB_OUTPUT
 
   correct-path:
     needs: find-changed-files
