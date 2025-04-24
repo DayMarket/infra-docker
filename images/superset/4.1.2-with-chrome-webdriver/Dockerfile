@@ -139,7 +139,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 ARG CHROMEDRIVER_VERSION=116.0.5845.96
 
-RUN wget -O google-chrome-stable_current_amd64.deb -q "http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEDRIVER_VERSION}-1_amd64.deb" && \
+RUN wget -O "google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEDRIVER_VERSION}-1_amd64.deb" && \
     apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
     rm -f google-chrome-stable_current_amd64.deb
 
