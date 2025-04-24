@@ -133,7 +133,7 @@ RUN apt-get update -qq \
 #     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 
 RUN wget -O google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_135.0.7049.114-1_amd64.deb && \
-    apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
+    aptitude -f install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
     rm -f google-chrome-stable_current_amd64.deb
 
 RUN wget -q https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/linux64/chromedriver-linux64.zip && \
