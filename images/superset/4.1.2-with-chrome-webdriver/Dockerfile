@@ -133,11 +133,11 @@ RUN apt-get update -qq \
 #     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 ARG CHROMEDRIVER_VERSION=135.0.7049.114
 
-RUN wget -Onv google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_"${CHROMEDRIVER_VERSION}"-1_amd64.deb && \
+RUN wget -Onv google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEDRIVER_VERSION}-1_amd64.deb && \
     apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
     rm -f google-chrome-stable_current_amd64.deb
 
-RUN wget -q https://storage.googleapis.com/chrome-for-testing-public/"${CHROMEDRIVER_VERSION}"/linux64/chromedriver-linux64.zip && \
+RUN wget -q https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip && \
     unzip -j ./chromedriver-linux64.zip -d /usr/bin && \
     chmod 755 /usr/bin/chromedriver && \
     rm -f chromedriver-linux64.zip
