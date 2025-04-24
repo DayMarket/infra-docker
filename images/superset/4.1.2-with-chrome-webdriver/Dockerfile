@@ -119,7 +119,7 @@ RUN apt-get update -qq \
         libaio1 \
         && rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip && \
     pip install --no-cache-dir \
     && gevent \
     && psycopg2 \
