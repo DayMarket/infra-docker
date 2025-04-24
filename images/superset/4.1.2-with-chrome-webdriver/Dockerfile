@@ -147,7 +147,7 @@ RUN wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDR
     unzip -j chromedriver-linux64.zip -d /usr/bin && \
     chmod 755 /usr/bin/chromedriver && \
     rm -f chromedriver-linux64.zip && \
-    pip install --no-cache gevent psycopg2 redis
+    pip install --no-cache-dir gevent psycopg2 redis
 
 # Cache everything for dev purposes...
 COPY --chown=superset:superset requirements/development.txt requirements/
