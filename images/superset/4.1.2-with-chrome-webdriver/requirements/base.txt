@@ -251,7 +251,6 @@ platformdirs==3.8.1
     # via requests-cache
 ply==3.11
     # via jsonpath-ng
-playwright==1.51.0
 polyline==2.0.2
     # via apache-superset
 prison==0.2.1

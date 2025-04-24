@@ -132,7 +132,7 @@ RUN apt-get update -qq \
 #     && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
 #     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir \
+    pip install --no-cache-dir playwright==1.51.0 \
     && playwright install-deps \
     && playwright install
 
