@@ -137,18 +137,17 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 #     && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
 #     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 
-RUN export CHROMEDRIVER_VERSION=$(curl --silent https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_116) && \
+RUN export "CHROMEDRIVER_VERSION=$(curl --silent https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_116)" && \
     wget -O google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEDRIVER_VERSION}-1_amd64.deb && \
     apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
     rm -f google-chrome-stable_current_amd64.deb
 
-RUN export CHROMEDRIVER_VERSION=$(curl --silent https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_116) && \
+RUN export "CHROMEDRIVER_VERSION=$(curl --silent https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_116)" && \
     wget -q https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip && \
     unzip -j chromedriver-linux64.zip -d /usr/bin && \
     chmod 755 /usr/bin/chromedriver && \
-    rm -f chromedriver-linux64.zip
-
-RUN pip install --no-cache gevent psycopg2 redis
+    rm -f chromedriver-linux64.zip && \
+    pip install --no-cache gevent psycopg2 redis
 
 # Cache everything for dev purposes...
 COPY --chown=superset:superset requirements/development.txt requirements/
@@ -160,7 +159,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
-    curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
+    curl "https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt" && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
