@@ -117,6 +117,7 @@ RUN apt-get update -qq \
         lbzip2 \
         wget \
         libaio1 \
+        unzip \
         && rm -rf /var/lib/apt/lists/*
 
 # Install GeckoDriver WebDriver
