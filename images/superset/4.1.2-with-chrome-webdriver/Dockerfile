@@ -137,13 +137,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 #     && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
 #     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
 
-RUN export "CHROMEDRIVER_VERSION=$(curl --silent https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_116)" && \
-    wget -O google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEDRIVER_VERSION}-1_amd64.deb && \
+ARG CHROMEDRIVER_VERSION=116.0.5845.96
+
+RUN wget -O google-chrome-stable_current_amd64.deb -q "http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEDRIVER_VERSION}-1_amd64.deb" && \
     apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
     rm -f google-chrome-stable_current_amd64.deb
 
-RUN export "CHROMEDRIVER_VERSION=$(curl --silent https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_116)" && \
-    wget -q https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip && \
+RUN wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip" && \
     unzip -j chromedriver-linux64.zip -d /usr/bin && \
     chmod 755 /usr/bin/chromedriver && \
     rm -f chromedriver-linux64.zip && \
