@@ -8,7 +8,7 @@
 ######################################################################
 ARG PY_VER=3.9-slim-bookworm
 
-FROM node:lts-bullseye-slim AS superset-node
+FROM node:18-bullseye-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
