@@ -131,7 +131,7 @@ RUN apt-get update -qq \
 #     tar xfj "firefox-${FIREFOX_VERSION}.tar.bz2" -C /opt \
 #     && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
 #     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
-ARG CHROMEDRIVER_VERSION="135.0.7049.114"
+ARG CHROMEDRIVER_VERSION=135.0.7049.114
 
 RUN wget -Onv google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_"${CHROMEDRIVER_VERSION}"-1_amd64.deb && \
     apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
