@@ -155,7 +155,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
-    wget -q "https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt" && \
+    wget -q https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
