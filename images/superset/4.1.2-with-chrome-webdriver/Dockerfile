@@ -119,14 +119,14 @@ RUN apt-get update -qq \
         libaio1 \
         && rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    && pip install --no-cache-dir \
-       gevent \
-       psycopg2 \
-       redis \ 
-       playwright==1.51.0 \
-       playwright install-deps \
-       playwright install
+RUN --mount=type=cache,target=/root/.cache/pip && \
+    pip install --no-cache-dir \
+    gevent \
+    psycopg2 \
+    redis \ 
+    playwright==1.51.0 \
+    playwright install-deps \
+    playwright install
 
 # Install GeckoDriver WebDriver
 # ARG GECKODRIVER_VERSION=v0.34.0 \
