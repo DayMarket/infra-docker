@@ -83,7 +83,6 @@ COPY --chown=superset:superset --from=superset-node /app/superset/static/assets 
 
 RUN cp -Rf /git/superset/superset/* /app/superset/ && \
     pip install --no-cache-dir -e . \
-    && flask fab babel-compile --target superset/translations \
     && chown -R superset:superset superset/translations && \
     cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && \
     chown -R superset:superset ./* && \
@@ -132,6 +131,10 @@ RUN apt-get update -qq \
 #     tar xfj "firefox-${FIREFOX_VERSION}.tar.bz2" -C /opt \
 #     && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
 #     && apt-get autoremove -yqq --purge wget && rm -rf /var/[log,tmp]/* /tmp/*
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir \
+    && playwright install-deps \
+    && playwright install
 
 RUN wget -O google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_135.0.7049.114-1_amd64.deb && \
     apt-get update && \
@@ -159,9 +162,8 @@ RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
-RUN  pip install --no-cache --no-cache-dir -r /additional_requirements.txt && \
-     playwright install-deps \
-     playwright install
+RUN  pip install --no-cache --no-cache-dir -r /additional_requirements.txt
+
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
 USER superset
