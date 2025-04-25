@@ -263,7 +263,7 @@ zope-event==5.0
     # via gevent
 zope-interface==5.4.0
     # via gevent
-shillelagh[gsheetsapi]==1.2.17
+shillelagh==1.2.17
 selenium==4.9.1
 # The following packages are considered to be unsafe in a requirements file:
 # pip
