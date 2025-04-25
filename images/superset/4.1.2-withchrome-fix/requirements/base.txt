@@ -372,7 +372,6 @@ urllib3==1.26.18
     #   -r requirements/base.in
     #   requests
     #   requests-cache
-selenium==4.9.1
 vine==5.1.0
     # via
     #   amqp
