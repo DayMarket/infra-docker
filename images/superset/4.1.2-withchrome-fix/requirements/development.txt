@@ -10,260 +10,260 @@
     # via
     #   -r requirements/base.in
     #   -r requirements/development.in
-astroid==3.1.0
+astroid
     # via pylint
-boto3==1.34.112
+boto3
     # via
     #   apache-superset
     #   dataflows-tabulator
-botocore==1.34.112
+botocore
     # via
     #   boto3
     #   s3transfer
-build==1.2.1
+build
     # via pip-tools
-cached-property==1.5.2
+cached-property
     # via tableschema
-cfgv==3.3.1
+cfgv
     # via pre-commit
-chardet==5.1.0
+chardet
     # via
     #   dataflows-tabulator
     #   tox
-cmdstanpy==1.1.0
+cmdstanpy
     # via prophet
-contourpy==1.0.7
+contourpy
     # via matplotlib
-coverage[toml]==7.2.5
+coverage[toml]
     # via pytest-cov
-cycler==0.11.0
+cycler
     # via matplotlib
-dataflows-tabulator==1.54.3
+dataflows-tabulator
     # via tableschema
-db-dtypes==1.2.0
+db-dtypes
     # via pandas-gbq
-dill==0.3.8
+dill
     # via pylint
-distlib==0.3.8
+distlib
     # via virtualenv
-docker==7.0.0
+docker
     # via apache-superset
-et-xmlfile==1.1.0
+et-xmlfile
     # via openpyxl
-filelock==3.12.2
+filelock
     # via
     #   tox
     #   virtualenv
-flask-cors==4.0.0
+flask-cors
     # via apache-superset
-flask-testing==0.8.1
+flask-testing
     # via apache-superset
-fonttools==4.51.0
+fonttools
     # via matplotlib
-freezegun==1.5.1
+freezegun
     # via apache-superset
-future==0.18.3
+future
     # via pyhive
-gevent==24.2.1
+gevent
     # via apache-superset
-google-api-core[grpc]==2.11.0
+google-api-core[grpc]
     # via
     #   google-cloud-bigquery
     #   google-cloud-bigquery-storage
     #   google-cloud-core
     #   pandas-gbq
     #   sqlalchemy-bigquery
-google-auth-oauthlib==1.0.0
+google-auth-oauthlib
     # via
     #   pandas-gbq
     #   pydata-google-auth
-google-cloud-bigquery==3.20.1
+google-cloud-bigquery
     # via
     #   apache-superset
     #   pandas-gbq
     #   sqlalchemy-bigquery
-google-cloud-bigquery-storage==2.19.1
+google-cloud-bigquery-storage
     # via pandas-gbq
-google-cloud-core==2.3.2
+google-cloud-core
     # via google-cloud-bigquery
-google-crc32c==1.5.0
+google-crc32c
     # via google-resumable-media
-google-resumable-media==2.7.0
+google-resumable-media
     # via google-cloud-bigquery
-googleapis-common-protos==1.63.0
+googleapis-common-protos
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.62.1
+grpcio
     # via
     #   apache-superset
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.60.1
+grpcio-status
     # via google-api-core
-identify==2.5.36
+identify
     # via pre-commit
-ijson==3.2.3
+ijson
     # via dataflows-tabulator
-iniconfig==2.0.0
+iniconfig
     # via pytest
-isort==5.12.0
+isort
     # via pylint
-jmespath==1.0.1
+jmespath
     # via
     #   boto3
     #   botocore
-jsonlines==4.0.0
+jsonlines
     # via dataflows-tabulator
-jsonschema-spec==0.1.6
+jsonschema-spec
     # via openapi-spec-validator
-kiwisolver==1.4.5
+kiwisolver
     # via matplotlib
-lazy-object-proxy==1.10.0
+lazy-object-proxy
     # via openapi-spec-validator
-linear-tsv==1.1.0
+linear-tsv
     # via dataflows-tabulator
-matplotlib==3.9.0
+matplotlib
     # via prophet
-mccabe==0.7.0
+mccabe
     # via pylint
-mysqlclient==2.2.4
+mysqlclient
     # via apache-superset
-nodeenv==1.8.0
+nodeenv
     # via pre-commit
-oauthlib==3.2.2
+oauthlib
     # via requests-oauthlib
-openapi-schema-validator==0.4.4
+openapi-schema-validator
     # via openapi-spec-validator
-openapi-spec-validator==0.5.6
+openapi-spec-validator
     # via apache-superset
-openpyxl==3.1.2
+openpyxl
     # via dataflows-tabulator
-pandas-gbq==0.19.1
+pandas-gbq
     # via apache-superset
-parameterized==0.9.0
+parameterized
     # via apache-superset
-pathable==0.4.3
+pathable
     # via jsonschema-spec
-pillow==11.2.1
+pillow
     # via
     #   apache-superset
     #   matplotlib
-pip-compile-multi==2.6.3
+pip-compile-multi
     # via apache-superset
-pip-tools==7.4.1
+pip-tools
     # via pip-compile-multi
-playwright==1.51.0
+playwright
     # via apache-superset
-pluggy==1.4.0
+pluggy
     # via
     #   pytest
     #   tox
-pre-commit==3.7.1
+pre-commit
     # via apache-superset
-progress==1.6
+progress
     # via apache-superset
-prophet==1.1.5
+prophet
     # via apache-superset
-proto-plus==1.22.2
+proto-plus
     # via google-cloud-bigquery-storage
-protobuf==4.23.0
+protobuf
     # via
     #   google-api-core
     #   google-cloud-bigquery-storage
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psycopg2-binary==2.9.6
+psycopg2-binary
     # via apache-superset
-pure-sasl==0.6.2
+pure-sasl
     # via thrift-sasl
-pydata-google-auth==1.7.0
+pydata-google-auth
     # via pandas-gbq
-pydruid==0.6.9
+pydruid
     # via apache-superset
-pyee==12.1.1
+pyee
     # via playwright
-pyfakefs==5.3.5
+pyfakefs
     # via apache-superset
-pyhive[hive_pure_sasl]==0.7.0
+pyhive[hive_pure_sasl]
     # via apache-superset
-pyinstrument==4.4.0
+pyinstrument
     # via apache-superset
-pylint==3.1.0
+pylint
     # via apache-superset
-pyproject-api==1.6.1
+pyproject-api
     # via tox
-pyproject-hooks==1.0.0
+pyproject-hooks
     # via
     #   build
     #   pip-tools
-pytest==7.4.4
+pytest
     # via
     #   apache-superset
     #   pytest-cov
     #   pytest-mock
-pytest-cov==5.0.0
+pytest-cov
     # via apache-superset
-pytest-mock==3.10.0
+pytest-mock
     # via apache-superset
-python-ldap==3.4.4
+python-ldap
     # via apache-superset
-requests-oauthlib==2.0.0
+requests-oauthlib
     # via google-auth-oauthlib
-rfc3339-validator==0.1.4
+rfc3339-validator
     # via openapi-schema-validator
-rfc3986==2.0.0
+rfc3986
     # via tableschema
-ruff==0.4.5
+ruff
     # via apache-superset
-s3transfer==0.10.1
+s3transfer
     # via boto3
-sqlalchemy-bigquery==1.11.0
+sqlalchemy-bigquery
     # via apache-superset
-sqloxide==0.1.43
+sqloxide
     # via apache-superset
-statsd==4.0.1
+statsd
     # via apache-superset
-tableschema==1.20.10
+tableschema
     # via apache-superset
-thrift==0.16.0
+thrift
     # via
     #   apache-superset
     #   thrift-sasl
-thrift-sasl==0.4.3
+thrift-sasl
     # via apache-superset
-tomlkit==0.12.5
+tomlkit
     # via pylint
-toposort==1.10
+toposort
     # via pip-compile-multi
-tox==4.6.4
+tox
     # via apache-superset
-tqdm==4.66.4
+tqdm
     # via
     #   cmdstanpy
     #   prophet
-trino==0.328.0
+trino
     # via apache-superset
-tzlocal==5.2
+tzlocal
     # via trino
-unicodecsv==0.14.1
+unicodecsv
     # via
     #   dataflows-tabulator
     #   tableschema
-virtualenv==20.23.1
+virtualenv
     # via
     #   pre-commit
     #   tox
-wheel==0.43.0
+wheel
     # via pip-tools
-xlrd==2.0.1
+xlrd
     # via dataflows-tabulator
-zope-event==5.0
+zope-event
     # via gevent
-zope-interface==5.4.0
+zope-interface
     # via gevent
-shillelagh[gsheetsapi]==1.2.18
+shillelagh[gsheetsapi]
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
