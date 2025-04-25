@@ -1,3 +1,9 @@
+## v0.295.0 (2025-04-25)
+
+### Feat
+
+- upd requirements superset (#203)
+
 ## v0.294.0 (2025-04-24)
 
 ### Feat
