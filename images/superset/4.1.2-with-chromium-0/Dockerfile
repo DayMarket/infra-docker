@@ -122,15 +122,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && playwright install-deps \
     && playwright install chromium
 
-# Install Chrome manually
-RUN wget -O google-chrome-stable_current_amd64.deb -q http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_135.0.7049.114-1_amd64.deb && \
-    apt-get update && apt-get install -yqq --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
-    rm -f google-chrome-stable_current_amd64.deb && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install Chromedriver
-RUN wget -q https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/linux64/chromedriver-linux64.zip && \
-    unzip -j chromedriver-linux64.zip -d /usr/bin && chmod 755 /usr/bin/chromedriver && rm -f chromedriver-linux64.zip
-
 COPY --chown=superset:superset requirements/development.txt /tmp/development.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
