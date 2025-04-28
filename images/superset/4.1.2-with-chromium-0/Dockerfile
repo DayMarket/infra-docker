@@ -43,7 +43,8 @@ ENV GIT_SSL_NO_VERIFY=1
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
 
 # Ставим сам Superset
-RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+RUN mkdir -p /app/superset && \
+    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     cp -Rf /git/superset/superset/* /app/superset/ && \
     pip install --no-cache-dir -e .
 
