@@ -1,100 +1,81 @@
-# Stage 1: Frontend builder
+# Стадия 1: сборка фронтенда
 FROM node:18-bullseye-slim AS frontend-builder
 
 WORKDIR /app/superset-frontend
 
-# Устанавливаем git только для этой стадии
-RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+# Клонируем весь репозиторий Superset
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends git \
+    && git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
 
-ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset \
-    && cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh \
-    && cp /git/superset/superset-frontend/package.json ./ \
-    && cp /git/superset/superset-frontend/package-lock.json ./ \
-    && npm ci \
-    && cp -Rf /git/superset/superset-frontend/* /app/superset-frontend/ \
-    && npm run build
+# Копируем package.json для кеша установки зависимостей
+COPY --from=0 /git/superset/superset-frontend/package.json ./
+COPY --from=0 /git/superset/superset-frontend/package-lock.json ./
 
-# Stage 2: Backend build (lean)
+# Устанавливаем зависимости
+RUN npm ci
+
+# Теперь копируем весь фронтенд код
+COPY --from=0 /git/superset/superset-frontend/ ./
+
+# Сборка фронтенда
+RUN npm run build
+
+# Стадия 2: сборка финального образа
 FROM python:3.9-slim-bookworm AS superset-backend
 
 WORKDIR /app
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
-    PYTHONPATH="/app/pythonpath" \
-    SUPERSET_HOME="/app/superset_home" \
-    FLASK_APP="superset.app:create_app()" \
+    SUPERSET_ENV=production \
+    FLASK_APP=superset.app:create_app() \
+    PYTHONPATH=/app/pythonpath \
+    SUPERSET_HOME=/app/superset_home \
     SUPERSET_PORT=8088
 
-# Устанавливаем всё только нужное для билда и инсталляции Python пакетов
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    gcc \
+# Устанавливаем системные библиотеки
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
     build-essential \
+    libpq-dev \
     default-libmysqlclient-dev \
     libsasl2-dev \
-    libsasl2-modules-gssapi-mit \
-    libpq-dev \
-    libecpg-dev \
     libldap2-dev \
-    libaio1 \
+    libssl-dev \
     curl \
-    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
-
-# Копируем ассеты
+# Копируем только ассеты, собранные на предыдущем этапе
 COPY --from=frontend-builder /app/superset-frontend/static/assets superset/static/assets
 
-# Копируем код Superset
-RUN mkdir -p superset/static/assets superset_home pythonpath
-RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ \
-    && cp -Rf /git/superset/superset/* /app/superset/
+# Клонируем backend код
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends git \
+    && git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
 
-# Устанавливаем зависимости
+# Копируем backend код
+RUN mkdir -p superset/static && \
+    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+    cp -R /git/superset/superset /app/superset
+
+# Устанавливаем python зависимости
 COPY requirements/base.txt /tmp/base.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
-    && pip install --no-cache-dir -r /tmp/base.txt -r /tmp/development.txt \
-    && pip install --no-cache-dir -e .
+    && pip install --no-cache-dir -r /tmp/base.txt
 
-# Stage 3: Final Production Image
-FROM python:3.9-slim-bookworm
+# Локальная установка пакета
+RUN pip install --no-cache-dir -e .
 
-WORKDIR /app
+# Компиляция переводов
+RUN flask fab babel-compile --target superset/translations
 
-ENV LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8 \
-    PYTHONPATH="/app/pythonpath" \
-    SUPERSET_HOME="/app/superset_home" \
-    FLASK_APP="superset.app:create_app()" \
-    SUPERSET_PORT=8088
+# Настройка пользователя
+RUN useradd --user-group --no-log-init --shell /bin/bash --create-home superset
 
-# Устанавливаем только системные зависимости для runtime
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    libpq5 \
-    libldap-2.5-0 \
-    libsasl2-2 \
-    libssl3 \
-    libaio1 \
-    && rm -rf /var/lib/apt/lists/*
+USER superset
 
-# Копируем установленный python environment
-COPY --from=superset-backend /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
-COPY --from=superset-backend /usr/local/bin /usr/local/bin
-
-# Копируем приложение
-COPY --from=superset-backend /app /app
-
-# Healthcheck
 HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health" || exit 1
 
 EXPOSE ${SUPERSET_PORT}
 
-# Старт сервера
-CMD ["/usr/bin/run-server.sh"]
+CMD ["/usr/local/bin/gunicorn", "-w", "4", "-k", "gevent", "-b", "0.0.0.0:8088", "superset.app:create_app()"]
