@@ -16,14 +16,14 @@ ENV LANG=C.UTF-8 \
 RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
     build-essential \
     default-libmysqlclient-dev \
-    libsasl2-dev \
-    libsasl2-modules-gssapi-mit \
     libpq-dev \
-    libecpg-dev \
     libldap2-dev \
     libaio1 \
+    libsasl2-dev \
+    libsasl2-modules-gssapi-mit \
     git \
     curl \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем файлы зависимостей
