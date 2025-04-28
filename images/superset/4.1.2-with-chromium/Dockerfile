@@ -64,7 +64,7 @@
         cp -Rf /git/superset/requirements/base.txt /app/requirements/
     
     RUN --mount=type=cache,target=/root/.cache/pip \
-        apt-get update -qq && apt-get install -yqq build-essential && \
+        apt-get update -qq && apt-get install --no-install-recommends -yqq build-essential && \
         pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.0.1 && \
         pip install --no-cache-dir -r requirements/base.txt && \
         apt-get autoremove -yqq --purge build-essential && \
