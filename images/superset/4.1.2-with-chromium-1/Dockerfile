@@ -61,7 +61,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
         build-essential \
-    && pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.0.1 \
+    && pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.1 \
     && pip install --no-cache-dir -r requirements/base.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*     
@@ -72,7 +72,10 @@ COPY --chown=superset:superset --from=frontend-builder /app/superset/static/asse
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
     && pip install --no-cache-dir -r requirements/base.txt \
-    && pip install --no-cache-dir -e .
+    && pip install --no-cache-dir -e . \
+    && cp -Rf /git/superset/docker/run-server.sh /usr/bin/ \
+    && chown -R superset:superset ./* \
+    && chmod 755 /usr/bin/run-server.sh
 
 RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
