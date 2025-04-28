@@ -1,59 +1,37 @@
-# syntax=docker/dockerfile:1.4
+######################################################################
+# Node stage to build static assets
+######################################################################
+FROM node:18-bullseye-slim AS superset-node
 
-#################################################################################
-# Builder Stage
-#################################################################################
-ARG PY_VER=3.9-slim-bookworm
+ARG NPM_BUILD_CMD="build"
 
-FROM python:${PY_VER} AS builder
+RUN apt-get update -qq && \
+    apt-get install -yqq --no-install-recommends \
+        build-essential \
+        python3 \
+        git
 
-WORKDIR /app
+WORKDIR /app/superset-frontend
 
-ENV LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8
+ENV BUILD_CMD=${NPM_BUILD_CMD} \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    GIT_SSL_NO_VERIFY=1
 
-# Установка системных зависимостей
-RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
-    build-essential \
-    default-libmysqlclient-dev \
-    libpq-dev \
-    libldap2-dev \
-    libaio1 \
-    libsasl2-dev \
-    libsasl2-modules-gssapi-mit \
-    git \
-    curl \
-    pkg-config \
-    && rm -rf /var/lib/apt/lists/*
+RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
+    cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
+    cp /git/superset/superset-frontend/package.json ./ && \
+    cp /git/superset/superset-frontend/package-lock.json ./ && \
+    npm ci && \
+    cp -Rf /git/superset/superset-frontend/* /app/superset-frontend
 
-# Копируем файлы зависимостей
-COPY --chown=superset:superset requirements/development.txt /tmp/
-COPY --chown=superset:superset requirements/base.txt /tmp/
+COPY ./src/superset/ /app/
 
-# Убираем лишние строки (-e file:.)
-RUN sed -i '/^-e file:.*/d' /tmp/base.txt /tmp/development.txt
+RUN npm run ${BUILD_CMD}
 
-# Установка зависимостей
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
-    && pip install --no-cache-dir -r /tmp/base.txt -r /tmp/development.txt
-
-# Клонируем Superset
-ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
-
-# Ставим сам Superset
-RUN mkdir -p /app/superset && \
-    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
-    cp -Rf /git/superset/superset/* /app/superset/ && \
-    pip install --no-cache-dir -e .
-
-#################################################################################
-# Runtime Stage
-#################################################################################
-FROM python:${PY_VER}
-
-WORKDIR /app
+######################################################################
+# Final lean image
+######################################################################
+FROM python:3.9-slim-bookworm AS lean
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -63,24 +41,49 @@ ENV LANG=C.UTF-8 \
     SUPERSET_HOME="/app/superset_home" \
     SUPERSET_PORT=8088
 
-# Только минимальные системные зависимости
+WORKDIR /app
+
+RUN mkdir -p ${PYTHONPATH} superset static superset-frontend apache_superset.egg-info requirements \
+    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset
+
 RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
     curl \
-    libpq-dev \
-    libldap2-dev \
-    libaio1 \
+    default-libmysqlclient-dev \
     libsasl2-dev \
     libsasl2-modules-gssapi-mit \
-    default-libmysqlclient-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libpq-dev \
+    libecpg-dev \
+    libldap2-dev \
+    libaio1 \
+    build-essential \
+    pkg-config \
+    git && \
+    rm -rf /var/lib/apt/lists/*
 
-# Копируем установленное из builder
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-COPY --from=builder /app /app
+COPY --from=superset-node /app/superset-frontend /app/superset-frontend
+COPY --from=superset-node /app/superset/static/assets /app/superset/static/assets
 
-# Права пользователя
-RUN useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset && \
+# Копирование исходников и установка Superset
+RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
+    mkdir -p /app/superset && \
+    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+    cp -Rf /git/superset/superset/* /app/superset/
+
+COPY ./requirements/base.txt /tmp/base.txt
+COPY ./requirements/development.txt /tmp/development.txt
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 && \
+    pip install --no-cache-dir -r /tmp/base.txt -r /tmp/development.txt
+
+RUN pip install --no-cache-dir -e .
+
+RUN flask fab babel-compile --target superset/translations && \
+    chown -R superset:superset superset/translations
+
+COPY --from=superset-node /git/superset/docker/run-server.sh /usr/bin/run-server.sh
+
+RUN chmod 755 /usr/bin/run-server.sh && \
     chown -R superset:superset /app
 
 USER superset
