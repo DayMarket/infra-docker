@@ -7,7 +7,7 @@ WORKDIR /app/superset-frontend
 ENV GIT_SSL_NO_VERIFY=1
 
 RUN apt-get update -qq \
-    apt-get install -yqq --no-install-recommends \
+    && apt-get install -yqq --no-install-recommends \
     git \
     python3 \
     ca-certificates \
