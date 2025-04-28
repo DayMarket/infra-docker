@@ -38,6 +38,11 @@ ENV LANG=C.UTF-8 \
 RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache_superset.egg-info requirements \
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
     && apt-get update -qq && apt-get install -yqq --no-install-recommends \
+        build-essential \
+        libssl-dev \
+        libffi-dev \
+        python3-dev \
+        python3-pip \
         curl \
         default-libmysqlclient-dev \
         libsasl2-dev \
@@ -45,7 +50,6 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
         libpq-dev \
         libecpg-dev \
         libldap2-dev \
-        gcc \
         git \
      && touch superset/static/version_info.json \
      && chown -R superset:superset ./* \
@@ -61,6 +65,8 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
 COPY --chown=superset:superset --from=frontend-builder /app/superset/static/assets superset/static/assets
 
 RUN --mount=type=cache,target=/root/.cache/pip \
+    apt-get update -qq && apt-get install -yqq --no-install-recommends \
+        build-essential \
     pip install --no-cache-dir --upgrade pip==25.1 setuptools==75.8.0 \
     && pip install --no-cache-dir -r requirements/base.txt \
     && pip install --no-cache-dir -e . \
