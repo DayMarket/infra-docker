@@ -70,10 +70,8 @@ RUN mkdir -p /app/superset \
     && pip install --no-cache-dir -e .
 
 # Статические папки
-RUN touch superset/static/version_info.json
-
-# Настройка прав
-RUN chown -R superset:superset /app
+RUN touch superset/static/version_info.json \
+    && chown -R superset:superset /app
 
 # Смена пользователя
 USER superset
