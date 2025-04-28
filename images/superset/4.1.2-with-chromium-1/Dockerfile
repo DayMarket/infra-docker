@@ -30,12 +30,11 @@ WORKDIR /app
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     SUPERSET_ENV=production \
-    FLASK_APP=superset.app:create_app() \
-    PYTHONPATH=/app/pythonpath \
-    SUPERSET_HOME=/app/superset_home \
+    FLASK_APP="superset.app:create_app()" \
+    PYTHONPATH="/app/pythonpath" \
+    SUPERSET_HOME="/app/superset_home" \
     SUPERSET_PORT=8088
 
-# Устанавливаем нужные системные пакеты и сразу чистим
 RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache_superset.egg-info requirements \
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
     && apt-get update -qq && apt-get install -yqq --no-install-recommends \
@@ -56,17 +55,8 @@ ENV GIT_SSL_NO_VERIFY=1
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset \
     && cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ \
     && cp /git/superset/superset-frontend/package.json /app/superset-frontend/ \
-    && cp -Rf /git/superset/requirements/base.txt  /app/requirements/ 
+    && cp -Rf /git/superset/requirements/*.txt  /app/requirements/ 
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    apt-get update -qq && apt-get install -yqq --no-install-recommends \
-        build-essential \
-    && pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.1 \
-    && pip install --no-cache-dir -r requirements/base.txt \
-    && apt-get autoremove -yqq --purge build-essential \
-    && rm -rf /var/lib/apt/lists/*     
-
-# Копируем ассеты из первой стадии
 COPY --chown=superset:superset --from=frontend-builder /app/superset/static/assets superset/static/assets
 
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -82,7 +72,9 @@ RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
 COPY requirements.txt /additional_requirements.txt
+
 RUN  pip install --no-cache --no-cache-dir -r /additional_requirements.txt
+
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
 USER superset
@@ -91,4 +83,4 @@ HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health" || exit 1
 
 EXPOSE ${SUPERSET_PORT}
 
-CMD ["/usr/local/bin/gunicorn", "-w", "4", "-k", "gevent", "-b", "0.0.0.0:8088", "superset.app:create_app()"]
+CMD ["/usr/bin/run-server.sh"]
