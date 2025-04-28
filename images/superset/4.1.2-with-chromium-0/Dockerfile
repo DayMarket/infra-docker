@@ -52,14 +52,14 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     && rm -rf /git
 
 # Устанавливаем зависимости
-COPY requirements/base.txt /tmp/base.txt
+COPY --chown=superset:superset requirements/base.txt requirements/
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
-    && pip install --no-cache-dir -r /tmp/base.txt \
+    && pip install --no-cache-dir -r requirements/base.txt \
     && pip install --no-cache-dir -e . \
     && flask fab babel-compile --target superset/translations \
-    && useradd --user-group --no-log-init --shell /bin/bash --create-home superset
+    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset
 
 USER superset
 
