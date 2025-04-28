@@ -55,7 +55,7 @@ ENV GIT_SSL_NO_VERIFY=1
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset \
     && cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ \
     && cp /git/superset/superset-frontend/package.json /app/superset-frontend/ \
-    && cp -Rf /git/superset/requirements/*.txt  /app/requirements/ 
+    && cp -Rf /git/superset/requirements/base.txt  /app/requirements/ 
 
 COPY --chown=superset:superset --from=frontend-builder /app/superset/static/assets superset/static/assets
 
