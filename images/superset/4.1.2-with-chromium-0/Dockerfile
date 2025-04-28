@@ -72,9 +72,7 @@ COPY --chown=superset:superset --from=frontend-builder /app/superset/static/asse
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
     && pip install --no-cache-dir -r requirements/base.txt \
-    && pip install --no-cache-dir -e . \
-    && flask fab babel-compile --target superset/translations \
-    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset
+    && pip install --no-cache-dir -e .
 
 RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
