@@ -3,24 +3,19 @@ FROM node:18-bullseye-slim AS frontend-builder
 
 WORKDIR /app/superset-frontend
 
-# Клонируем весь репозиторий Superset
-RUN apt-get update -qq && apt-get install -yqq --no-install-recommends git \
-    && git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
+# Клонируем весь код Superset
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends git ca-certificates \
+    && git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset \
+    && cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh \
+    && cp /git/superset/superset-frontend/package.json ./ \
+    && cp /git/superset/superset-frontend/package-lock.json ./ \
+    && npm ci \
+    && cp -R /git/superset/superset-frontend/* /app/superset-frontend \
+    && npm run build \
+    && apt-get purge -y --auto-remove git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Копируем package.json для кеша установки зависимостей
-COPY --from=0 /git/superset/superset-frontend/package.json ./
-COPY --from=0 /git/superset/superset-frontend/package-lock.json ./
-
-# Устанавливаем зависимости
-RUN npm ci
-
-# Теперь копируем весь фронтенд код
-COPY --from=0 /git/superset/superset-frontend/ ./
-
-# Сборка фронтенда
-RUN npm run build
-
-# Стадия 2: сборка финального образа
+# Стадия 2: финальный образ
 FROM python:3.9-slim-bookworm AS superset-backend
 
 WORKDIR /app
@@ -33,7 +28,7 @@ ENV LANG=C.UTF-8 \
     SUPERSET_HOME=/app/superset_home \
     SUPERSET_PORT=8088
 
-# Устанавливаем системные библиотеки
+# Устанавливаем нужные системные пакеты и сразу чистим
 RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -41,35 +36,31 @@ RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
     libsasl2-dev \
     libldap2-dev \
     libssl-dev \
-    curl \
+    curl ca-certificates git \
     && rm -rf /var/lib/apt/lists/*
 
-# Копируем только ассеты, собранные на предыдущем этапе
+# Копируем ассеты из первой стадии
 COPY --from=frontend-builder /app/superset-frontend/static/assets superset/static/assets
 
 # Клонируем backend код
-RUN apt-get update -qq && apt-get install -yqq --no-install-recommends git \
-    && git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
+RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset \
+    && mkdir -p superset/static \
+    && cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ \
+    && cp -R /git/superset/superset /app/superset \
+    && rm -rf /git
 
-# Копируем backend код
-RUN mkdir -p superset/static && \
-    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
-    cp -R /git/superset/superset /app/superset
-
-# Устанавливаем python зависимости
+# Устанавливаем зависимости
 COPY requirements/base.txt /tmp/base.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
-    && pip install --no-cache-dir -r /tmp/base.txt
-
-# Локальная установка пакета
-RUN pip install --no-cache-dir -e .
+    && pip install --no-cache-dir -r /tmp/base.txt \
+    && pip install --no-cache-dir -e .
 
 # Компиляция переводов
 RUN flask fab babel-compile --target superset/translations
 
-# Настройка пользователя
+# Добавляем пользователя
 RUN useradd --user-group --no-log-init --shell /bin/bash --create-home superset
 
 USER superset
