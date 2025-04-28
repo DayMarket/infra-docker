@@ -60,7 +60,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
 COPY --chown=superset:superset --from=frontend-builder /app/superset/static/assets superset/static/assets
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
+    pip install --no-cache-dir --upgrade pip==25.1 setuptools==75.8.0 \
     && pip install --no-cache-dir -r requirements/base.txt \
     && pip install --no-cache-dir -e . \
     && cp -Rf /git/superset/docker/run-server.sh /usr/bin/ \
