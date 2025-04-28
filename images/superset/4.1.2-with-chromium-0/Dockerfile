@@ -7,10 +7,10 @@ WORKDIR /app/superset-frontend
 ENV GIT_SSL_NO_VERIFY=1
 
 RUN apt-get update -qq \
-    && apt-get install -yqq --no-install-recommends \
-    && git \
-    && python3 \
-    && ca-certificates \
+    apt-get install -yqq --no-install-recommends \
+    git \
+    python3 \
+    ca-certificates \
     && git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset \
     && cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh \
     && cp /git/superset/superset-frontend/package.json ./ \
