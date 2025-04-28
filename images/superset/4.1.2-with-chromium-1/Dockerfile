@@ -8,6 +8,7 @@ ENV GIT_SSL_NO_VERIFY=1
 
 RUN apt-get update -qq \
     && apt-get install -yqq --no-install-recommends \
+    build-essential \
     git \
     python3 \
     ca-certificates \
@@ -45,6 +46,8 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
         libpq-dev \
         libecpg-dev \
         libldap2-dev \
+        gcc \
+        gcc-c++ \
         git \
      && touch superset/static/version_info.json \
      && chown -R superset:superset ./* \
