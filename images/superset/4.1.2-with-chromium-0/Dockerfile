@@ -1,4 +1,4 @@
-# Стадия 1: сборка фронтенда
+# Стадия 1: сборка фронтенда 
 FROM node:18-bullseye-slim AS frontend-builder
 
 WORKDIR /app/superset-frontend
