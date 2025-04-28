@@ -15,6 +15,8 @@ RUN apt-get update -qq && apt-get install -yqq --no-install-recommends git ca-ce
     && apt-get purge -y --auto-remove git \
     && rm -rf /var/lib/apt/lists/*
 
+COPY ./src/superset/ /app
+
 # Стадия 2: финальный образ
 FROM python:3.9-slim-bookworm AS superset-backend
 
@@ -40,7 +42,7 @@ RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем ассеты из первой стадии
-COPY --from=frontend-builder /app/superset-frontend/static/assets superset/static/assets
+COPY --chown=superset:superset --from=frontend-builder /app/superset/static/assets superset/static/assets
 
 # Клонируем backend код
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset \
