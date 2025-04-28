@@ -56,7 +56,6 @@ RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFES
 
 # Устанавливаем зависимости
 COPY requirements/base.txt /tmp/base.txt
-COPY requirements/development.txt /tmp/development.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
