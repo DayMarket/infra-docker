@@ -67,7 +67,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && chown -R superset:superset ./* \
     && chmod 755 /usr/bin/run-server.sh
 
-RUN mkdir --parents /usr/local/share/ca-certificates/Yandex && \
+RUN --mount=type=bind,target=./requirements/base.txt,src=./requirements/base.txt \
+    --mount=type=bind,target=./requirements/docker.txt,src=./requirements/docker.txt \
+    pip install --no-cache-dir -r requirements/docker.txt && \
+    mkdir --parents /usr/local/share/ca-certificates/Yandex && \
     curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt && \
     chmod 655 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt
 
