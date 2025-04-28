@@ -46,7 +46,6 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
         libecpg-dev \
         libldap2-dev \
         gcc \
-        gcc++ \
         git \
      && touch superset/static/version_info.json \
      && chown -R superset:superset ./* \
