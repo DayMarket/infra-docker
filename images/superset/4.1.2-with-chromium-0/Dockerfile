@@ -55,13 +55,9 @@ COPY requirements/base.txt /tmp/base.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
     && pip install --no-cache-dir -r /tmp/base.txt \
-    && pip install --no-cache-dir -e .
-
-# Компиляция переводов
-RUN flask fab babel-compile --target superset/translations
-
-# Добавляем пользователя
-RUN useradd --user-group --no-log-init --shell /bin/bash --create-home superset
+    && pip install --no-cache-dir -e . \
+    && flask fab babel-compile --target superset/translations \
+    && useradd --user-group --no-log-init --shell /bin/bash --create-home superset
 
 USER superset
 
