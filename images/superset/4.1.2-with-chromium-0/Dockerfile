@@ -77,7 +77,7 @@ COPY requirements/development.txt /tmp/development.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
-    && pip install --no-cache-dir -r /tmp/base.txt -r /tmp/development.txt
+    && pip install --no-cache-dir -r /tmp/development.txt
 
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
