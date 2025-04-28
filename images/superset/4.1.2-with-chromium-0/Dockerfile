@@ -75,6 +75,8 @@ RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFES
 COPY requirements/base.txt /tmp/base.txt
 COPY requirements/development.txt /tmp/development.txt
 
+WORKDIR /tmp
+
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip==25.0.1 setuptools==75.8.0 \
     && pip install --no-cache-dir -r /tmp/development.txt
