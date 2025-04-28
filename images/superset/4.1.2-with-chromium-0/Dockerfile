@@ -27,7 +27,7 @@ RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем файлы зависимостей
-COPY base.txt development.txt /tmp/
+COPY --chown=superset:superset requirements/development.txt requirements/base.txt development.txt /tmp/
 
 # Убираем лишние строки (-e file:.)
 RUN sed -i '/^-e file:.*/d' /tmp/base.txt /tmp/development.txt
