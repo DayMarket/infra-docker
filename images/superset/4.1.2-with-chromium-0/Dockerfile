@@ -47,7 +47,7 @@ ENV GIT_SSL_NO_VERIFY=1
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
 
 # Копируем только ассеты
-COPY --from=frontend-builder /app/superset-frontend/assets superset/static/assets
+COPY --from=frontend-builder /app/superset-frontend/dist superset/static/assets
 
 # Копируем код Superset
 RUN mkdir -p superset/static/assets superset_home pythonpath
