@@ -17,7 +17,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Копируем весь фронтенд Superset
-COPY superset-frontend/ /app/superset-frontend/
+COPY src/superset-frontend/ /app/superset-frontend/
 
 # Копируем кастомную картинку
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
