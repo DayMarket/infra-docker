@@ -18,7 +18,7 @@ RUN apt-get update && \
 
 # Копируем весь фронтенд Superset
 COPY src/superset-frontend/ /app/superset-frontend/
-
+COPY src/superset-frontend/.eslintignore /app/superset-frontend/.eslintignore
 # Копируем кастомную картинку
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
