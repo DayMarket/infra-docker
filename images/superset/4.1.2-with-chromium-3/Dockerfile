@@ -1,4 +1,4 @@
-FROM apache/superset:4.0
+FROM apache/superset:4.1.0
 USER root
 COPY requirements.txt /additional_requirements.txt
 RUN  pip install --no-cache --no-cache-dir -r /additional_requirements.txt
