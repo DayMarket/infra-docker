@@ -25,8 +25,7 @@ COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 # Сборка фронтенда
 WORKDIR /app/superset-frontend
 
-RUN sed -i '/"version":/a \  "private": true,' package.json && \
-    lerna bootstrap && \
+RUN lerna bootstrap && \
     yarn build && \
     yarn cache clean
 
