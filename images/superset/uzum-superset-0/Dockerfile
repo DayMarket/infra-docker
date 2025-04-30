@@ -1,0 +1,28 @@
+FROM apache/superset:4.1.2
+
+USER root
+
+# Установим Node.js + Yarn через Corepack (официально поддерживается)
+RUN apt-get update && \
+    apt-get install -y curl ca-certificates gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    corepack enable && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Копируем кастомный frontend
+COPY src/superset-frontend/ /app/superset-frontend/
+
+# Сборка frontend (с отключением ошибок на этапе разработки)
+WORKDIR /app/superset-frontend
+RUN yarn install --ignore-engines || true && \
+    yarn build || true && \
+    yarn cache clean
+
+COPY requirements.txt /additional_requirements.txt
+RUN pip install --no-cache-dir -r /additional_requirements.txt
+
+USER superset
+
+CMD ["/usr/bin/run-server.sh"]
