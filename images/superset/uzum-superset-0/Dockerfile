@@ -23,6 +23,7 @@ RUN yarn install --ignore-engines || true && \
     yarn cache clean
 
 COPY requirements.txt /additional_requirements.txt
+
 RUN pip install --no-cache-dir -r /additional_requirements.txt
 
 USER superset
