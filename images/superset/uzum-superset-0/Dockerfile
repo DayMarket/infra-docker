@@ -11,6 +11,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY src/superset-frontend/ /app/superset-frontend/
+
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY src/templates/ /app/superset/templates/
 
