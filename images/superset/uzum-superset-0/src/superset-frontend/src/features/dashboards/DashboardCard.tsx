@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import {
@@ -73,17 +55,13 @@ function DashboardCard({
   const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
 
   useEffect(() => {
-    // fetch thumbnail only if it's not already fetched
     if (
       !fetchingThumbnail &&
       dashboard.id &&
       (thumbnailUrl === undefined || thumbnailUrl === null) &&
       isFeatureEnabled(FeatureFlag.Thumbnails)
     ) {
-      // fetch thumbnail
       if (dashboard.thumbnail_url) {
-        // set to empty string if null so that we don't
-        // keep fetching the thumbnail
         setThumbnailUrl(dashboard.thumbnail_url || '');
         return;
       }
@@ -106,9 +84,8 @@ function DashboardCard({
             tabIndex={0}
             className="action-button"
             onClick={() => openDashboardEditModal?.(dashboard)}
-            data-test="dashboard-card-option-edit-button"
           >
-            <Icons.EditAlt iconSize="l" data-test="edit-alt" /> {t('Edit')}
+            <Icons.EditAlt iconSize="l" /> {t('Edit')}
           </div>
         </Menu.Item>
       )}
@@ -117,9 +94,8 @@ function DashboardCard({
           <div
             role="button"
             tabIndex={0}
-            onClick={() => handleBulkDashboardExport([dashboard])}
             className="action-button"
-            data-test="dashboard-card-option-export-button"
+            onClick={() => handleBulkDashboardExport([dashboard])}
           >
             <Icons.Share iconSize="l" /> {t('Export')}
           </div>
@@ -132,7 +108,6 @@ function DashboardCard({
             tabIndex={0}
             className="action-button"
             onClick={() => onDelete(dashboard)}
-            data-test="dashboard-card-option-delete-button"
           >
             <Icons.Trash iconSize="l" /> {t('Delete')}
           </div>
@@ -140,6 +115,7 @@ function DashboardCard({
       )}
     </Menu>
   );
+
   return (
     <CardStyles
       onClick={() => {
@@ -157,13 +133,24 @@ function DashboardCard({
           <Label>{dashboard.published ? t('published') : t('draft')}</Label>
         }
         cover={
-          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
-            <></>
-          ) : null
+          isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails ? (
+            <img
+              src={thumbnailUrl || ''}
+              alt="Dashboard thumbnail"
+              style={{
+                width: '100%',
+                height: '100px',
+                objectFit: 'cover',
+              }}
+              onError={e => {
+                console.warn('Error loading dashboard preview:', e);
+              }}
+            />
+          ) : undefined
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
-        imgURL={dashboard.thumbnail_url}
+        imgURL={undefined}
         imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}

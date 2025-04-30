@@ -14,6 +14,8 @@ RUN apt-get update && \
 # Копируем кастомный frontend
 COPY src/superset-frontend/ /app/superset-frontend/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
+COPY src/templates/ /app/superset/templates/
+
 # Сборка frontend (с отключением ошибок на этапе разработки)
 WORKDIR /app/superset-frontend
 RUN yarn install --ignore-engines || true && \
