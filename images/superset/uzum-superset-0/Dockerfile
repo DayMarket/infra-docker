@@ -22,8 +22,6 @@ COPY src/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
 COPY src/public_welcome.html /app/superset/templates/superset/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
-
-# Установка дополнительных Python-зависимостей
 COPY requirements.txt /additional_requirements.txt
 RUN pip install --no-cache-dir -r /additional_requirements.txt
 

@@ -651,11 +651,7 @@ function DashboardList(props: DashboardListProps) {
           dashboard={dashboard}
           hasPerm={hasPerm}
           bulkSelectEnabled={bulkSelectEnabled}
-          showThumbnails={
-            userKey
-              ? userKey.thumbnails
-              : isFeatureEnabled(FeatureFlag.Thumbnails)
-          }
+          showThumbnails={true}
           userId={user?.userId}
           loading={loading}
           openDashboardEditModal={openDashboardEditModal}
