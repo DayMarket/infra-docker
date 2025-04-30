@@ -12,7 +12,7 @@ import DashboardThumbnail from './DashboardThumbnail';
 export interface DashboardCardProps {
   dashboard: any;
   openDashboardEditModal: (dashboard: any) => void;
-  showThumbnails: boolean;
+  showThumbnails?: boolean; // Мы игнорируем его, но не убираем полностью
 }
 
 const TitleLink = styled.a`
@@ -30,7 +30,6 @@ const TitleLink = styled.a`
 export default function DashboardCard({
   dashboard,
   openDashboardEditModal,
-  showThumbnails,
 }: DashboardCardProps) {
   const {
     id,
@@ -47,12 +46,11 @@ export default function DashboardCard({
     tags,
   } = dashboard;
 
-  // Отладка превью
-  console.log('📸 Dashboard thumbnail:', thumbnail_url);
+  console.log('🧩 DashboardCard -> thumbnail_url:', thumbnail_url);
 
   return (
     <CardContainer>
-      {showThumbnails && thumbnail_url && (
+      {thumbnail_url && (
         <a href={url}>
           <DashboardThumbnail url={thumbnail_url} alt={dashboard_title} />
         </a>
