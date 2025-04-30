@@ -11,7 +11,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Копируем кастомный frontend
 COPY src/superset-frontend/ /app/superset-frontend/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY src/templates/ /app/superset/templates/
