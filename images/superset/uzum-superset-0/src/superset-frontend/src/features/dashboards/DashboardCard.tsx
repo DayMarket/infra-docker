@@ -41,6 +41,9 @@ export default function DashboardCard({
   openDashboardEditModal,
   showThumbnails,
 }: DashboardCardProps) {
+  console.log('📦 props.dashboard:', dashboard);
+  console.log('🖼️ showThumbnails:', showThumbnails);
+
   const {
     id,
     url,
@@ -56,7 +59,8 @@ export default function DashboardCard({
     tags,
   } = dashboard;
 
-  console.log('🖼️ DASHBOARD THUMBNAIL:', thumbnail_url);
+  console.log('🖼️ thumbnail_url:', thumbnail_url);
+
 
   return (
     <CardContainer>
