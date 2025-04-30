@@ -1,16 +1,19 @@
 FROM apache/superset:4.1.2
 
+# Установим надёжный shell для pipefail и hadolint
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 USER root
 
 # Установка Node.js + Yarn через Corepack
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates gnupg && \
+    apt-get install --no-install-recommends -y curl ca-certificates gnupg && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
+    apt-get install --no-install-recommends -y nodejs && \
     corepack enable && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Копируем кастомные frontend-файлы в правильные места Superset 4.1.2
+# Кастомные frontend-файлы для Superset 4.1.2
 COPY src/superset-frontend/DashboardCard.tsx /app/superset-frontend/src/features/dashboards/DashboardCard.tsx
 COPY src/superset-frontend/DashboardThumbnail.tsx /app/superset-frontend/src/pages/DashboardList/DashboardThumbnail.tsx
 COPY src/superset-frontend/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
