@@ -16,7 +16,6 @@ RUN apt-get update && \
 COPY custom/DashboardCard.tsx /app/superset-frontend/src/features/dashboards/DashboardCard.tsx
 COPY custom/DashboardThumbnail.tsx /app/superset-frontend/src/pages/DashboardList/DashboardThumbnail.tsx
 COPY custom/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
-COPY custom/ChartCard.tsx /app/superset-frontend/src/features/home/ChartCard.tsx
 
 # Кастомный логотип и favicon
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
