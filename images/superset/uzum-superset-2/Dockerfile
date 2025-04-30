@@ -89,6 +89,10 @@ RUN cp -Rf /git/superset/superset/* /app/superset/ && \
     chown -R superset:superset ./* && \
     chmod 755 /usr/bin/run-server.sh
 
+# Кастомные шаблоны и логотипы
+COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
+COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
+
 USER superset
 
 HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health"
