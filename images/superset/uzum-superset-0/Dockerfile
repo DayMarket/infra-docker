@@ -14,9 +14,9 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Кастомные frontend-файлы для Superset 4.1.2
-COPY src/superset-frontend/DashboardCard.tsx /app/superset-frontend/src/features/dashboards/DashboardCard.tsx
-COPY src/superset-frontend/DashboardThumbnail.tsx /app/superset-frontend/src/pages/DashboardList/DashboardThumbnail.tsx
-COPY src/superset-frontend/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
+COPY src/DashboardCard.tsx /app/superset-frontend/src/features/dashboards/DashboardCard.tsx
+COPY src/DashboardThumbnail.tsx /app/superset-frontend/src/pages/DashboardList/DashboardThumbnail.tsx
+COPY src/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
 
 # Кастомные шаблоны и изображения
 COPY src/public_welcome.html /app/superset/templates/superset/
