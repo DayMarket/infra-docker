@@ -47,12 +47,12 @@ export default function DashboardCard({
     tags,
   } = dashboard;
 
-  // Вставка для отладки
-  console.log('THUMBNAIL URL:', thumbnail_url);
+  // Отладка превью
+  console.log('📸 Dashboard thumbnail:', thumbnail_url);
 
   return (
     <CardContainer>
-      {showThumbnails && (
+      {showThumbnails && thumbnail_url && (
         <a href={url}>
           <DashboardThumbnail url={thumbnail_url} alt={dashboard_title} />
         </a>

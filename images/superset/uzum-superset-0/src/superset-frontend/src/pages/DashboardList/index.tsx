@@ -644,6 +644,7 @@ function DashboardList(props: DashboardListProps) {
   const renderCard = useCallback(
     (dashboard: Dashboard) => {
       console.log('🖼️ Dashboard:', dashboard.dashboard_title, dashboard.thumbnail_url);
+      console.log('Dashboard object:', dashboard);
   
       return (
         <DashboardCard
@@ -675,7 +676,6 @@ function DashboardList(props: DashboardListProps) {
       userKey,
     ],
   );
-  
 
   const subMenuButtons: SubMenuProps['buttons'] = [];
   if (canDelete || canExport) {

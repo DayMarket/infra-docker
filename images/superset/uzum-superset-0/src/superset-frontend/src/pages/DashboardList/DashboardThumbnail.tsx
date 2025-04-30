@@ -1,55 +1,61 @@
 import React, { useEffect, useState } from 'react';
-import styled from '@emotion/styled';
+import { styled } from '@superset-ui/core';
 
 interface Props {
-  url: string;
+  url?: string;
+  alt?: string;
 }
 
 const ThumbnailWrapper = styled.div`
   width: 100%;
   height: 100%;
+  min-height: 100px;
   background-color: #f0f0f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ddd;
+  border: 1px solid #e5e5e5;
+  border-radius: ${({ theme }) => theme.gridUnit}px;
+  overflow: hidden;
 `;
 
 const StyledImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 `;
 
 const FallbackIcon = styled.div`
-  font-size: 24px;
-  color: #999;
+  font-size: 28px;
+  color: #ccc;
 `;
 
-const DashboardThumbnail: React.FC<Props> = ({ url }) => {
+const DashboardThumbnail: React.FC<Props> = ({ url, alt = 'Dashboard thumbnail' }) => {
   const [hasError, setHasError] = useState(false);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setHasError(false);
-    setLoaded(false);
   }, [url]);
+
+  if (!url || hasError) {
+    return (
+      <ThumbnailWrapper>
+        <FallbackIcon>📄</FallbackIcon>
+      </ThumbnailWrapper>
+    );
+  }
 
   return (
     <ThumbnailWrapper>
-      {!hasError && url ? (
-        <StyledImage
-          src={url}
-          onError={e => {
-            console.error('Error loading thumbnail:', e);
-            setHasError(true);
-          }}
-          onLoad={() => setLoaded(true)}
-          alt="Dashboard thumbnail"
-        />
-      ) : (
-        <FallbackIcon>📄</FallbackIcon>
-      )}
+      <StyledImage
+        src={url}
+        alt={alt}
+        onError={e => {
+          console.warn('DashboardThumbnail failed to load:', url, e);
+          setHasError(true);
+        }}
+      />
     </ThumbnailWrapper>
   );
 };
