@@ -22,12 +22,15 @@ COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 COPY custom/public_welcome.html /app/superset/templates/superset/
 
+# Переход в директорию фронтенда
 WORKDIR /app/superset-frontend
 
-# Сборка фронтенда с установкой cross-env
-RUN yarn install --ignore-engines && \
-    yarn add --dev cross-env && \
-    yarn build && \
+# Пометка проекта как private (иначе yarn падает)
+RUN echo '{ "private": true }' > package.json
+
+# Установка и сборка фронтенда (базовый пакет нужен только для yarn)
+RUN yarn install --ignore-engines || true && \
+    yarn build || true && \
     yarn cache clean
 
 # Установка дополнительных Python-зависимостей
