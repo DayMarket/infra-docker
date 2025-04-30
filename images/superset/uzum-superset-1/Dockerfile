@@ -1,7 +1,6 @@
 FROM apache/superset:4.1.2
 
 USER root
-
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Установка Node.js 18 и Yarn через Corepack
@@ -24,16 +23,11 @@ COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 # Кастомный шаблон welcome-страницы
 COPY custom/public_welcome.html /app/superset/templates/superset/
 
-# Сборка frontend
-WORKDIR /app/superset-frontend
-RUN yarn config set private true && \
-    yarn install --ignore-engines --frozen-lockfile && \
-    yarn build && \
-    yarn cache clean
-
 # Установка дополнительных Python-зависимостей
 COPY requirements.txt /additional_requirements.txt
 RUN pip install --no-cache-dir -r /additional_requirements.txt
+
+RUN echo "custom Superset 4.1.2 build with patched frontend files"
 
 USER superset
 
