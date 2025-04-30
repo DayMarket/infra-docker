@@ -1,181 +1,105 @@
-import { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import {
-  isFeatureEnabled,
-  FeatureFlag,
-  t,
-  useTheme,
-  SupersetClient,
-} from '@superset-ui/core';
-import { CardStyles } from 'src/views/CRUD/utils';
-import { AntdDropdown } from 'src/components';
-import { Menu } from 'src/components/Menu';
-import ListViewCard from 'src/components/ListViewCard';
+import { t, styled, SupersetTheme } from '@superset-ui/core';
+import React from 'react';
 import Icons from 'src/components/Icons';
-import Label from 'src/components/Label';
-import FacePile from 'src/components/FacePile';
+import CertifiedBadge from 'src/components/CertifiedBadge';
+import { CardContainer } from 'src/views/CRUD/utils';
 import FaveStar from 'src/components/FaveStar';
-import { Dashboard } from 'src/views/CRUD/types';
+import Owners from 'src/components/Owners';
+import Tags from 'src/views/CRUD/data/components/Tags';
+import InfoTooltip from 'src/components/InfoTooltip';
+import DashboardThumbnail from './DashboardThumbnail';
 
-interface DashboardCardProps {
-  isChart?: boolean;
-  dashboard: Dashboard;
-  hasPerm: (name: string) => boolean;
-  bulkSelectEnabled: boolean;
-  loading: boolean;
-  openDashboardEditModal?: (d: Dashboard) => void;
-  saveFavoriteStatus: (id: number, isStarred: boolean) => void;
-  favoriteStatus: boolean;
-  userId?: string | number;
-  showThumbnails?: boolean;
-  handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
-  onDelete: (dashboard: Dashboard) => void;
+export interface DashboardCardProps {
+  dashboard: any;
+  openDashboardEditModal: (dashboard: any) => void;
+  showThumbnails: boolean;
 }
 
-function DashboardCard({
-  dashboard,
-  hasPerm,
-  bulkSelectEnabled,
-  userId,
-  openDashboardEditModal,
-  favoriteStatus,
-  saveFavoriteStatus,
-  showThumbnails,
-  handleBulkDashboardExport,
-  onDelete,
-}: DashboardCardProps) {
-  const history = useHistory();
-  const canEdit = hasPerm('can_write');
-  const canDelete = hasPerm('can_write');
-  const canExport = hasPerm('can_export');
+const TitleLink = styled.a`
+  ${({ theme }: { theme: SupersetTheme }) => `
+    font-size: ${theme.typography.sizes.l}px;
+    font-weight: ${theme.typography.weights.bold};
+    color: ${theme.colors.grayscale.dark1};
 
-  const theme = useTheme();
-
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
-  const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (
-      !fetchingThumbnail &&
-      dashboard.id &&
-      (thumbnailUrl === undefined || thumbnailUrl === null) &&
-      isFeatureEnabled(FeatureFlag.Thumbnails)
-    ) {
-      if (dashboard.thumbnail_url) {
-        setThumbnailUrl(dashboard.thumbnail_url || '');
-        return;
-      }
-      setFetchingThumbnail(true);
-      SupersetClient.get({
-        endpoint: `/api/v1/dashboard/${dashboard.id}`,
-      }).then(({ json = {} }) => {
-        setThumbnailUrl(json.thumbnail_url || '');
-        setFetchingThumbnail(false);
-      });
+    &:hover {
+      color: ${theme.colors.primary.base};
     }
-  }, [dashboard, thumbnailUrl]);
+  `}
+`;
 
-  const menu = (
-    <Menu>
-      {canEdit && openDashboardEditModal && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            className="action-button"
-            onClick={() => openDashboardEditModal?.(dashboard)}
-          >
-            <Icons.EditAlt iconSize="l" /> {t('Edit')}
-          </div>
-        </Menu.Item>
-      )}
-      {canExport && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            className="action-button"
-            onClick={() => handleBulkDashboardExport([dashboard])}
-          >
-            <Icons.Share iconSize="l" /> {t('Export')}
-          </div>
-        </Menu.Item>
-      )}
-      {canDelete && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            className="action-button"
-            onClick={() => onDelete(dashboard)}
-          >
-            <Icons.Trash iconSize="l" /> {t('Delete')}
-          </div>
-        </Menu.Item>
-      )}
-    </Menu>
-  );
+export default function DashboardCard({
+  dashboard,
+  openDashboardEditModal,
+  showThumbnails,
+}: DashboardCardProps) {
+  const {
+    id,
+    url,
+    dashboard_title,
+    thumbnail_url,
+    certified_by,
+    certification_details,
+    changed_by_name,
+    changed_by_url,
+    changed_by,
+    changed_on_humanized,
+    owners,
+    tags,
+  } = dashboard;
+
+  // Вставка для отладки
+  console.log('THUMBNAIL URL:', thumbnail_url);
 
   return (
-    <CardStyles
-      onClick={() => {
-        if (!bulkSelectEnabled) {
-          history.push(dashboard.url);
-        }
-      }}
-    >
-      <ListViewCard
-        loading={dashboard.loading || false}
-        title={dashboard.dashboard_title}
-        certifiedBy={dashboard.certified_by}
-        certificationDetails={dashboard.certification_details}
-        titleRight={
-          <Label>{dashboard.published ? t('published') : t('draft')}</Label>
-        }
-        cover={
-          isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails ? (
-            <img
-              src={thumbnailUrl || ''}
-              alt="Dashboard thumbnail"
-              style={{
-                width: '100%',
-                height: '100px',
-                objectFit: 'cover',
-              }}
-              onError={e => {
-                console.warn('Error loading dashboard preview:', e);
-              }}
-            />
-          ) : undefined
-        }
-        url={bulkSelectEnabled ? undefined : dashboard.url}
-        linkComponent={Link}
-        imgURL={undefined}
-        imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
-        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
-        coverLeft={<FacePile users={dashboard.owners || []} />}
-        actions={
-          <ListViewCard.Actions
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
-            {userId && (
-              <FaveStar
-                itemId={dashboard.id}
-                saveFaveStar={saveFavoriteStatus}
-                isStarred={favoriteStatus}
+    <CardContainer>
+      {showThumbnails && (
+        <a href={url}>
+          <DashboardThumbnail url={thumbnail_url} alt={dashboard_title} />
+        </a>
+      )}
+      <div className="card-body">
+        <div className="card-header">
+          <TitleLink href={url} className="card-title">
+            {dashboard_title}{' '}
+            {certified_by && (
+              <CertifiedBadge
+                certifiedBy={certified_by}
+                details={certification_details}
               />
             )}
-            <AntdDropdown overlay={menu}>
-              <Icons.MoreVert iconColor={theme.colors.grayscale.base} />
-            </AntdDropdown>
-          </ListViewCard.Actions>
-        }
-      />
-    </CardStyles>
+          </TitleLink>
+          <div className="fave-unfave-icon">
+            <FaveStar itemId={id} itemType="dashboard" />
+          </div>
+        </div>
+        <div className="card-description">
+          <div className="card-row">
+            <Icons.Person iconSize="l" />
+            <a href={changed_by_url}>
+              <strong>{changed_by_name || changed_by?.first_name}</strong>
+            </a>
+            <span className="card-alt-text">{changed_on_humanized}</span>
+          </div>
+          <div className="card-row">
+            <Owners owners={owners} />
+          </div>
+          {Array.isArray(tags) && tags.length > 0 && (
+            <div className="card-row">
+              <Tags tags={tags} />
+            </div>
+          )}
+        </div>
+        <div className="card-footer">
+          <InfoTooltip tooltip={t('Click to edit dashboard properties')}>
+            <Icons.EditAlt
+              iconSize="l"
+              onClick={() => openDashboardEditModal(dashboard)}
+              data-test="edit-dashboard"
+              role="button"
+            />
+          </InfoTooltip>
+        </div>
+      </div>
+    </CardContainer>
   );
 }
-
-export default DashboardCard;
