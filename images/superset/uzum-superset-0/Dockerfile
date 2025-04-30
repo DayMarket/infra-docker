@@ -13,6 +13,7 @@ RUN apt-get update && \
 COPY src/superset-frontend/ /app/superset-frontend/
 
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
+
 COPY src/templates/ /app/superset/templates/
 
 WORKDIR /app/superset-frontend
