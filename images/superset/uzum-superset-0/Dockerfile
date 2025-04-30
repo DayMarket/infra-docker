@@ -17,6 +17,7 @@ COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY src/templates/ /app/superset/templates/
 
 WORKDIR /app/superset-frontend
+
 RUN yarn install --ignore-engines || true && \
     yarn build || true && \
     yarn cache clean
