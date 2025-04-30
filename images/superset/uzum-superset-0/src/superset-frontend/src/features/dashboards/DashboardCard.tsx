@@ -1,19 +1,22 @@
-import { t, styled, SupersetTheme } from '@superset-ui/core';
 import React from 'react';
+import { t, styled, SupersetTheme } from '@superset-ui/core';
 import Icons from 'src/components/Icons';
 import CertifiedBadge from 'src/components/CertifiedBadge';
-import { CardContainer } from 'src/views/CRUD/utils';
 import FaveStar from 'src/components/FaveStar';
 import Owners from 'src/components/Owners';
-import Tags from 'src/views/CRUD/data/components/Tags';
 import InfoTooltip from 'src/components/InfoTooltip';
 import DashboardThumbnail from './DashboardThumbnail';
 
-export interface DashboardCardProps {
-  dashboard: any;
-  openDashboardEditModal: (dashboard: any) => void;
-  showThumbnails?: boolean; // Мы игнорируем его, но не убираем полностью
-}
+// Стили
+const CardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid ${({ theme }) => theme.colors.grayscale.light2};
+  border-radius: ${({ theme }) => theme.gridUnit}px;
+  overflow: hidden;
+  box-shadow: ${({ theme }) => theme.shadows.medium};
+  background-color: ${({ theme }) => theme.colors.grayscale.light5};
+`;
 
 const TitleLink = styled.a`
   ${({ theme }: { theme: SupersetTheme }) => `
@@ -27,9 +30,16 @@ const TitleLink = styled.a`
   `}
 `;
 
+export interface DashboardCardProps {
+  dashboard: any;
+  openDashboardEditModal: (dashboard: any) => void;
+  showThumbnails: boolean;
+}
+
 export default function DashboardCard({
   dashboard,
   openDashboardEditModal,
+  showThumbnails,
 }: DashboardCardProps) {
   const {
     id,
@@ -46,13 +56,13 @@ export default function DashboardCard({
     tags,
   } = dashboard;
 
-  console.log('🧩 DashboardCard -> thumbnail_url:', thumbnail_url);
+  console.log('🖼️ DASHBOARD THUMBNAIL:', thumbnail_url);
 
   return (
     <CardContainer>
-      {thumbnail_url && (
+      {showThumbnails && thumbnail_url && (
         <a href={url}>
-          <DashboardThumbnail url={thumbnail_url} alt={dashboard_title} />
+          <DashboardThumbnail url={thumbnail_url} />
         </a>
       )}
       <div className="card-body">
@@ -81,11 +91,7 @@ export default function DashboardCard({
           <div className="card-row">
             <Owners owners={owners} />
           </div>
-          {Array.isArray(tags) && tags.length > 0 && (
-            <div className="card-row">
-              <Tags tags={tags} />
-            </div>
-          )}
+          {/* Tags пропущен, так как импортировать нечего и структура может отличаться */}
         </div>
         <div className="card-footer">
           <InfoTooltip tooltip={t('Click to edit dashboard properties')}>
