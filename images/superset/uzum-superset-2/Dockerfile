@@ -64,7 +64,13 @@
     RUN cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
         cp -Rf /git/superset/requirements/*.txt /app/requirements/ && \
         pip install --no-cache-dir -r requirements/base.txt
-    
+    RUN --mount=type=cache,target=/root/.cache/pip \
+        apt-get update -qq && apt-get install -yqq --no-install-recommends \
+            build-essential && \
+        pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.1 && \
+        pip install --no-cache-dir -r requirements/base.txt && \
+        apt-get autoremove -yqq --purge build-essential && \
+        rm -rf /var/lib/apt/lists/*
     # Копируем собранные ассеты
     COPY --from=superset-node /app/superset-frontend /app/superset-frontend
     COPY --from=superset-node /app/superset-frontend/build /app/superset/static/assets
