@@ -22,7 +22,8 @@ COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 
 # Кастомный шаблон welcome-страницы
 COPY custom/public_welcome.html /app/superset/templates/superset/
-
+WORKDIR /app/superset-frontend
+RUN yarn build && yarn cache clean
 # Установка дополнительных Python-зависимостей
 COPY requirements.txt /additional_requirements.txt
 RUN pip install --no-cache-dir -r /additional_requirements.txt
