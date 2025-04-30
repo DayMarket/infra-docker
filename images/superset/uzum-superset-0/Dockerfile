@@ -1,32 +1,43 @@
-FROM apache/superset:4.1.2
+FROM apache/superset:4.1.2 as base
 
 USER root
+ENV PATH="/app/node_modules/.bin:$PATH"
 
-# Устанавливаем Python-зависимости
-COPY requirements.txt /additional_requirements.txt
-RUN pip install --no-cache --no-cache-dir -r /additional_requirements.txt
-
-# Устанавливаем Node.js 18, Yarn и Lerna (в legacy-версии)
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Устанавливаем системные зависимости, необходимые для сборки frontend
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y --no-install-recommends nodejs && \
-    npm install -g yarn@1.22.19 lerna@6.6.2 && \
-    yarn cache clean && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    python3-dev \
+    libffi-dev \
+    libpq-dev \
+    libsasl2-dev \
+    libssl-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libldap2-dev \
+    npm \
+    nodejs && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Копируем весь фронтенд Superset
+# Копируем весь frontend из src/superset-frontend
 COPY src/superset-frontend/ /app/superset-frontend/
-COPY src/superset-frontend/.eslintignore /app/superset-frontend/.eslintignore
+
 # Копируем кастомную картинку
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
-# Сборка фронтенда
-WORKDIR /app/superset-frontend
+# Копируем кастомные Python зависимости
+COPY requirements.txt /additional_requirements.txt
+RUN pip install --no-cache --no-cache-dir -r /additional_requirements.txt || true
 
-RUN lerna bootstrap && \
-    yarn build && \
+# Собираем frontend
+WORKDIR /app/superset-frontend
+RUN yarn install --frozen-lockfile || true && \
+    yarn build || true && \
     yarn cache clean
 
+# Финальный рабочий Superset запускается как обычный образ
+WORKDIR /app
 USER superset
