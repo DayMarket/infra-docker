@@ -23,12 +23,7 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "scripts": {
-    "build-storybook": "npm run demo:clean && storybook build",
-    "demo:build": "npm run demo:clean && storybook build -o _gh-pages",
-    "demo:clean": "rm -rf _gh-pages",
-    "demo:publish": "gh-pages -d _gh-pages",
-    "deploy-demo": "npm run demo:build && npm run demo:publish && npm run demo:clean",
-    "storybook": "storybook dev -p 9001"
+    "build": "NODE_ENV=production BABEL_ENV=production webpack --mode=production --color || true"
   },
   "dependencies": {
     "@data-ui/event-flow": "^0.0.84",
