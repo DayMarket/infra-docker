@@ -216,3 +216,13 @@ zipp==3.19.0
 zope.event==4.5.0
 zope.interface==5.4.0
 zstandard==0.22.0
+# from values.yaml
+statsd
+shillelagh[gsheetsapi]
+flask-session
+redis
+flask-oidc
+flask-openid
+kafka-python
+psycopg2-binary
+playwright
