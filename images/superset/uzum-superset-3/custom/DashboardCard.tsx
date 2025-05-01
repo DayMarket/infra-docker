@@ -10,7 +10,66 @@ import { Dashboard } from 'src/types/Dashboard';
 
 export interface DashboardCardProps {
   dashboard: Dashboard;
+}// File: src/pages/DashboardList/DashboardCard.tsx
+
+import React from 'react';
+import { Card } from 'antd';
+import { useHistory } from 'react-router-dom';
+
+interface Dashboard {
+  id: number;
+  dashboard_title: string;
+  thumbnail_url?: string;
 }
+
+interface Props {
+  dashboard: Dashboard;
+}
+
+function DashboardCard({ dashboard }: Props) {
+  const history = useHistory();
+
+  const handleClick = () => {
+    history.push(`/dashboard/${dashboard.id}`);
+  };
+
+  return (
+    <Card
+      hoverable
+      onClick={handleClick}
+      cover={
+        dashboard.thumbnail_url ? (
+          <img
+            src={dashboard.thumbnail_url}
+            alt=""
+            style={{ height: 200, objectFit: 'cover' }}
+          />
+        ) : (
+          <div
+            style={{
+              height: 200,
+              backgroundColor: '#f0f0f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 14,
+              color: '#888',
+            }}
+          >
+            Превью процессится
+          </div>
+        )
+      }
+    >
+      <Card.Meta
+        title={dashboard.dashboard_title || 'Без названия'}
+        description={`ID: ${dashboard.id}`}
+      />
+    </Card>
+  );
+}
+
+export default DashboardCard;
 
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const {
