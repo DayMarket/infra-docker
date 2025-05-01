@@ -22,6 +22,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp /git/superset/superset-frontend/package-lock.json ./ && \
     npm ci
 
+# Кастомный frontend
 #COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
 #COPY custom/DashboardThumbnail.tsx /git/superset/superset-frontend/src/pages/DashboardList/DashboardThumbnail.tsx
 #COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
@@ -41,9 +42,9 @@ ENV LANG=C.UTF-8 \
     SUPERSET_HOME="/app/superset_home" \
     SUPERSET_PORT=8088
 
-RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements && \
-    useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset && \
-    apt-get update -qq && apt-get install -yqq --no-install-recommends \
+RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
+    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
+    && apt-get update -qq && apt-get install -yqq --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
@@ -83,27 +84,24 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     libxtst6 \
     netbase \
     tzdata \
-    zlib1g && \
+    zlib1g \
+    wget && \
     rm -rf /var/lib/apt/lists/*
 
-ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
-
 COPY requirements-merged.txt /app/requirements.txt
-
-# Устанавливаем зависимости (без -e /app)
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
     playwright install-deps && \
     playwright install chromium
 
-# Копируем frontend ассеты
+# Копируем собранные ассеты
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
-# Копируем исходники и ставим Superset
-RUN cp -Rf /git/superset/superset/* /app/superset/ && \
-    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+# Копируем исходники Superset и устанавливаем
+RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
+    cp -Rf /git/superset/superset/* /app/superset/ && \
+    cp /git/superset/setup.py /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     pip install --no-cache-dir -e . && \
     flask fab babel-compile --target superset/translations && \
     chown -R superset:superset superset/translations && \
