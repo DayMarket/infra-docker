@@ -37,16 +37,16 @@ import DashboardCard from 'src/features/dashboards/DashboardCard';
 interface Dashboard {
   id: number;
   dashboard_title: string;
-  thumbnail_url: string;
+  thumbnail_url?: string;
   url: string;
-  certified_by: string | null;
-  certification_details: string | null;
-  changed_by_name: string;
-  changed_by_url: string;
-  changed_by: any;
-  changed_on_delta_humanized: string;
-  owners: any[];
-  tags: any[];
+  certified_by?: string | null;
+  certification_details?: string | null;
+  changed_by_name?: string;
+  changed_by_url?: string;
+  changed_by?: any;
+  changed_on_delta_humanized?: string;
+  owners?: any[];
+  tags?: any[];
 }
 
 interface Props {
@@ -100,32 +100,40 @@ function DashboardList(props: Props) {
 
   const userKey = dangerouslyGetItemDoNotUse(user?.userId?.toString(), null);
 
+  const showThumbnails =
+    userKey && typeof userKey.thumbnails !== 'undefined'
+      ? userKey.thumbnails
+      : isFeatureEnabled(FeatureFlag.Thumbnails);
+
   const renderCard = useCallback(
-    (dashboard: Dashboard) => (
-      <DashboardCard
-        dashboard={dashboard}
-        hasPerm={hasPerm}
-        bulkSelectEnabled={bulkSelectEnabled}
-        showThumbnails={
-          userKey
-            ? userKey.thumbnails
-            : isFeatureEnabled(FeatureFlag.Thumbnails)
-        }
-        userId={user?.userId}
-        loading={loading}
-        openDashboardEditModal={() => {}}
-        saveFavoriteStatus={saveFavoriteStatus}
-        favoriteStatus={favoriteStatus[dashboard.id]}
-        handleBulkDashboardExport={() => {}}
-        onDelete={() => {}}
-      />
-    ),
+    (dashboard: Dashboard) => {
+      return (
+        <DashboardCard
+          dashboard={dashboard}
+          hasPerm={hasPerm}
+          bulkSelectEnabled={bulkSelectEnabled}
+          showThumbnails={showThumbnails}
+          userId={user?.userId}
+          loading={loading}
+          openDashboardEditModal={() => {}}
+          saveFavoriteStatus={saveFavoriteStatus}
+          favoriteStatus={favoriteStatus[dashboard.id]}
+          handleBulkDashboardExport={() => {}}
+          onDelete={() => {}}
+        >
+          <div style={{ color: 'red', fontSize: '12px' }}>
+            🧪 UZUM CUSTOM DashboardCard
+          </div>
+        </DashboardCard>
+      );
+    },
     [
       hasPerm,
       bulkSelectEnabled,
       user?.userId,
       loading,
       userKey,
+      showThumbnails,
       favoriteStatus,
       saveFavoriteStatus,
     ],
@@ -134,20 +142,19 @@ function DashboardList(props: Props) {
   return (
     <>
       <SubMenu name={t('Dashboards')} buttons={[]} />
+      <div style={{ fontWeight: 'bold', color: 'green' }}>
+        🔧 UZUM CUSTOM DashboardList Index
+      </div>
       <ListView
         className="dashboard-list-view"
-        columns={[]}
+        columns={[]} // simplified, as we focus on cards
         data={dashboards}
         count={dashboards.length}
         loading={loading}
         fetchData={fetchData}
         refreshData={refreshData}
         renderCard={renderCard}
-        showThumbnails={
-          userKey
-            ? userKey.thumbnails
-            : isFeatureEnabled(FeatureFlag.Thumbnails)
-        }
+        showThumbnails={showThumbnails}
         defaultViewMode="card"
       />
     </>
