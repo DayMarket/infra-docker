@@ -1,60 +1,95 @@
 // src/pages/DashboardList/index.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import rison from 'rison';
-import { t } from '@superset-ui/core';
-import { SupersetClient } from '@superset-ui/core';
-import { ListView } from 'src/components/ListView';
-import { Tooltip } from 'src/components/Tooltip';
+import { t, SupersetClient } from '@superset-ui/core';
+import Button from 'src/components/Button';
+import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
 import Icons from 'src/components/Icons';
+import ListView from 'src/components/ListView';
+import SubMenu from 'src/components/Menu/SubMenu';
+import { createErrorHandler, handleBulkDashboardExport } from 'src/views/CRUD/utils';
+import { Dashboard } from 'src/types/Dashboard';
 import DashboardCard from './DashboardCard';
+import PropertiesModal from '../CRUD/Dashboard/PropertiesModal';
 
-interface Dashboard {
-  id: number;
-  dashboard_title: string;
-  changed_on_utc: string;
-  thumbnail_url?: string | null;
-}
+const PAGE_SIZE = 25;
 
-export default function DashboardList() {
+function DashboardList() {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({});
+  const [sortColumn, setSortColumn] = useState('changed_on_delta_humanized');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [currentPage, setCurrentPage] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const queryParams = rison.encode_uri({ order_column: 'changed_on_delta_humanized', order_direction: 'desc' });
-        const { json } = await SupersetClient.get({
-          endpoint: `/api/v1/dashboard/?q=${queryParams}`,
-        });
-        setDashboards(json.result || []);
-      } catch (error) {
-        console.error('Failed to fetch dashboards:', error);
-        setDashboards([]);
-      }
-      setLoading(false);
-    };
+  const fetchData = () => {
+    setLoading(true);
+    const queryParams = rison.encode({
+      page: currentPage,
+      page_size: PAGE_SIZE,
+      sort_column: sortColumn,
+      sort_order: sortOrder,
+      filters: Object.values(filters),
+    });
 
-    fetchData();
-  }, []);
-
-  const renderCard = (dashboard: Dashboard) => {
-    if (!dashboard || !dashboard.id || !dashboard.dashboard_title) return null;
-    return <DashboardCard dashboard={dashboard} key={dashboard.id} />;
+    SupersetClient.get({
+      endpoint: `/api/v1/dashboard/?q=${queryParams}`,
+    })
+      .then(({ json }) => {
+        setDashboards(json.result);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(t('There was an error fetching the dashboards.'));
+        setLoading(false);
+      });
   };
 
+  useEffect(() => {
+    fetchData();
+  }, [filters, sortColumn, sortOrder, currentPage]);
+
+  const renderCard = (dashboard: Dashboard) => (
+    <DashboardCard key={dashboard.id} dashboard={dashboard} />
+  );
+
+  const menu = useMemo(
+    () => [
+      <Button
+        key="create"
+        buttonStyle="primary"
+        href="/dashboard/new"
+        data-test="new-dashboard"
+      >
+        <Icons.Plus iconSize="l" /> {t('Dashboard')}
+      </Button>,
+    ],
+    [],
+  );
+
   return (
-    <div className="dashboard-list-container" style={{ padding: '16px' }}>
-      <div className="dashboard-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-        {!loading && dashboards.length > 0 ? (
-          dashboards.map(renderCard)
-        ) : !loading && dashboards.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px', fontSize: '16px' }}>
-            {t('No dashboards available')}
-          </div>
-        ) : null}
-      </div>
-    </div>
+    <>
+      <SubMenu
+        name={t('Dashboards')}
+        buttons={menu}
+      />
+      <ListView
+        title={t('Your Dashboards')}
+        loading={loading}
+        error={error}
+        items={dashboards}
+        fetchData={fetchData}
+        renderCard={renderCard}
+        cardView
+        showFilters
+        pageSize={PAGE_SIZE}
+        count={dashboards.length}
+        columns={[]}
+      />
+    </>
   );
 }
+
+export default DashboardList;
