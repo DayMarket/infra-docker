@@ -22,9 +22,9 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp /git/superset/superset-frontend/package-lock.json ./ && \
     npm ci
 
-# Копируем кастомные frontend-файлы
-COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
+# Копируем кастомные frontend-файлы строго в нужные места
 COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
+COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/pages/DashboardList/DashboardCard.tsx
 
 # Сборка frontend
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
