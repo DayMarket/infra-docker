@@ -1,55 +1,64 @@
-// File: src/pages/DashboardList/index.tsx
-
+// UZUM CUSTOM - Dashboard List Page with Thumbnail Cards
 import React, { useEffect, useState } from 'react';
-import rison from 'rison';
 import { t, SupersetClient } from '@superset-ui/core';
-import { ListView } from 'src/components/ListView';
+import { Card, Empty, Row, Col, Spin } from 'antd';
+import { Link } from 'react-router-dom';
 import DashboardCard from './DashboardCard';
+
+const PAGE_SIZE = 20;
 
 interface Dashboard {
   id: number;
   dashboard_title: string;
-  thumbnail_url?: string;
+  thumbnail_url: string;
+  url: string;
 }
 
-function DashboardList() {
+export default function DashboardList() {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const query = rison.encode({
+    SupersetClient.get({
+      endpoint: `/api/v1/dashboard/?q=${encodeURIComponent(
+        JSON.stringify({
           order_column: 'changed_on_delta_humanized',
           order_direction: 'desc',
-          page_size: 20,
           page: 0,
-        });
-
-        const { json } = await SupersetClient.get({ endpoint: `/api/v1/dashboard/?q=${query}` });
+          page_size: PAGE_SIZE,
+        }),
+      )}`,
+    })
+      .then(({ json }) => {
         setDashboards(json.result);
-      } catch (error) {
-        console.error('Error loading dashboards:', error);
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .catch(err => {
+        console.error('Failed to fetch dashboards:', err);
+        setLoading(false);
+      });
   }, []);
 
+  if (loading) {
+    return <Spin tip="Loading dashboards..." />;
+  }
+
+  if (!dashboards.length) {
+    return <Empty description={t('No dashboards found')} />;
+  }
+
   return (
-    <ListView
-      className="dashboard-list-view"
-      loading={loading}
-      title={t('')}
-      data={dashboards}
-      columns={[]}
-      renderCard={(dashboard: Dashboard) => (
-        <DashboardCard key={dashboard.id} dashboard={dashboard} />
-      )}
-    />
+    <div style={{ padding: 24 }}>
+      <h2>UZUM CUSTOM: Dashboards</h2>
+      <Row gutter={[16, 16]}>
+        {dashboards.map(dashboard => (
+          <Col key={dashboard.id} xs={24} sm={12} md={8} lg={6} xl={6}>
+            <Link to={dashboard.url}>
+              <DashboardCard dashboard={dashboard} />
+            </Link>
+          </Col>
+        ))}
+      </Row>
+    </div>
   );
 }
-
-export default DashboardList;
