@@ -1,4 +1,3 @@
-// file: src/pages/DashboardList/index.tsx
 import React from 'react';
 import { t } from '@superset-ui/core';
 import DashboardCard from './DashboardCard';

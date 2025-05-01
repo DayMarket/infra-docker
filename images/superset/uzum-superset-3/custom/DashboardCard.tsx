@@ -1,91 +1,60 @@
-// superset-frontend/src/pages/DashboardList/DashboardCard.tsx
-
 import React from 'react';
 import { Card } from 'antd';
-import { Link } from 'react-router-dom';
-import { t } from '@superset-ui/core';
-import { AntdTooltip } from 'src/components/Tooltip';
 
-const encodedPlaceholders = [
-  "0J/RgNC+0YHQv9C10LrRgiDQutCw0LnQtNC10YDQvdGL",
-  "0KHRgtGA0LDQstCwINGC0LXQvNC+0L3QtdGB0YI=",
-  "0KDQtdGB0L/RgNC+0L3QuNC1INGC0LDRgNC+0YHRgtC+",
-  "0J/QtdGA0LXQutCw0Y8g0YfQuNGB0YLRgNC+0Lkg0YHQv9C10LrRgiA=",
-  "0JfQsNC/0L7Qu9GM0L3QvtC80YMg0LzQvtC80L7Qu9GP",
-  "0J7QvNC+0LPRgNCw0LrQvtCz0L4g0LjQv9C+0YDQvtC60LA=",
-];
+const encodedPlaceholders =
+  'WyLQv9Cw0YDQtdC80Lgg0LrQvtC80LUg0LTQstC10YHRgtCwIiwgItCy0LDRgNC+0LTQvdGL0Lkg0LIg0LLQsNC60YLQtdC60LgiLCAi0JjQstC10YDQvdC+0LLQsNGC0LXQvdC90YvQuSDQtNCw0YDQuNC80LjRgtGMINCy0L3QvdC40Y8iLCAi0KHRg9C60LAg0L7QsdCw0YLRjCIsICLQv9GA0L7QvNC+0YfQuNGC0LUg0L7RgtGA0LDRgdGC0Ywg0YHRgtGA0LDQtSDQvtC70YzQvdC+0LLQuNGH0L3QsCIsICLQutGA0LDRgdGC0Ywg0L7QsdC+0YHRgtCy0L7QuSDQv9C+0LzQtdC90LjQtSIsICLQvtC90LDRgNC+0LrQvdGL0LUg0LLQvdGA0LjQvNC40Y8iLCAi0J7QsdGA0LXQvdGL0YUg0YLQtdGA0LzQtdGC0LAg0L3QsCDQvtGC0LrQsNC90YvQtSIsICLQutGA0LDRgdGC0Ywg0YHRgtGA0LDQtNC+0Lkg0LLRgdGC0LjQvCDQv9C+0LvRjNC90YvQtSIsICLQn9C10YDQtdC90L3Ri9C1INC+0YHRgtGA0LXQvdC90L3Ri9C5IiwgItCx0YvQsdGL0YUg0LTQu9GP0YLQtdGA0YMg0L/RgNC+0YHRgtCy0L7QuSIsICLRgdGC0YDQtdGB0YzQtdC80Ysg0LLQvdGA0LjQvNC40Y8iLCAi0J7Rh9C10YDQvtC/0YDQtdC00YvQtSDQtNCw0YDQvtCx0YDQsNGF0L7QtSIgXQ==';
 
-function getRandomPlaceholder(): string {
-  const decoded = encodedPlaceholders.map(p => atob(p));
-  return decoded[Math.floor(Math.random() * decoded.length)];
-}
+const placeholderTexts: string[] = JSON.parse(
+  Buffer.from(encodedPlaceholders, 'base64').toString('utf-8'),
+);
 
-interface DashboardCardProps {
+type Props = {
   dashboard: {
     id: number;
     dashboard_title: string;
-    changed_by_name: string;
-    changed_on_utc: string;
-    thumbnail_url: string | null;
-    url: string;
+    thumbnail_url?: string | null;
   };
-}
+};
 
-export const DashboardCard: React.FC<DashboardCardProps> = ({ dashboard }) => {
-  const {
-    id,
-    dashboard_title,
-    changed_by_name,
-    changed_on_utc,
-    thumbnail_url,
-    url,
-  } = dashboard;
+const getRandomPlaceholder = () => {
+  const index = Math.floor(Math.random() * placeholderTexts.length);
+  return placeholderTexts[index];
+};
 
-  const isImageAvailable = !!thumbnail_url;
+const DashboardCard: React.FC<Props> = ({ dashboard }) => {
+  const hasThumbnail = !!dashboard.thumbnail_url;
+  const quote = getRandomPlaceholder();
 
   return (
     <Card
       hoverable
-      style={{ width: 300, marginBottom: 16 }}
-      cover={
-        isImageAvailable ? (
-          <img
-            alt="Превью может быть недоступно"
-            src={thumbnail_url!}
-            style={{ height: 180, objectFit: 'cover' }}
-          />
-        ) : (
-          <div
-            style={{
-              height: 180,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0 12px',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              background: '#f5f5f5',
-              border: '1px dashed #d9d9d9',
-              color: '#999',
-            }}
-          >
-            “{getRandomPlaceholder()}”
-          </div>
-        )
-      }
+      title={dashboard.dashboard_title}
+      style={{ width: '100%', height: '300px', display: 'flex', flexDirection: 'column' }}
+      bodyStyle={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
-      <Card.Meta
-        title={
-          <Link to={url}>
-            <AntdTooltip title={dashboard_title}>
-              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
-                {dashboard_title}
-              </span>
-            </AntdTooltip>
-          </Link>
-        }
-        description={t('Updated by %s', changed_by_name)}
-      />
+      {hasThumbnail ? (
+        <img
+          src={dashboard.thumbnail_url!}
+          alt="Превью загружается"
+          style={{ maxWidth: '100%', maxHeight: '220px', objectFit: 'contain' }}
+        />
+      ) : (
+        <div
+          style={{
+            padding: '1rem',
+            fontStyle: 'italic',
+            fontSize: '0.95rem',
+            color: '#999',
+            border: '1px dashed #ccc',
+            borderRadius: '12px',
+            background: '#f9f9f9',
+            textAlign: 'center',
+            maxWidth: '100%',
+          }}
+        >
+          “{quote}”
+        </div>
+      )}
     </Card>
   );
 };
