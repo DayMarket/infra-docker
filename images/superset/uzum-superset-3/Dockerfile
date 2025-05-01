@@ -16,6 +16,7 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
 WORKDIR /app/superset-frontend
 
 ENV GIT_SSL_NO_VERIFY=1
+
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
     cp /git/superset/superset-frontend/package.json ./ && \
