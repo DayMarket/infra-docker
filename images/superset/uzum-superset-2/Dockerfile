@@ -23,9 +23,9 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     npm ci
 
 # Копируем кастомные frontend-файлы
-COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
-COPY custom/DashboardThumbnail.tsx /git/superset/superset-frontend/src/pages/DashboardList/DashboardThumbnail.tsx
-COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
+#COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
+#COPY custom/DashboardThumbnail.tsx /git/superset/superset-frontend/src/pages/DashboardList/DashboardThumbnail.tsx
+#COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
 
 # Сборка frontend
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
@@ -93,31 +93,31 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
 ENV GIT_SSL_NO_VERIFY=1
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
 
-# Копируем необходимые Superset-файлы
-RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
-    cp /git/superset/superset-frontend/package.json /app/superset-frontend/
-
-# Установка Python-зависимостей
-COPY requirements-merged.txt /app/requirements.txt
-RUN --mount=type=cache,target=/root/.cache/pip \
-    apt-get update -qq && apt-get install -yqq --no-install-recommends \
-        build-essential && \
-    pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.1 && \
-    pip install --no-cache-dir -r requirements.txt && \
-    apt-get autoremove -yqq --purge build-essential && \
-    rm -rf /var/lib/apt/lists/*
-
-# Копируем собранные ассеты
-COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
-
-# Финальная установка и настройка
+# Копируем исходники Superset
 RUN cp -Rf /git/superset/superset/* /app/superset/ && \
-    pip install --no-cache-dir -e . && \
-    flask fab babel-compile --target superset/translations && \
-    chown -R superset:superset superset/translations && \
+    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+    mkdir -p /app/superset-frontend && \
+    cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
+    cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/
+
+# Установка зависимостей
+COPY requirements-merged.txt /app/requirements.txt
+
+# hadolint ignore=DL3013
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install --no-cache-dir -r requirements.txt && \
+    playwright install-deps && \
+    playwright install chromium
+
+# Установка Superset и скрипта запуска
+RUN pip install --no-cache-dir -e . && \
     cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && \
     chown -R superset:superset ./* && \
     chmod 755 /usr/bin/run-server.sh
+
+# Копируем собранные frontend ассеты
+COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
 # Кастомные шаблоны и логотипы
 COPY custom/public_welcome.html /app/superset/templates/superset/
