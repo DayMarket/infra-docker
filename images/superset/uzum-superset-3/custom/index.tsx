@@ -1,64 +1,85 @@
-// UZUM CUSTOM - Dashboard List Page with Thumbnail Cards
-import React, { useEffect, useState } from 'react';
-import { t, SupersetClient } from '@superset-ui/core';
-import { Card, Empty, Row, Col, Spin } from 'antd';
+/**
+ * UZUM CUSTOM Dashboard List
+ * Версия с облаком цитат и замаскированными placeholder'ами
+ */
+
+import React from 'react';
+import rison from 'rison';
+import { styled, t } from '@superset-ui/core';
+import moment from 'moment';
+import ListView from 'src/components/ListView';
+import FacePile from 'src/components/FacePile';
+import FaveStar from 'src/components/FaveStar';
+import { Tooltip } from 'src/components/Tooltip';
 import { Link } from 'react-router-dom';
-import DashboardCard from './DashboardCard';
+import { getClientErrorObject } from 'src/utils/getClientErrorObject';
+import withToasts from 'src/components/MessageToasts/withToasts';
+import { createErrorHandler } from 'src/views/CRUD/utils';
+import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
+import Icons from 'src/components/Icons';
+import {
+  isUserAdmin,
+  isUserOwner,
+} from 'src/views/CRUD/utils';
+import { Dashboard, DashboardListProps } from 'src/types/DashboardTypes';
+import Thumbnail from './DashboardThumbnail';
 
-const PAGE_SIZE = 20;
+const Quote = styled.div`
+  font-style: italic;
+  background: #f9f9f9;
+  border-left: 4px solid #ccc;
+  margin: 0;
+  padding: 0.5em 1em;
+  color: #555;
+  font-size: 90%;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
-interface Dashboard {
-  id: number;
-  dashboard_title: string;
-  thumbnail_url: string;
-  url: string;
-}
+const PLACEHOLDER_QUOTES = atob(
+  'WyJQcmV2aXUgYnVkZXQgdSBuZXh0IHNwcmludCIsIlV0cm9tIGRhdW5ueWUg4oKsIGZldmVyeW5nIGRhc2hib3JkcyIsIk1lc3RvIG5ldC4uLiIsIlNrb29uIHNvb24hIiwiUGxhdGZvcm0gdXBsb2FkIGluIHByb2dyZXNzIiwiVmlldyBmb3IgdGhlIGJlc3QgZGFzaGJvYXJkcyIsIkFuYWx5dGljIGluIHByb2dyZXNzIiwiU3RheSB0dW5lZC4uLiIsIlRoaXMgc3BhY2Ugd2lsbCBiZSBvd25lZCBieSB5b3UiLCJXYWl0aW5nIGZvciBkYXRhIiwiU2VlIHlvdSBuZXh0IHdlZWsiLCJDb25uZWN0aW5nIHRoZSBkb3RzIiwiU3ltbGljIG1pc3Npb24iLCJEYXRhIHdpbGwgYmUgcHJvY2Vzc2VkIiwiVG9vIG11Y2ggaW5mb3JtYXRpb24iLCJIb2xkaW5nIGZvciBhcHByb3ZhbCIsIlByZXZpZXcgaXMgbWlzc2luZyIsIlBlbmRpbmcgYXBwcm92YWwiLCJTY2hlZHVsZWQgdXBncmFkZSIsIlJlZnJlc2ggcmVxdWlyZWQiXQ=='
+).split(',');
 
-export default function DashboardList() {
-  const [dashboards, setDashboards] = useState<Dashboard[]>([]);
-  const [loading, setLoading] = useState(true);
+const DashboardList = (props: DashboardListProps) => {
+  const { addDangerToast } = props;
 
-  useEffect(() => {
-    SupersetClient.get({
-      endpoint: `/api/v1/dashboard/?q=${encodeURIComponent(
-        JSON.stringify({
-          order_column: 'changed_on_delta_humanized',
-          order_direction: 'desc',
-          page: 0,
-          page_size: PAGE_SIZE,
-        }),
-      )}`,
-    })
-      .then(({ json }) => {
-        setDashboards(json.result);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to fetch dashboards:', err);
-        setLoading(false);
-      });
-  }, []);
+  const renderCard = (dashboard: Dashboard) => {
+    const showQuote = !dashboard.thumbnail_url;
 
-  if (loading) {
-    return <Spin tip="Loading dashboards..." />;
-  }
-
-  if (!dashboards.length) {
-    return <Empty description={t('No dashboards found')} />;
-  }
+    return (
+      <div className="dashboard-card">
+        {dashboard.thumbnail_url ? (
+          <img
+            src={dashboard.thumbnail_url}
+            alt="Превью в процессе обработки"
+            style={{ width: '100%', height: 'auto' }}
+          />
+        ) : (
+          <Quote>
+            {PLACEHOLDER_QUOTES[
+              Math.floor(Math.random() * PLACEHOLDER_QUOTES.length)
+            ]}
+          </Quote>
+        )}
+        <div className="dashboard-title">
+          <Link to={`/dashboard/${dashboard.slug || dashboard.id}/`}>
+            {dashboard.dashboard_title}
+          </Link>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>UZUM CUSTOM: Dashboards</h2>
-      <Row gutter={[16, 16]}>
-        {dashboards.map(dashboard => (
-          <Col key={dashboard.id} xs={24} sm={12} md={8} lg={6} xl={6}>
-            <Link to={dashboard.url}>
-              <DashboardCard dashboard={dashboard} />
-            </Link>
-          </Col>
-        ))}
-      </Row>
-    </div>
+    <ListView
+      title={t('Dashboards')}
+      renderCard={renderCard}
+      // Остальные пропсы и логика здесь
+    />
   );
-}
+};
+
+export default withToasts(DashboardList);
