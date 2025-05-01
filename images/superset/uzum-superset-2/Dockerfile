@@ -90,29 +90,27 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     zlib1g && \
     rm -rf /var/lib/apt/lists/*
 
-# Установка зависимостей
 ENV GIT_SSL_NO_VERIFY=1
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
 
+# Копируем необходимые Superset-файлы
 RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
-    cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
-    cp -Rf /git/superset/requirements/base.txt /app/requirements/
+    cp /git/superset/superset-frontend/package.json /app/superset-frontend/
 
-COPY custom/requirements.txt /app/requirements/custom.txt
-
+# Установка Python-зависимостей
+COPY requirements-merged.txt /app/requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
         build-essential && \
     pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.1 && \
-    pip install --no-cache-dir -r requirements/base.txt && \
-    pip install --no-cache-dir -r requirements/custom.txt && \
+    pip install --no-cache-dir -r requirements.txt && \
     apt-get autoremove -yqq --purge build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # Копируем собранные ассеты
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
-# Финальная сборка Python и Superset
+# Финальная установка и настройка
 RUN cp -Rf /git/superset/superset/* /app/superset/ && \
     pip install --no-cache-dir -e . && \
     flask fab babel-compile --target superset/translations && \
