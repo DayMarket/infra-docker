@@ -1,28 +1,38 @@
-// src/pages/DashboardList/index.tsx
-
+// file: src/pages/DashboardList/index.tsx
 import React from 'react';
 import { t } from '@superset-ui/core';
-import ListView from 'src/components/ListView/ListView';
 import DashboardCard from './DashboardCard';
 
-const DashboardList = ({
-  addDangerToast,
-  loading = false,
-  resourceCollection = [],
-}: any) => {
-  const renderCard = (dashboard: any) => {
-    if (!dashboard) return null;
+type DashboardType = {
+  id: number;
+  dashboard_title: string;
+  thumbnail_url?: string | null;
+};
 
-    return <DashboardCard dashboard={dashboard} />;
-  };
+const dashboards: DashboardType[] = (window as any).bootstrap?.dashboards || [];
 
+const DashboardList = () => {
   return (
-    <ListView
-      title={t('Dashboards')}
-      loading={loading}
-      data={resourceCollection || []}
-      renderCard={renderCard}
-    />
+    <div style={{ padding: '1rem' }}>
+      <h2 style={{ marginBottom: '1rem' }}>{t('Your Dashboards')}</h2>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '1rem',
+        }}
+      >
+        {Array.isArray(dashboards) && dashboards.length > 0 ? (
+          dashboards.map(dashboard => (
+            <DashboardCard key={dashboard.id} dashboard={dashboard} />
+          ))
+        ) : (
+          <div style={{ fontStyle: 'italic', opacity: 0.6 }}>
+            {t('No dashboards available')}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
