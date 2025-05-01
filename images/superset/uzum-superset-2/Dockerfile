@@ -98,11 +98,14 @@ RUN cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFES
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
     cp -Rf /git/superset/requirements/base.txt /app/requirements/
 
+COPY custom/requirements.txt /app/requirements/custom.txt
+
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
         build-essential && \
     pip install --no-cache-dir --upgrade setuptools==75.8.0 pip==25.1 && \
     pip install --no-cache-dir -r requirements/base.txt && \
+    pip install --no-cache-dir -r requirements/custom.txt && \
     apt-get autoremove -yqq --purge build-essential && \
     rm -rf /var/lib/apt/lists/*
 
