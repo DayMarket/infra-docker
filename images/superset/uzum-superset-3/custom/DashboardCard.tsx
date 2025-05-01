@@ -1,82 +1,66 @@
-// src/pages/DashboardList/DashboardCard.tsx
 import React from 'react';
 import { t } from '@superset-ui/core';
-import moment from 'moment';
-import Card from 'src/components/Card';
-import { Link } from 'react-router-dom';
+import { Card } from 'src/components/Card';
 import { Tooltip } from 'src/components/Tooltip';
-import Icons from 'src/components/Icons';
-import { isDefined } from 'src/utils/common';
+import { Link } from 'react-router-dom';
+import FallbackThumbnail from 'src/components/FallbackThumbnail';
+import { DashboardCardProps } from './types';
+import './styles.css';
 
-const PLACEHOLDER_QUOTES = [
-  '0J/RgNC40LLQtdGCLCDQv9C+0LrQvtCz0L4g0YLRgNC+0YHRgtGA0L7QstCwLg==',
-  '0JHQvtC70YzRidC10L3QvdC+INCy0YvQuSDRg9GC0LDRgNC10L3QuNC5Lg==',
-  '0KLQtdC00Ywg0LvQvtC70YzRidC10L3QuNGH0LXRgdGC0Yw=',
-  '0JrQsNGA0LDRgtC+0LLQutCwINC/0YDQsNC50YLQuNC90LjRjw==',
-  '0J/RgNC+0YHRgtGA0L7QstCwINC/0YDQvtCz0YDQsNC30LjRh9C10L3QuNC5',
-  '0KHQvtC+0LvQsNC90LjQtSDQv9C10YDQvtC00LDQu9C40Y8=',
-  '0JrQvtC70YzRidC10L3QvdGL0Lkg0Y/Rh9C10YHRgtCy0L7Qu9C10L0u',
-  '0J3QsNGI0LjQvdC40Y8g0YLQtdGA0LzQtdGC0LU=',
-  '0KLRgNC+0L3QuNC1INGB0LjRgdCw0LvQuNGC0Ywg0YTQsNC50YHRjCDRgdCw0LzQtdC90YvQuQ==',
-  '0KHQtdGA0LXQvdC+0YfQvdGL0Lkg0YLQtdGF0L3QuNC60Lgg0LrQsNC70YzRidC10L0=',
-].map(str => atob(str));
+const placeholderBase64 = [
+  '0J/RgNC40LLQtdGA0LrQsNGPINC+0YDQvtC00LAg0L/RgNC+0LHRgNCw0YDQvtC00YPRgA==',
+  '0JHQsNC80L7RgdGC0YDQvtCy0YvQuSDQuCDRgdC+0YDQuNC80LDRgtGM0LrQvtCz0L4u',
+  '0J/RgNC10LrQuNC90LjQtSDRgdC10LzQsNGC0Ywg0YPRgNCz0LjQvdC10L3QuNC1',
+  '0JfQsNC80LXQvNCw0YDQvtCy0LDQvdC+0LLQsNGPINC40LzQvtC70YzRgdC60LjQuSDRgNC+0YHQvtCy0LXRgi4=',
+  '0JzQvtC90LjQuSDQv9C+0LrQsNC60YHRgiDQv9C+0LvQvtC80L7QvdC+0LLQsNC90LjRjy4=',
+  '0KHRgtC+0Lwg0YHRgtC10YHRgtGA0L7QstCw0YLRjCDRgNC10LzQtdC90LjQtSDRgtC+0YDQsNC30LDQvNC40Y8=',
+  '0JrQsNC30LDQvdC+INC/0L7QsdGA0LDQstC40Y8g0LIg0LfQsNC70L7QvNC+0LzQuCDQvtC/0LjQvdC+0Lkg0YHRgtGA0LDQuy4=',
+  '0J/RgNC10LzQtdC90LjQtSDQv9Cw0YDQsNC90L3Ri9C5INCx0LvQuNC+0YLQtdC90LjRjy4=',
+  '0J/RgNC+0YHRgtC+0LLQsNGPINC/0YDQuNCx0LXRgiDQvtCx0LvQuNC90LjRj9C10YHRjA==',
+  '0KHRgNC+0YHQtdGA0LDRgtGMINC90LXQvNC+0Lkg0L3QsCDQv9GA0L7QtNGLINC00LvRjy4='
+];
 
-type DashboardCardProps = {
-  dashboard: {
-    id: number;
-    dashboard_title: string;
-    changed_on_utc: string;
-    url: string;
-    thumbnail_url?: string | null;
-  };
-};
+function decodeBase64(str: string): string {
+  try {
+    return atob(str);
+  } catch {
+    return 'Preview unavailable';
+  }
+}
 
-export default function DashboardCard({ dashboard }: DashboardCardProps) {
-  const randomPlaceholder =
-    PLACEHOLDER_QUOTES[Math.floor(Math.random() * PLACEHOLDER_QUOTES.length)];
+export const DashboardCard = ({ dashboard }: DashboardCardProps) => {
+  const { id, dashboard_title, url, thumbnail_url } = dashboard || {};
+  const title = dashboard_title || t('Untitled');
 
   return (
-    <Card className="dashboard-card" hoverable>
-      <Link to={dashboard.url}>
-        {dashboard.thumbnail_url ? (
-          <img
-            src={dashboard.thumbnail_url}
-            alt="Превью в процессе создания"
-            style={{
-              width: '100%',
-              height: 150,
-              objectFit: 'cover',
-              borderRadius: 4,
-              border: '1px solid #e2e2e2',
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: '100%',
-              height: 150,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              background: '#fafafa',
-              color: '#999',
-              borderRadius: 4,
-              border: '1px dashed #ccc',
-              fontSize: 12,
-              padding: 10,
-              textAlign: 'center',
-            }}
-          >
-            “{randomPlaceholder}”
-          </div>
-        )}
-        <div style={{ marginTop: 12, fontWeight: 600 }}>
-          {dashboard.dashboard_title}
-        </div>
-        <div style={{ fontSize: 12, color: '#999' }}>
-          {t('Last modified: %s', moment(dashboard.changed_on_utc).fromNow())}
-        </div>
-      </Link>
-    </Card>
+    <div className="dashboard-card">
+      <Card className="dashboard-card-inner" hoverable>
+        <Link to={url || `/dashboard/${id}/`}>
+          {thumbnail_url ? (
+            <img
+              src={thumbnail_url}
+              alt=""
+              className="dashboard-card-thumb"
+              onError={e => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.style.display = 'none';
+              }}
+            />
+          ) : (
+            <FallbackThumbnail
+              text={decodeBase64(
+                placeholderBase64[Math.floor(Math.random() * placeholderBase64.length)]
+              )}
+            />
+          )}
+        </Link>
+        <Tooltip title={title}>
+          <div className="dashboard-card-title">{title}</div>
+        </Tooltip>
+      </Card>
+    </div>
   );
-}
+};
+
+export default DashboardCard;
