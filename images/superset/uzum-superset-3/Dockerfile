@@ -3,6 +3,9 @@ ARG PY_VER=3.10-slim-bookworm
 FROM node:18-bullseye-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
+ENV BUILD_CMD=${NPM_BUILD_CMD} \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    GIT_SSL_NO_VERIFY=1
 
 RUN apt-get update -qq && \
     apt-get install -yqq --no-install-recommends \
@@ -10,29 +13,21 @@ RUN apt-get update -qq && \
         python3 \
         git
 
-ENV BUILD_CMD=${NPM_BUILD_CMD} \
-    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+WORKDIR /git/superset/superset-frontend
 
-WORKDIR /app/superset-frontend
-
-ENV GIT_SSL_NO_VERIFY=1
-
+# Клонируем исходники и применяем frontend memory patch
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
-    cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
-    cp /git/superset/superset-frontend/package.json ./ && \
-    cp /git/superset/superset-frontend/package-lock.json ./ 
+    cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh
 
-RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend
+# Копируем кастомные файлы
+COPY custom/index.tsx ./src/pages/DashboardList/index.tsx
+COPY custom/DashboardCard.tsx ./src/features/dashboards/DashboardCard.tsx
 
-# Потом уже кастомные файлы — в рабочую папку
-COPY custom/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
-COPY custom/DashboardCard.tsx /app/superset-frontend/src/features/dashboards/DashboardCard.tsx
-    
-# Установка зависимостей и сборка
+# Сборка frontend
 RUN npm ci && npm run ${BUILD_CMD}
 
 ######################################################################
-# Final lean image...
+# Final image with full dependencies for preview support
 ######################################################################
 FROM python:${PY_VER} AS lean
 
@@ -43,11 +38,12 @@ ENV LANG=C.UTF-8 \
     FLASK_APP="superset.app:create_app()" \
     PYTHONPATH="/app/pythonpath" \
     SUPERSET_HOME="/app/superset_home" \
-    SUPERSET_PORT=8088
+    SUPERSET_PORT=8088 \
+    GIT_SSL_NO_VERIFY=1
 
-RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
-    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
-    && apt-get update -qq && apt-get install -yqq --no-install-recommends \
+RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements && \
+    useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset && \
+    apt-get update -qq && apt-get install -yqq --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
@@ -90,44 +86,32 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     zlib1g && \
     rm -rf /var/lib/apt/lists/*
 
-ENV GIT_SSL_NO_VERIFY=1
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
-
-# Копируем исходники Superset
-RUN cp -Rf /git/superset/superset/* /app/superset/ && \
+RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
+    cp -Rf /git/superset/superset/* /app/superset/ && \
     cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     mkdir -p /app/superset-frontend && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
     cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/
 
-# Установка зависимостей
 COPY requirements-merged.txt /app/requirements.txt
-
-# hadolint ignore=DL3013
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir --upgrade pip setuptools && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -e . && \
     playwright install-deps && \
     playwright install chromium
 
-# Установка Superset и скрипта запуска
-RUN pip install --no-cache-dir -e . && \
-    cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && \
-    chown -R superset:superset ./* && \
-    chmod 755 /usr/bin/run-server.sh
+COPY --chown=superset:superset --from=superset-node /git/superset/superset-frontend/static/assets superset/static/assets
 
-# Копируем собранные frontend ассеты
-COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
-
-# Кастомные шаблоны и логотипы
 COPY custom/public_welcome.html /app/superset/templates/superset/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 
+RUN rm -rf /git /root/.cache /tmp/* && \
+    find /app -name '__pycache__' -type d -exec rm -rf {} + && \
+    find /app -name '*.pyc' -delete
+
 USER superset
 
 HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health"
-
 EXPOSE ${SUPERSET_PORT}
-
-CMD ["/usr/bin/run-server.sh"]
+CMD ["superset", "run"]
