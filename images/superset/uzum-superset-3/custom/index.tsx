@@ -14,7 +14,7 @@ import FacePile from 'src/components/FacePile';
 import Icons from 'src/components/Icons';
 import Tooltip from 'src/components/Tooltip';
 import withToasts from 'src/components/MessageToasts/withToasts';
-import DashboardCard from 'src/features/dashboards/DashboardCard';
+import DashboardCard from 'src/pages/DashboardList/DashboardCard';
 
 interface Dashboard {
   id: number;
