@@ -1,124 +1,114 @@
-ARG PY_VER=3.10-slim-bookworm
+# === ЭТАП 1: сборка frontend Superset ===
+FROM node:18-bullseye-slim as frontend-builder
 
-FROM node:18-bullseye-slim AS superset-node
-
-ARG NPM_BUILD_CMD="build"
-ENV BUILD_CMD=${NPM_BUILD_CMD} \
-    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    GIT_SSL_NO_VERIFY=1
-
-RUN apt-get update -qq && \
-    apt-get install -yqq --no-install-recommends \
-        build-essential \
-        python3 \
-        git
-
-WORKDIR /
-RUN rm -rf /git/superset && \
-    git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
-    cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh
-
-WORKDIR /git/superset/superset-frontend
-
-COPY custom/index.tsx ./src/pages/DashboardList/index.tsx
-COPY custom/DashboardCard.tsx ./src/features/dashboards/DashboardCard.tsx
 ENV ESLINT_NO_DEV_ERRORS=true
-RUN npm ci && npm run ${BUILD_CMD}
-
-######################################################################
-# Final image with run-server.sh and full preview support
-######################################################################
-FROM python:${PY_VER} AS lean
+ENV TSC_COMPILE_ON_ERROR=true
+ENV SKIP_PREFLIGHT_CHECK=true
 
 WORKDIR /app
+
+# Клонируем Superset 4.1.2
+RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git
+
+WORKDIR /app/superset/superset-frontend
+
+# Устанавливаем зависимости
+RUN npm ci
+
+# Копируем кастомные файлы
+COPY custom/DashboardCard.tsx ./src/features/dashboards/DashboardCard.tsx
+COPY custom/index.tsx ./src/pages/DashboardList/index.tsx
+
+# Собираем frontend
+RUN npm run build
+
+
+# === ЭТАП 2: backend Superset + системный пользователь ===
+FROM python:3.10-slim-bookworm
+
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
-    SUPERSET_ENV=production \
-    FLASK_APP="superset.app:create_app()" \
-    PYTHONPATH="/app/pythonpath" \
-    SUPERSET_HOME="/app/superset_home" \
-    SUPERSET_PORT=8088 \
-    GIT_SSL_NO_VERIFY=1
-
-RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements && \
-    useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset && \
-    apt-get update -qq && apt-get install -yqq --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    curl \
-    default-libmysqlclient-dev \
-    git \
-    libasound2 \
-    libbz2-1.0 \
-    libc6 \
-    libcom-err2 \
-    libcrypt1 \
-    libdb5.3 \
-    libdbus-glib-1-2 \
-    libecpg-dev \
-    libffi8 \
-    libgdbm6 \
-    libgssapi-krb5-2 \
-    libgtk-3-0 \
-    libk5crypto3 \
-    libkeyutils1 \
-    libkrb5-3 \
-    libkrb5support0 \
-    libldap2-dev \
-    liblzma5 \
-    libncursesw6 \
-    libnsl2 \
-    libnss3 \
-    libpq-dev \
-    libreadline8 \
-    libsasl2-dev \
-    libsasl2-modules-gssapi-mit \
-    libsqlite3-0 \
-    libssl3 \
-    libtinfo6 \
-    libtirpc3 \
-    libuuid1 \
-    libx11-xcb1 \
-    libxtst6 \
-    netbase \
-    tzdata \
-    zlib1g && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /
-RUN rm -rf /git/superset && \
-    git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
+    PYTHONUNBUFFERED=1 \
+    FLASK_ENV=production \
+    SUPERSET_HOME=/app/superset
 
 WORKDIR /app
 
-RUN cp -Rf /git/superset/superset/* /app/superset/ && \
-    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
-    mkdir -p /app/superset-frontend && \
-    cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
-    cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/ && \
-    cp /git/superset/docker/run-server.sh /usr/bin/ && \
-    chmod 755 /usr/bin/run-server.sh
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    libpq-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libldap2-dev \
+    libsasl2-dev \
+    libmysqlclient-dev \
+    default-libmysqlclient-dev \
+    curl \
+    wget \
+    git \
+    unzip \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    gcc \
+    g++ \
+    freetds-dev \
+    unixodbc-dev \
+    libsqlite3-dev \
+    libcurl4-openssl-dev \
+    libpng-dev \
+    pkg-config \
+    software-properties-common \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY requirements-merged.txt /app/requirements.txt
+# Клонируем Superset 4.1.2
+RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /app/superset
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -e . && \
-    playwright install-deps && \
-    playwright install chromium
+WORKDIR /app/superset
 
-COPY --chown=superset:superset --from=superset-node /git/superset/superset-frontend/static/assets superset/static/assets
+# Устанавливаем Python зависимости
+RUN pip install --upgrade pip && \
+    pip install -r requirements/requirements-merge.txt
 
-COPY custom/public_welcome.html /app/superset/templates/superset/
-COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
-COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
+# Устанавливаем Superset как Python пакет
+RUN pip install .
 
-RUN rm -rf /git /root/.cache /tmp/* && \
-    find /app -name '__pycache__' -type d -exec rm -rf {} + && \
-    find /app -name '*.pyc' -delete
+# Копируем собранный frontend из этапа 1
+COPY --from=frontend-builder /app/superset-frontend /app/superset-frontend
 
+# Кастомные HTML и иконки
+COPY custom/public_welcome.html /app/superset/templates/appbuilder/general/welcome.html
+COPY custom/logo.png /app/superset/static/assets/images/logo.png
+COPY custom/favicon.ico /app/superset/static/assets/images/favicon.ico
+
+# Удаляем старые ассеты
+RUN rm -rf /app/superset/static/assets/*
+
+# Создаём системного пользователя superset
+RUN useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
+ && mkdir -p ${SUPERSET_HOME}/superset_home \
+ && chown -R superset:superset /app
+
+# Инициализация Superset (выполняется от root, один раз)
+RUN superset db upgrade && \
+    superset init && \
+    superset fab create-admin \
+      --username admin \
+      --firstname Admin \
+      --lastname User \
+      --email admin@example.com \
+      --password admin && \
+    superset assets build
+
+# Переключаемся на безопасного пользователя
 USER superset
 
-HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health"
-EXPOSE ${SUPERSET_PORT}
+EXPOSE 8088
+
 CMD ["/usr/bin/run-server.sh"]
