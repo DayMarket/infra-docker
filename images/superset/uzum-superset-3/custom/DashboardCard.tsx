@@ -1,828 +1,177 @@
-import CertifiedBadge from 'src/components/CertifiedBadge';
-import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
-import Dashboard from 'src/dashboard/containers/Dashboard';
-import DashboardCard from 'src/features/dashboards/DashboardCard';
-import DeleteModal from 'src/components/DeleteModal';
-import FacePile from 'src/components/FacePile';
-import FaveStar from 'src/components/FaveStar';
-import ImportModelsModal from 'src/components/ImportModal/index';
-import Loading from 'src/components/Loading';
-import Owner from 'src/types/Owner';
-import PropertiesModal from 'src/dashboard/components/PropertiesModal';
-import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
-import Tag from 'src/types/TagType';
-import handleResourceExport from 'src/utils/export';
-import rison from 'rison';
-import withToasts from 'src/components/MessageToasts/withToasts';
-import { DashboardStatus } from 'src/features/dashboards/types';
-import { Icons } from 'src/components/Icons';
-import { Link } from 'react-router-dom';
-import { ModifiedInfo } from 'src/components/AuditInfo';
-import { PublishedLabel } from 'src/components/Label';
-import { TagsList } from 'src/components/Tags';
-import { Tooltip } from 'src/components/Tooltip';
-import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
-import { dangerouslyGetItemDoNotUse } from 'src/utils/localStorageHelpers';
-import { findPermission } from 'src/utils/findPermission';
-import { loadTags } from 'src/components/Tags/utils';
-import { navigateTo } from 'src/utils/navigationUtils';
-import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
-import { useSelector } from 'react-redux';
-import { useState, useMemo, useCallback } from 'react';
-
+import { useEffect, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import {
   isFeatureEnabled,
   FeatureFlag,
-  styled,
-  SupersetClient,
   t,
-  css,
-  useTheme,
+  SupersetClient,
 } from '@superset-ui/core';
-import {
-  createFetchRelated,
-  createErrorHandler,
-  handleDashboardDelete,
-} from 'src/views/CRUD/utils';
-import ListView, {
-  ListViewProps,
-  Filter,
-  Filters,
-  FilterOperator,
-} from 'src/components/ListView';
+import { CardStyles } from 'src/views/CRUD/utils';
+import { Dropdown } from 'src/components/Dropdown';
+import { Menu } from 'src/components/Menu';
+import ListViewCard from 'src/components/ListViewCard';
+import Icons from 'src/components/Icons';
+import PublishedLabel from 'src/components/Label';
+import FacePile from 'src/components/FacePile';
+import FaveStar from 'src/components/FaveStar';
+import { Dashboard } from 'src/views/CRUD/types';
+import { Button } from 'src/components';
+import { assetUrl } from 'src/utils/assetUrl';
 
-import {
-  Dashboard as CRUDDashboard,
-  QueryObjectColumns,
-} from 'src/views/CRUD/types';
-
-const PAGE_SIZE = 25;
-const PASSWORDS_NEEDED_MESSAGE = t(
-  'The passwords for the databases below are needed in order to ' +
-    'import them together with the dashboards. Please note that the ' +
-    '"Secure Extra" and "Certificate" sections of ' +
-    'the database configuration are not present in export files, and ' +
-    'should be added manually after the import if they are needed.',
-);
-const CONFIRM_OVERWRITE_MESSAGE = t(
-  'You are importing one or more dashboards that already exist. ' +
-    'Overwriting might cause you to lose some of your work. Are you ' +
-    'sure you want to overwrite?',
-);
-
-interface DashboardListProps {
-  addDangerToast: (msg: string) => void;
-  addSuccessToast: (msg: string) => void;
-  user: {
-    userId: string | number;
-    firstName: string;
-    lastName: string;
-  };
+interface DashboardCardProps {
+  isChart?: boolean;
+  dashboard: Dashboard;
+  hasPerm: (name: string) => boolean;
+  bulkSelectEnabled: boolean;
+  loading: boolean;
+  openDashboardEditModal?: (d: Dashboard) => void;
+  saveFavoriteStatus: (id: number, isStarred: boolean) => void;
+  favoriteStatus: boolean;
+  userId?: string | number;
+  showThumbnails?: boolean;
+  handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
+  onDelete: (dashboard: Dashboard) => void;
 }
 
-export interface Dashboard {
-  changed_by_name: string;
-  changed_on_delta_humanized: string;
-  changed_by: string;
-  dashboard_title: string;
-  id: number;
-  published: boolean;
-  url: string;
-  thumbnail_url: string;
-  owners: Owner[];
-  tags: Tag[];
-  created_by: object;
-}
-
-const Actions = styled.div`
-  color: ${({ theme }) => theme.colors.grayscale.base};
-`;
-
-const DASHBOARD_COLUMNS_TO_FETCH = [
-  'id',
-  'dashboard_title',
-  'published',
-  'url',
-  'slug',
-  'changed_by',
-  'changed_by.id',
-  'changed_by.first_name',
-  'changed_by.last_name',
-  'changed_on_delta_humanized',
-  'owners',
-  'owners.id',
-  'owners.first_name',
-  'owners.last_name',
-  'tags.id',
-  'tags.name',
-  'tags.type',
-  'status',
-  'certified_by',
-  'certification_details',
-  'changed_on',
-];
-
-function DashboardList(props: DashboardListProps) {
-  const { addDangerToast, addSuccessToast, user } = props;
-  const theme = useTheme();
-  const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
-    state => state.user,
-  );
-  const canReadTag = findPermission('can_read', 'Tag', roles);
-
-  const {
-    state: {
-      loading,
-      resourceCount: dashboardCount,
-      resourceCollection: dashboards,
-      bulkSelectEnabled,
-    },
-    setResourceCollection: setDashboards,
-    hasPerm,
-    fetchData,
-    toggleBulkSelect,
-    refreshData,
-  } = useListViewResource<Dashboard>(
-    'dashboard',
-    t('dashboard'),
-    addDangerToast,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    DASHBOARD_COLUMNS_TO_FETCH,
-  );
-  const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
-  const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
-    'dashboard',
-    dashboardIds,
-    addDangerToast,
-  );
-
-  const [dashboardToEdit, setDashboardToEdit] = useState<Dashboard | null>(
-    null,
-  );
-  const [dashboardToDelete, setDashboardToDelete] =
-    useState<CRUDDashboard | null>(null);
-
-  const [importingDashboard, showImportModal] = useState<boolean>(false);
-  const [passwordFields, setPasswordFields] = useState<string[]>([]);
-  const [preparingExport, setPreparingExport] = useState<boolean>(false);
-  const [sshTunnelPasswordFields, setSSHTunnelPasswordFields] = useState<
-    string[]
-  >([]);
-  const [sshTunnelPrivateKeyFields, setSSHTunnelPrivateKeyFields] = useState<
-    string[]
-  >([]);
-  const [
-    sshTunnelPrivateKeyPasswordFields,
-    setSSHTunnelPrivateKeyPasswordFields,
-  ] = useState<string[]>([]);
-
-  const openDashboardImportModal = () => {
-    showImportModal(true);
-  };
-
-  const closeDashboardImportModal = () => {
-    showImportModal(false);
-  };
-
-  const handleDashboardImport = () => {
-    showImportModal(false);
-    refreshData();
-    addSuccessToast(t('Dashboard imported'));
-  };
-
-  
-  const userKey = dangerouslyGetItemDoNotUse(user?.userId?.toString(), null);
-
-  const canCreate = hasPerm('can_write');
+function DashboardCard({
+  dashboard,
+  hasPerm,
+  bulkSelectEnabled,
+  userId,
+  openDashboardEditModal,
+  favoriteStatus,
+  saveFavoriteStatus,
+  showThumbnails,
+  handleBulkDashboardExport,
+  onDelete,
+}: DashboardCardProps) {
+  const history = useHistory();
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
   const canExport = hasPerm('can_export');
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
 
-  const initialSort = [{ id: 'changed_on_delta_humanized', desc: true }];
+  useEffect(() => {
+    if (
+      !fetchingThumbnail &&
+      dashboard.id &&
+      (thumbnailUrl === undefined || thumbnailUrl === null) &&
+      isFeatureEnabled(FeatureFlag.Thumbnails)
+    ) {
+      if (dashboard.thumbnail_url) {
+        setThumbnailUrl(dashboard.thumbnail_url || '');
+        return;
+      }
+      setFetchingThumbnail(true);
+      SupersetClient.get({
+        endpoint: `/api/v1/dashboard/${dashboard.id}`,
+      }).then(({ json = {} }) => {
+        setThumbnailUrl(json.result?.thumbnail_url || '');
+        setFetchingThumbnail(false);
+      });
+    }
+  }, [dashboard, thumbnailUrl]);
 
-  function openDashboardEditModal(dashboard: Dashboard) {
-    setDashboardToEdit(dashboard);
-  }
-
-  function handleDashboardEdit(edits: Dashboard) {
-    return SupersetClient.get({
-      endpoint: `/api/v1/dashboard/${edits.id}`,
-    }).then(
-      ({ json = {} }) => {
-        setDashboards(
-          dashboards.map(dashboard => {
-            if (dashboard.id === json?.result?.id) {
-              const {
-                changed_by_name,
-                changed_by,
-                dashboard_title = '',
-                slug = '',
-                json_metadata = '',
-                changed_on_delta_humanized,
-                url = '',
-                certified_by = '',
-                certification_details = '',
-                owners,
-                tags,
-              } = json.result;
-              return {
-                ...dashboard,
-                changed_by_name,
-                changed_by,
-                dashboard_title,
-                slug,
-                json_metadata,
-                changed_on_delta_humanized,
-                url,
-                certified_by,
-                certification_details,
-                owners,
-                tags,
-              };
-            }
-            return dashboard;
-          }),
-        );
-      },
-      createErrorHandler(errMsg =>
-        addDangerToast(
-          t('An error occurred while fetching dashboards: %s', errMsg),
-        ),
-      ),
-    );
-  }
-
-  const handleBulkDashboardExport = (dashboardsToExport: Dashboard[]) => {
-    const ids = dashboardsToExport.map(({ id }) => id);
-    handleResourceExport('dashboard', ids, () => {
-      setPreparingExport(false);
-    });
-    setPreparingExport(true);
-  };
-
-  function handleBulkDashboardDelete(dashboardsToDelete: Dashboard[]) {
-    return SupersetClient.delete({
-      endpoint: `/api/v1/dashboard/?q=${rison.encode(
-        dashboardsToDelete.map(({ id }) => id),
-      )}`,
-    }).then(
-      ({ json = {} }) => {
-        refreshData();
-        addSuccessToast(json.message);
-      },
-      createErrorHandler(errMsg =>
-        addDangerToast(
-          t('There was an issue deleting the selected dashboards: ', errMsg),
-        ),
-      ),
-    );
-  }
-
-  const columns = useMemo(
-    () => [
-      {
-        Cell: ({
-          row: {
-            original: { id },
-          },
-        }: any) =>
-          user?.userId && (
-            <FaveStar
-              itemId={id}
-              saveFaveStar={saveFavoriteStatus}
-              isStarred={favoriteStatus[id]}
-            />
-          ),
-        Header: '',
-        id: 'id',
-        disableSortBy: true,
-        size: 'xs',
-        hidden: !user?.userId,
-      },
-      {
-        Cell: ({
-          row: {
-            original: {
-              url,
-              dashboard_title: dashboardTitle,
-              certified_by: certifiedBy,
-              certification_details: certificationDetails,
-            },
-          },
-        }: any) => (
-          <Link to={url} title={dashboardTitle}>
-            {certifiedBy && (
-              <>
-                <CertifiedBadge
-                  certifiedBy={certifiedBy}
-                  details={certificationDetails}
-                />{' '}
-              </>
-            )}
-            {dashboardTitle}
-          </Link>
-        ),
-        Header: t('Name'),
-        accessor: 'dashboard_title',
-      },
-      {
-        Cell: ({
-          row: {
-            original: { status },
-          },
-        }: any) => (
-          <PublishedLabel isPublished={status === DashboardStatus.PUBLISHED} />
-        ),
-        Header: t('Status'),
-        accessor: 'published',
-        size: 'xl',
-      },
-      {
-        Cell: ({
-          row: {
-            original: { tags = [] },
-          },
-        }: {
-          row: {
-            original: {
-              tags: Tag[];
-            };
-          };
-        }) => (
-          
-          <TagsList
-            tags={tags.filter(
-              (tag: Tag) => tag.type === 'TagTypes.custom' || tag.type === 1,
-            )}
-            maxTags={3}
-          />
-        ),
-        Header: t('Tags'),
-        accessor: 'tags',
-        disableSortBy: true,
-        hidden: !isFeatureEnabled(FeatureFlag.TaggingSystem),
-      },
-      {
-        Cell: ({
-          row: {
-            original: { owners = [] },
-          },
-        }: any) => <FacePile users={owners} />,
-        Header: t('Owners'),
-        accessor: 'owners',
-        disableSortBy: true,
-        size: 'xl',
-      },
-      {
-        Cell: ({
-          row: {
-            original: {
-              changed_on_delta_humanized: changedOn,
-              changed_by: changedBy,
-            },
-          },
-        }: any) => <ModifiedInfo date={changedOn} user={changedBy} />,
-        Header: t('Last modified'),
-        accessor: 'changed_on_delta_humanized',
-        size: 'xl',
-      },
-      {
-        Cell: ({ row: { original } }: any) => {
-          const handleDelete = () =>
-            handleDashboardDelete(
-              original,
-              refreshData,
-              addSuccessToast,
-              addDangerToast,
-            );
-          const handleEdit = () => openDashboardEditModal(original);
-          const handleExport = () => handleBulkDashboardExport([original]);
-
-          return (
-            <Actions className="actions">
-              {canDelete && (
-                <ConfirmStatusChange
-                  title={t('Please confirm')}
-                  description={
-                    <>
-                      {t('Are you sure you want to delete')}{' '}
-                      <b>{original.dashboard_title}</b>?
-                    </>
-                  }
-                  onConfirm={handleDelete}
-                >
-                  {confirmDelete => (
-                    <Tooltip
-                      id="delete-action-tooltip"
-                      title={t('Delete')}
-                      placement="bottom"
-                    >
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        className="action-button"
-                        onClick={confirmDelete}
-                      >
-                        <Icons.DeleteOutlined
-                          iconSize="l"
-                          data-test="dashboard-list-trash-icon"
-                        />
-                      </span>
-                    </Tooltip>
-                  )}
-                </ConfirmStatusChange>
-              )}
-              {canExport && (
-                <Tooltip
-                  id="export-action-tooltip"
-                  title={t('Export')}
-                  placement="bottom"
-                >
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className="action-button"
-                    onClick={handleExport}
-                  >
-                    <Icons.UploadOutlined iconSize="l" />
-                  </span>
-                </Tooltip>
-              )}
-              {canEdit && (
-                <Tooltip
-                  id="edit-action-tooltip"
-                  title={t('Edit')}
-                  placement="bottom"
-                >
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className="action-button"
-                    onClick={handleEdit}
-                  >
-                    <Icons.EditOutlined data-test="edit-alt" iconSize="l" />
-                  </span>
-                </Tooltip>
-              )}
-            </Actions>
-          );
-        },
-        Header: t('Actions'),
-        id: 'actions',
-        hidden: !canEdit && !canDelete && !canExport,
-        disableSortBy: true,
-      },
-      {
-        accessor: QueryObjectColumns.ChangedBy,
-        hidden: true,
-      },
-    ],
-    [
-      user?.userId,
-      canEdit,
-      canDelete,
-      canExport,
-      saveFavoriteStatus,
-      favoriteStatus,
-      refreshData,
-      addSuccessToast,
-      addDangerToast,
-    ],
+  const menu = (
+    <Menu>
+      {canEdit && openDashboardEditModal && (
+        <Menu.Item>
+          <div
+            role="button"
+            tabIndex={0}
+            className="action-button"
+            onClick={() => openDashboardEditModal?.(dashboard)}
+            data-test="dashboard-card-option-edit-button"
+          >
+            <Icons.EditOutlined iconSize="l" data-test="edit-alt" /> {t('Edit')}
+          </div>
+        </Menu.Item>
+      )}
+      {canExport && (
+        <Menu.Item>
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => handleBulkDashboardExport([dashboard])}
+            className="action-button"
+            data-test="dashboard-card-option-export-button"
+          >
+            <Icons.UploadOutlined iconSize="l" /> {t('Export')}
+          </div>
+        </Menu.Item>
+      )}
+      {canDelete && (
+        <Menu.Item>
+          <div
+            role="button"
+            tabIndex={0}
+            className="action-button"
+            onClick={() => onDelete(dashboard)}
+            data-test="dashboard-card-option-delete-button"
+          >
+            <Icons.DeleteOutlined iconSize="l" /> {t('Delete')}
+          </div>
+        </Menu.Item>
+      )}
+    </Menu>
   );
 
-  const favoritesFilter: Filter = useMemo(
-    () => ({
-      Header: t('Favorite'),
-      key: 'favorite',
-      id: 'id',
-      urlDisplay: 'favorite',
-      input: 'select',
-      operator: FilterOperator.DashboardIsFav,
-      unfilteredLabel: t('Any'),
-      selects: [
-        { label: t('Yes'), value: true },
-        { label: t('No'), value: false },
-      ],
-    }),
-    [],
+  const fallback = assetUrl(
+    '/static/assets/images/dashboard-card-fallback.svg',
   );
 
-  const filters: Filters = useMemo(() => {
-    const filters_list = [
-      {
-        Header: t('Name'),
-        key: 'search',
-        id: 'dashboard_title',
-        input: 'search',
-        operator: FilterOperator.TitleOrSlug,
-      },
-      {
-        Header: t('Status'),
-        key: 'published',
-        id: 'published',
-        input: 'select',
-        operator: FilterOperator.Equals,
-        unfilteredLabel: t('Any'),
-        selects: [
-          { label: t('Published'), value: true },
-          { label: t('Draft'), value: false },
-        ],
-      },
-      ...(isFeatureEnabled(FeatureFlag.TaggingSystem) && canReadTag
-        ? [
-            {
-              Header: t('Tag'),
-              key: 'tags',
-              id: 'tags',
-              input: 'select',
-              operator: FilterOperator.DashboardTagById,
-              unfilteredLabel: t('All'),
-              fetchSelects: loadTags,
-            },
-          ]
-        : []),
-      {
-        Header: t('Owner'),
-        key: 'owner',
-        id: 'owners',
-        input: 'select',
-        operator: FilterOperator.RelationManyMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'dashboard',
-          'owners',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching dashboard owner values: %s',
-                errMsg,
-              ),
-            ),
-          ),
-          props.user,
-        ),
-        paginate: true,
-      },
-      ...(user?.userId ? [favoritesFilter] : []),
-      {
-        Header: t('Certified'),
-        key: 'certified',
-        id: 'id',
-        urlDisplay: 'certified',
-        input: 'select',
-        operator: FilterOperator.DashboardIsCertified,
-        unfilteredLabel: t('Any'),
-        selects: [
-          { label: t('Yes'), value: true },
-          { label: t('No'), value: false },
-        ],
-      },
-      {
-        Header: t('Modified by'),
-        key: 'changed_by',
-        id: 'changed_by',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'dashboard',
-          'changed_by',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching dataset datasource values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        paginate: true,
-      },
-    ] as Filters;
-    return filters_list;
-  }, [addDangerToast, favoritesFilter, props.user]);
-
-  const sortTypes = [
-    {
-      desc: false,
-      id: 'dashboard_title',
-      label: t('Alphabetical'),
-      value: 'alphabetical',
-    },
-    {
-      desc: true,
-      id: 'changed_on_delta_humanized',
-      label: t('Recently modified'),
-      value: 'recently_modified',
-    },
-    {
-      desc: false,
-      id: 'changed_on_delta_humanized',
-      label: t('Least recently modified'),
-      value: 'least_recently_modified',
-    },
-  ];
-
-  const renderCard = useCallback(
-    (dashboard: Dashboard) => (
-      <DashboardCard
-        dashboard={dashboard}
-        hasPerm={hasPerm}
-        bulkSelectEnabled={bulkSelectEnabled}
-        showThumbnails={
-          userKey
-            ? userKey.thumbnails
-            : isFeatureEnabled(FeatureFlag.Thumbnails)
-        }
-        userId={user?.userId}
-        loading={loading}
-        openDashboardEditModal={openDashboardEditModal}
-        saveFavoriteStatus={saveFavoriteStatus}
-        favoriteStatus={favoriteStatus[dashboard.id]}
-        handleBulkDashboardExport={handleBulkDashboardExport}
-        onDelete={dashboard => setDashboardToDelete(dashboard)}
-      />
-    ),
-    [
-      bulkSelectEnabled,
-      favoriteStatus,
-      hasPerm,
-      loading,
-      user?.userId,
-      saveFavoriteStatus,
-      userKey,
-    ],
-  );
-
-  const subMenuButtons: SubMenuProps['buttons'] = [];
-  if (canDelete || canExport) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      buttonStyle: 'secondary',
-      'data-test': 'bulk-select',
-      onClick: toggleBulkSelect,
-    });
-  }
-  if (canCreate) {
-    subMenuButtons.push({
-      name: (
-        <>
-          <Icons.PlusOutlined
-            iconColor={theme.colors.primary.light5}
-            iconSize="m"
-            css={css`
-              margin: auto ${theme.gridUnit * 2}px auto 0;
-              vertical-align: text-top;
-            `}
-          />
-          {t('Dashboard')}
-        </>
-      ),
-      buttonStyle: 'primary',
-      onClick: () => {
-        navigateTo('/dashboard/new', { assign: true });
-      },
-    });
-
-    subMenuButtons.push({
-      name: (
-        <Tooltip
-          id="import-tooltip"
-          title={t('Import dashboards')}
-          placement="bottomRight"
-        >
-          <Icons.DownloadOutlined data-test="import-button" />
-        </Tooltip>
-      ),
-      buttonStyle: 'link',
-      onClick: openDashboardImportModal,
-    });
-  }
   return (
-    <>
-      <SubMenu name={t('Dashboards')} buttons={subMenuButtons} />
-      <ConfirmStatusChange
-        title={t('Please confirm')}
-        description={t(
-          'Are you sure you want to delete the selected dashboards?',
-        )}
-        onConfirm={handleBulkDashboardDelete}
-      >
-        {confirmDelete => {
-          const bulkActions: ListViewProps['bulkActions'] = [];
-          if (canDelete) {
-            bulkActions.push({
-              key: 'delete',
-              name: t('Delete'),
-              type: 'danger',
-              onSelect: confirmDelete,
-            });
-          }
-          if (canExport) {
-            bulkActions.push({
-              key: 'export',
-              name: t('Export'),
-              type: 'primary',
-              onSelect: handleBulkDashboardExport,
-            });
-          }
-          return (
-            <>
-              {dashboardToEdit && (
-                <PropertiesModal
-                  dashboardId={dashboardToEdit.id}
-                  show
-                  onHide={() => setDashboardToEdit(null)}
-                  onSubmit={handleDashboardEdit}
-                />
-              )}
-              {dashboardToDelete && (
-                <DeleteModal
-                  description={
-                    <>
-                      {t('Are you sure you want to delete')}{' '}
-                      <b>{dashboardToDelete.dashboard_title}</b>?
-                    </>
-                  }
-                  onConfirm={() => {
-                    handleDashboardDelete(
-                      dashboardToDelete,
-                      refreshData,
-                      addSuccessToast,
-                      addDangerToast,
-                      undefined,
-                      user?.userId,
-                    );
-                    setDashboardToDelete(null);
-                  }}
-                  onHide={() => setDashboardToDelete(null)}
-                  open={!!dashboardToDelete}
-                  title={t('Please confirm')}
-                />
-              )}
-              <ListView<Dashboard>
-                bulkActions={bulkActions}
-                bulkSelectEnabled={bulkSelectEnabled}
-                cardSortSelectOptions={sortTypes}
-                className="dashboard-list-view"
-                columns={columns}
-                count={dashboardCount}
-                data={dashboards}
-                disableBulkSelect={toggleBulkSelect}
-                fetchData={fetchData}
-                refreshData={refreshData}
-                filters={filters}
-                initialSort={initialSort}
-                loading={loading}
-                pageSize={PAGE_SIZE}
-                addSuccessToast={addSuccessToast}
-                addDangerToast={addDangerToast}
-                showThumbnails={
-                  userKey
-                    ? userKey.thumbnails
-                    : isFeatureEnabled(FeatureFlag.Thumbnails)
-                }
-                renderCard={renderCard}
-                defaultViewMode={
-                  isFeatureEnabled(FeatureFlag.ListviewsDefaultCardView)
-                    ? 'card'
-                    : 'table'
-                }
-                enableBulkTag
-                bulkTagResourceName="dashboard"
+    <CardStyles
+      onClick={() => {
+        if (!bulkSelectEnabled) {
+          history.push(dashboard.url);
+        }
+      }}
+    >
+      <ListViewCard
+        loading={dashboard.loading || false}
+        title={dashboard.dashboard_title}
+        certifiedBy={dashboard.certified_by}
+        certificationDetails={dashboard.certification_details}
+        titleRight={<PublishedLabel isPublished={dashboard.published} />}
+        cover={
+          isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails ? (
+            <img
+              src={thumbnailUrl || fallback}
+              alt={t('Dashboard thumbnail')}
+              style={{ width: '100%', height: 'auto' }}
+            />
+          ) : null
+        }
+        url={bulkSelectEnabled ? undefined : dashboard.url}
+        linkComponent={Link}
+        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
+        coverLeft={<FacePile users={dashboard.owners || []} />}
+        actions={
+          <ListViewCard.Actions
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+          >
+            {userId && (
+              <FaveStar
+                itemId={dashboard.id}
+                saveFaveStar={saveFavoriteStatus}
+                isStarred={favoriteStatus}
               />
-            </>
-          );
-        }}
-      </ConfirmStatusChange>
-
-      <ImportModelsModal
-        resourceName="dashboard"
-        resourceLabel={t('dashboard')}
-        passwordsNeededMessage={PASSWORDS_NEEDED_MESSAGE}
-        confirmOverwriteMessage={CONFIRM_OVERWRITE_MESSAGE}
-        addDangerToast={addDangerToast}
-        addSuccessToast={addSuccessToast}
-        onModelImport={handleDashboardImport}
-        show={importingDashboard}
-        onHide={closeDashboardImportModal}
-        passwordFields={passwordFields}
-        setPasswordFields={setPasswordFields}
-        sshTunnelPasswordFields={sshTunnelPasswordFields}
-        setSSHTunnelPasswordFields={setSSHTunnelPasswordFields}
-        sshTunnelPrivateKeyFields={sshTunnelPrivateKeyFields}
-        setSSHTunnelPrivateKeyFields={setSSHTunnelPrivateKeyFields}
-        sshTunnelPrivateKeyPasswordFields={sshTunnelPrivateKeyPasswordFields}
-        setSSHTunnelPrivateKeyPasswordFields={
-          setSSHTunnelPrivateKeyPasswordFields
+            )}
+            <Dropdown dropdownRender={() => menu} trigger={['hover', 'click']}>
+              <Button buttonSize="xsmall" type="link">
+                <Icons.MoreOutlined iconSize="xl" />
+              </Button>
+            </Dropdown>
+          </ListViewCard.Actions>
         }
       />
-
-      {preparingExport && <Loading />}
-    </>
+    </CardStyles>
   );
 }
 
-export default withToasts(DashboardList);
+export default DashboardCard;

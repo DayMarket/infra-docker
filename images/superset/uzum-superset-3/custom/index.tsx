@@ -1,11 +1,13 @@
+import { t, isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
 import { useCallback } from 'react';
-import { t } from '@superset-ui/core';
 import ListView from 'src/components/ListView';
 import FaveStar from 'src/components/FaveStar';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
 import { Dashboard } from 'src/views/CRUD/types';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
+import { useSelector } from 'react-redux';
+import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 
 const DashboardList = () => {
   const {
@@ -16,12 +18,16 @@ const DashboardList = () => {
     },
     fetchData,
     refreshData,
+    hasPerm,
   } = useListViewResource<Dashboard>(
     'dashboard',
     t('dashboard'),
     () => {},
   );
 
+  const { user } = useSelector<any, { user: UserWithPermissionsAndRoles }>(
+    state => state,
+  );
   const dashboardIds = dashboards.map(d => d.id);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
@@ -57,14 +63,18 @@ const DashboardList = () => {
     (dashboard: Dashboard) => (
       <DashboardCard
         dashboard={dashboard}
-        hasPerm
-        showThumbnails
-        saveFavoriteStatus={saveFavoriteStatus}
-        isFavorite={favoriteStatus[dashboard.id]}
+        hasPerm={() => true}
+        bulkSelectEnabled={false}
+        showThumbnails={isFeatureEnabled(FeatureFlag.Thumbnails)}
+        userId={user?.userId}
         loading={loading}
+        saveFavoriteStatus={saveFavoriteStatus}
+        favoriteStatus={favoriteStatus[dashboard.id]}
+        handleBulkDashboardExport={() => {}}
+        onDelete={() => {}}
       />
     ),
-    [saveFavoriteStatus, favoriteStatus, loading],
+    [favoriteStatus, loading, saveFavoriteStatus, user?.userId],
   );
 
   return (
@@ -76,8 +86,8 @@ const DashboardList = () => {
       pageSize={25}
       loading={loading}
       fetchData={fetchData}
-      renderCard={renderCard}
       refreshData={refreshData}
+      renderCard={renderCard}
       addSuccessToast={() => {}}
       addDangerToast={() => {}}
     />
