@@ -95,7 +95,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /a
 WORKDIR /app/superset
 
 # Устанавливаем Python зависимости
-COPY custom/requirements-merge.txt /app/requirements.txt
+COPY custom/requirements-merge.txt /app/requirements-merge.txt
 RUN pip install --upgrade pip && \
     pip install -r /app/requirements-merge.txt
 
