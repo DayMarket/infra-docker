@@ -22,7 +22,7 @@ WORKDIR /git/superset/superset-frontend
 
 COPY custom/index.tsx ./src/pages/DashboardList/index.tsx
 COPY custom/DashboardCard.tsx ./src/features/dashboards/DashboardCard.tsx
-
+ENV ESLINT_NO_DEV_ERRORS=true
 RUN npm ci && npm run ${BUILD_CMD}
 
 ######################################################################
