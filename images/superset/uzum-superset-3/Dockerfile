@@ -39,7 +39,7 @@ ENV LANG=C.UTF-8 \
 
 WORKDIR /app
 
-# Устанавливаем системные зависимости, кроме libmysqlclient-dev
+# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y --no-install-recommends \
 build-essential \
 ca-certificates \
@@ -95,8 +95,9 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /a
 WORKDIR /app/superset
 
 # Устанавливаем Python зависимости
+COPY custom/requirements-merged.txt /app/requirements.txt
 RUN pip install --upgrade pip && \
-    pip install -r custom/requirements-merge.txt
+    pip install -r /app/requirements-merge.txt
 
 # Устанавливаем Superset как Python пакет
 RUN pip install .
