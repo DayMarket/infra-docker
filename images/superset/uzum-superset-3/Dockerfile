@@ -96,7 +96,7 @@ WORKDIR /app/superset
 
 # Устанавливаем Python зависимости
 RUN pip install --upgrade pip && \
-    pip install -r customß/requirements-merge.txt
+    pip install -r custom/requirements-merge.txt
 
 # Устанавливаем Superset как Python пакет
 RUN pip install .
