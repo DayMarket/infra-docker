@@ -1,21 +1,22 @@
-import React, { useCallback } from 'react';
-import { t, isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
-import SubMenu from 'src/views/components/SubMenu';
+import { t } from '@superset-ui/core';
 import ListView from 'src/components/ListView';
-import Icon from 'src/components/Icon';
 import FaveStar from 'src/components/FaveStar';
 import CertifiedBadge from 'src/components/CertifiedBadge';
-import { createErrorHandler } from 'src/views/CRUD/utils';
+import { createErrorHandler } from 'src/utils/createErrorHandler';
 import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
 import { Dashboard } from 'src/views/CRUD/types';
-import DashboardCard from 'src/pages/DashboardList/DashboardCard';
+import DashboardCard from 'src/features/dashboards/DashboardCard';
 
 const DashboardList = () => {
   const {
-    state: { loading, resourceCount: count, resourceCollection: dashboards },
+    state: { loading, resourceCount: dashboardsCount, resourceCollection: dashboards },
     hasPerm,
     fetchData,
-  } = useListViewResource<Dashboard>('dashboard', t('dashboard'), createErrorHandler);
+  } = useListViewResource<Dashboard>(
+    'dashboard',
+    t('dashboard'),
+    createErrorHandler,
+  );
 
   const dashboardIds = dashboards.map(d => d.id);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
@@ -30,82 +31,60 @@ const DashboardList = () => {
       accessor: 'dashboard_title',
     },
     {
+      Header: t('Creator'),
+      accessor: 'creator.first_name',
+    },
+    {
       Header: t('Certified'),
       accessor: 'certified_by',
-      Cell: ({ cell: { value }, row: { original } }) =>
-        value ? (
+      Cell: ({ cell, row }: any) =>
+        cell.value ? (
           <CertifiedBadge
-            certifiedBy={value}
-            details={original.certification_details}
+            certifiedBy={cell.value}
+            details={row.original.certification_details}
           />
         ) : null,
     },
     {
-      Header: t('Modified'),
-      accessor: 'changed_on_delta_humanized',
-    },
-    {
-      Header: t('Modified by'),
-      accessor: 'changed_by_name',
-    },
-    {
       Header: t('Actions'),
       id: 'actions',
-      Cell: ({ row: { original } }) => (
+      Cell: ({ row }: any) => (
         <FaveStar
-          itemId={original.id}
+          itemId={row.original.id}
           saveFaveStar={saveFavoriteStatus}
-          isStarred={favoriteStatus[original.id]}
+          isStarred={favoriteStatus[row.original.id]}
+          className="m-0"
         />
       ),
     },
   ];
 
-  const renderCard = useCallback(
-    (dashboard: Dashboard) => (
+  const renderCard = (dashboard: Dashboard) => {
+    if (!dashboard) return null;
+    return (
       <DashboardCard
         dashboard={dashboard}
         hasPerm={hasPerm}
-        bulkSelectEnabled={false}
-        showThumbnails={isFeatureEnabled(FeatureFlag.Thumbnails)}
-        userId={null}
-        loading={loading}
-        openDashboardEditModal={() => {}}
+        showThumbnails
         saveFavoriteStatus={saveFavoriteStatus}
-        favoriteStatus={favoriteStatus[dashboard.id]}
-        handleBulkDashboardExport={() => {}}
-        onDelete={() => {}}
+        isFavorite={favoriteStatus[dashboard.id]}
       />
-    ),
-    [hasPerm, loading, saveFavoriteStatus, favoriteStatus],
-  );
+    );
+  };
 
   return (
-    <>
-      <SubMenu
-        name={t('Dashboards')}
-        tabs={[
-          {
-            label: t('Dashboards'),
-            name: 'Dashboards',
-            icon: <Icon name="dashboard" />,
-            url: '/dashboard/list/',
-          },
-        ]}
-      />
-      <ListView
-        className="dashboard-list-view"
-        columns={columns}
-        data={dashboards}
-        count={count}
-        loading={loading}
-        fetchData={fetchData}
-        title={t('Dashboards')}
-        renderCard={renderCard}
-        cardView
-        enableViewModeToggle
-      />
-    </>
+    <ListView
+      className="dashboard-list-view"
+      columns={columns}
+      data={dashboards}
+      count={dashboardsCount}
+      pageSize={25}
+      loading={loading}
+      fetchData={fetchData}
+      renderCard={renderCard}
+      cardView
+      enableViewModeToggle
+    />
   );
 };
 
