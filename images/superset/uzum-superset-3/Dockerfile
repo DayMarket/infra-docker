@@ -86,7 +86,7 @@ COPY --from=frontend-builder /app/superset-frontend /app/superset-frontend
 COPY custom/public_welcome.html /app/superset/templates/appbuilder/general/welcome.html
 
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
-COPY custom/logo.png /app/superset/static/assets/images/logo.png
+COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 
 
 # Удаляем старые ассеты
