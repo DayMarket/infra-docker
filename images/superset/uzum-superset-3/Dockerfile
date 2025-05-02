@@ -4,6 +4,7 @@ FROM node:18-bullseye-slim as frontend-builder
 ENV ESLINT_NO_DEV_ERRORS=true
 ENV TSC_COMPILE_ON_ERROR=true
 ENV SKIP_PREFLIGHT_CHECK=true
+ENV GIT_SSL_NO_VERIFY=1
 
 WORKDIR /app
 
