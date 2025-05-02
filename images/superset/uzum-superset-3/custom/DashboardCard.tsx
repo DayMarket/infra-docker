@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import {
@@ -10,12 +28,13 @@ import { CardStyles } from 'src/views/CRUD/utils';
 import { Dropdown } from 'src/components/Dropdown';
 import { Menu } from 'src/components/Menu';
 import ListViewCard from 'src/components/ListViewCard';
-import Icons from 'src/components/Icons';
-import PublishedLabel from 'src/components/Label';
+import { Icons } from 'src/components/Icons';
+import { PublishedLabel } from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
-import Button from 'src/components/Button';
+import { Button } from 'src/components';
+import { assetUrl } from 'src/utils/assetUrl';
 
 interface DashboardCardProps {
   isChart?: boolean;
@@ -52,13 +71,17 @@ function DashboardCard({
   const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
 
   useEffect(() => {
+    // fetch thumbnail only if it's not already fetched
     if (
       !fetchingThumbnail &&
       dashboard.id &&
       (thumbnailUrl === undefined || thumbnailUrl === null) &&
       isFeatureEnabled(FeatureFlag.Thumbnails)
     ) {
+      // fetch thumbnail
       if (dashboard.thumbnail_url) {
+        // set to empty string if null so that we don't
+        // keep fetching the thumbnail
         setThumbnailUrl(dashboard.thumbnail_url || '');
         return;
       }
@@ -75,7 +98,7 @@ function DashboardCard({
   const menu = (
     <Menu>
       {canEdit && openDashboardEditModal && (
-        <Menu.Item key="edit">
+        <Menu.Item>
           <div
             role="button"
             tabIndex={0}
@@ -88,7 +111,7 @@ function DashboardCard({
         </Menu.Item>
       )}
       {canExport && (
-        <Menu.Item key="export">
+        <Menu.Item>
           <div
             role="button"
             tabIndex={0}
@@ -101,7 +124,7 @@ function DashboardCard({
         </Menu.Item>
       )}
       {canDelete && (
-        <Menu.Item key="delete">
+        <Menu.Item>
           <div
             role="button"
             tabIndex={0}
@@ -115,7 +138,6 @@ function DashboardCard({
       )}
     </Menu>
   );
-
   return (
     <CardStyles
       onClick={() => {
@@ -129,18 +151,18 @@ function DashboardCard({
         title={dashboard.dashboard_title}
         certifiedBy={dashboard.certified_by}
         certificationDetails={dashboard.certification_details}
-        titleRight={<PublishedLabel published={dashboard.published} />}
+        titleRight={<PublishedLabel isPublished={dashboard.published} />}
         cover={
-          isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails && thumbnailUrl ? (
-            <img
-              src={thumbnailUrl}
-              alt={t('Dashboard thumbnail')}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : undefined
+          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
+            <></>
+          ) : null
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
+        imgURL={dashboard.thumbnail_url}
+        imgFallbackURL={assetUrl(
+          '/static/assets/images/dashboard-card-fallback.svg',
+        )}
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
@@ -157,7 +179,7 @@ function DashboardCard({
                 isStarred={favoriteStatus}
               />
             )}
-            <Dropdown overlay={menu} trigger={['hover', 'click']}>
+            <Dropdown dropdownRender={() => menu} trigger={['hover', 'click']}>
               <Button buttonSize="xsmall" type="link">
                 <Icons.MoreOutlined iconSize="xl" />
               </Button>
