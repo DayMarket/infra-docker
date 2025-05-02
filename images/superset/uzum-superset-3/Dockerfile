@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git && \
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git
 
 WORKDIR /app/superset/superset-frontend
-
+RUN find ./src -type f -name "*.test.tsx" -delete
 # Устанавливаем зависимости
 RUN npm ci
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import Card from 'src/components/Card';
 import { t } from '@superset-ui/core';
 import { Dropdown } from 'src/components/Dropdown';
@@ -49,15 +48,13 @@ const DashboardCard = ({
       }
       actions={[
         <Tooltip title={t('Favorite')} key="favorite">
-          <span role="button" onClick={handleFavoriteToggle}>
+          <span role="button" tabIndex={0} onClick={handleFavoriteToggle}>
             {isFavorite ? <Icons.StarFilled /> : <Icons.StarOutlined />}
           </span>
         </Tooltip>,
-        hasPerm && (
-          <Dropdown overlay={menuOverlay} trigger={['click']} key="menu">
-            <Icons.MoreVertical />
-          </Dropdown>
-        ),
+        hasPerm ? (
+          <Dropdown overlay={menuOverlay} trigger={['click']} key="menu" />
+        ) : null,
       ]}
     />
   );

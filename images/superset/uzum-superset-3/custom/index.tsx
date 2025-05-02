@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { t } from '@superset-ui/core';
 import ListView from 'src/components/ListView';
 import FaveStar from 'src/components/FaveStar';
@@ -16,17 +16,18 @@ const DashboardList = () => {
       resourceCollection: dashboards,
     },
     fetchData,
+    refreshData,
   } = useListViewResource<Dashboard>(
     'dashboard',
     t('dashboard'),
-    createErrorHandler as (msg: string) => void,
+    createErrorHandler,
   );
 
   const dashboardIds = dashboards.map(d => d.id);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
     dashboardIds,
-    createErrorHandler as (msg: string) => void,
+    createErrorHandler,
   );
 
   const columns = [
@@ -57,7 +58,7 @@ const DashboardList = () => {
     (dashboard: Dashboard) => (
       <DashboardCard
         dashboard={dashboard}
-        hasPerm={true}
+        hasPerm
         showThumbnails
         saveFavoriteStatus={saveFavoriteStatus}
         isFavorite={favoriteStatus[dashboard.id]}
@@ -77,6 +78,9 @@ const DashboardList = () => {
       loading={loading}
       fetchData={fetchData}
       renderCard={renderCard}
+      refreshData={refreshData}
+      addSuccessToast={() => {}}
+      addDangerToast={() => {}}
     />
   );
 };
