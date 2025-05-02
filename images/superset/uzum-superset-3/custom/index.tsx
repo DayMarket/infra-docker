@@ -22,8 +22,6 @@ import {
   styled,
   SupersetClient,
   t,
-  css,
-  useTheme,
 } from '@superset-ui/core';
 import { useSelector } from 'react-redux';
 import { useState, useMemo, useCallback } from 'react';
@@ -36,7 +34,6 @@ import {
 } from 'src/views/CRUD/utils';
 import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
 import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
-import { PublishedLabel } from 'src/components/Label';
 import { TagsList } from 'src/components/Tags';
 import handleResourceExport from 'src/utils/export';
 import Loading from 'src/components/Loading';
@@ -52,7 +49,7 @@ import Owner from 'src/types/Owner';
 import Tag from 'src/types/TagType';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import FacePile from 'src/components/FacePile';
-import { Icons } from 'src/components/Icons';
+import Icons from 'src/components/Icons';
 import DeleteModal from 'src/components/DeleteModal';
 import FaveStar from 'src/components/FaveStar';
 import PropertiesModal from 'src/dashboard/components/PropertiesModal';
@@ -71,7 +68,6 @@ import { DashboardStatus } from 'src/features/dashboards/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { ModifiedInfo } from 'src/components/AuditInfo';
-import { navigateTo } from 'src/utils/navigationUtils';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
@@ -122,14 +118,11 @@ const DASHBOARD_COLUMNS_TO_FETCH = [
   'url',
   'slug',
   'changed_by',
-  'changed_by.id',
-  'changed_by.first_name',
-  'changed_by.last_name',
   'changed_on_delta_humanized',
-  'owners',
   'owners.id',
   'owners.first_name',
   'owners.last_name',
+  'owners',
   'tags.id',
   'tags.name',
   'tags.type',
@@ -141,7 +134,7 @@ const DASHBOARD_COLUMNS_TO_FETCH = [
 
 function DashboardList(props: DashboardListProps) {
   const { addDangerToast, addSuccessToast, user } = props;
-  const theme = useTheme();
+
   const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
   );
@@ -330,7 +323,7 @@ function DashboardList(props: DashboardListProps) {
             },
           },
         }: any) => (
-          <Link to={url} title={dashboardTitle}>
+          <Link to={url}>
             {certifiedBy && (
               <>
                 <CertifiedBadge
@@ -350,9 +343,8 @@ function DashboardList(props: DashboardListProps) {
           row: {
             original: { status },
           },
-        }: any) => (
-          <PublishedLabel isPublished={status === DashboardStatus.PUBLISHED} />
-        ),
+        }: any) =>
+          status === DashboardStatus.PUBLISHED ? t('Published') : t('Draft'),
         Header: t('Status'),
         accessor: 'published',
         size: 'xl',
@@ -443,10 +435,7 @@ function DashboardList(props: DashboardListProps) {
                         className="action-button"
                         onClick={confirmDelete}
                       >
-                        <Icons.DeleteOutlined
-                          iconSize="l"
-                          data-test="dashboard-list-trash-icon"
-                        />
+                        <Icons.Trash data-test="dashboard-list-trash-icon" />
                       </span>
                     </Tooltip>
                   )}
@@ -464,7 +453,7 @@ function DashboardList(props: DashboardListProps) {
                     className="action-button"
                     onClick={handleExport}
                   >
-                    <Icons.UploadOutlined iconSize="l" />
+                    <Icons.Share />
                   </span>
                 </Tooltip>
               )}
@@ -480,7 +469,7 @@ function DashboardList(props: DashboardListProps) {
                     className="action-button"
                     onClick={handleEdit}
                   >
-                    <Icons.EditOutlined data-test="edit-alt" iconSize="l" />
+                    <Icons.EditAlt data-test="edit-alt" />
                   </span>
                 </Tooltip>
               )}
@@ -686,20 +675,12 @@ function DashboardList(props: DashboardListProps) {
     subMenuButtons.push({
       name: (
         <>
-          <Icons.PlusOutlined
-            iconColor={theme.colors.primary.light5}
-            iconSize="m"
-            css={css`
-              margin: auto ${theme.gridUnit * 2}px auto 0;
-              vertical-align: text-top;
-            `}
-          />
-          {t('Dashboard')}
+          <i className="fa fa-plus" /> {t('Dashboard')}
         </>
       ),
       buttonStyle: 'primary',
       onClick: () => {
-        navigateTo('/dashboard/new', { assign: true });
+        window.location.assign('/dashboard/new');
       },
     });
 
@@ -710,7 +691,7 @@ function DashboardList(props: DashboardListProps) {
           title={t('Import dashboards')}
           placement="bottomRight"
         >
-          <Icons.DownloadOutlined data-test="import-button" />
+          <Icons.Import data-test="import-button" />
         </Tooltip>
       ),
       buttonStyle: 'link',
