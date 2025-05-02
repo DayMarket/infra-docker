@@ -84,8 +84,10 @@ COPY --from=frontend-builder /app/superset-frontend /app/superset-frontend
 
 # Кастомные HTML и иконки
 COPY custom/public_welcome.html /app/superset/templates/appbuilder/general/welcome.html
+
+COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 COPY custom/logo.png /app/superset/static/assets/images/logo.png
-COPY custom/favicon.ico /app/superset/static/assets/images/favicon.ico
+
 
 # Удаляем старые ассеты
 RUN rm -rf /app/superset/static/assets/*
@@ -94,17 +96,6 @@ RUN rm -rf /app/superset/static/assets/*
 RUN useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
  && mkdir -p ${SUPERSET_HOME}/superset_home \
  && chown -R superset:superset /app
-
-# Инициализация Superset (выполняется от root, один раз)
-RUN superset db upgrade && \
-    superset init && \
-    superset fab create-admin \
-      --username admin \
-      --firstname Admin \
-      --lastname User \
-      --email admin@example.com \
-      --password admin && \
-    superset assets build
 
 # Переключаемся на безопасного пользователя
 USER superset
