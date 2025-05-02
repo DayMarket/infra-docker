@@ -35,7 +35,9 @@ ENV LANG=C.UTF-8 \
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
+    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
+    && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
