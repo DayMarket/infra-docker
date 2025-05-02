@@ -26,9 +26,9 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend
 
 # Копируем кастомные frontend-файлы в нужные места (после копирования всего superset-frontend)
-COPY custom/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
+COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
 
-COPY custom/DashboardCard.tsx /app/superset-frontend/src/pages/DashboardList/DashboardCard.tsx
+COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
 
 # Установка зависимостей и сборка
 RUN npm ci && npm run ${BUILD_CMD}
