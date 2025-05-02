@@ -1,5 +1,3 @@
-// src/pages/DashboardList/DashboardCard.tsx
-
 import React from 'react';
 import { Card, Tooltip } from 'src/components';
 import FaveStar from 'src/components/FaveStar';

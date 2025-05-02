@@ -1,62 +1,49 @@
-// src/pages/DashboardList/index.tsx
+import React from 'react';
+import { t } from '@superset-ui/core';
+import ListView from 'src/components/ListView';
+import Icon from 'src/components/Icon';
+import CertifiedBadge from 'src/components/CertifiedBadge';
+import TooltipWrapper from 'src/components/TooltipWrapper';
+import FaveStar from 'src/components/FaveStar';
+import { createErrorHandler, handleSave } from 'src/views/CRUD/utils';
+import { Dashboard, DashboardListProps } from 'src/views/CRUD/types';
+import { getItemById, updateResource } from 'src/views/CRUD/utils/apiResources';
+import SubMenu from 'src/views/components/SubMenu';
 
-import React, { useEffect, useState } from 'react';
-import rison from 'rison';
-import { SupersetClient, t } from '@superset-ui/core';
-import { ListView } from 'src/components/ListView';
-import DashboardCard from 'src/pages/DashboardList/DashboardCard';
-
-const DashboardList = () => {
-  const [dashboards, setDashboards] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchDashboards = async () => {
-    try {
-      const queryParams = rison.encode({
-        columns: [
-          'dashboard_title',
-          'changed_on_humanized',
-          'changed_by_name',
-          'thumbnail_url',
-          'certified_by',
-          'certification_details',
-          'description',
-          'url',
-        ],
-        order_column: 'changed_on_delta_humanized',
-        order_direction: 'desc',
-        page_size: 100,
-        page: 0,
-      });
-
-      const { json } = await SupersetClient.get({
-        endpoint: `/api/v1/dashboard/?q=${queryParams}`,
-      });
-
-      setDashboards(json.result);
-    } catch (e) {
-      console.error('Error fetching dashboards', e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDashboards();
-  }, []);
-
+const DashboardList: React.FC<DashboardListProps> = props => {
   return (
-    <div>
-      {loading ? (
-        <div className="loading">Loading dashboards...</div>
-      ) : (
-        <div className="dashboard-cards" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-          {dashboards.map(dashboard => (
-            <DashboardCard key={dashboard.id} dashboard={dashboard} loading={false} />
-          ))}
-        </div>
-      )}
-    </div>
+    <>
+      <SubMenu
+        name={t('Your Dashboards')}
+        breadcrumbParentId="Dashboards"
+        tabs={[
+          {
+            label: t('Your Dashboards'),
+            name: 'Dashboards',
+            icon: <Icon name="dashboard" />,
+            url: '/dashboard/list/',
+          },
+        ]}
+      />
+      <ListView
+        {...props}
+        title={t('Your Dashboards')}
+        renderItem={(dashboard: Dashboard) => ({
+          title: dashboard.dashboard_title,
+          description: dashboard.description,
+          actions: [
+            <FaveStar
+              key="fave-star"
+              itemId={dashboard.id}
+              fetchFaveStar={() => Promise.resolve(false)}
+              saveFaveStar={() => Promise.resolve()}
+            />,
+          ],
+        })}
+        loading={props.loading}
+        fetchData={props.fetchData}
+      />
+    </>
   );
 };
 
