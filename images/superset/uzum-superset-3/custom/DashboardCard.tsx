@@ -4,21 +4,23 @@ import { Dropdown } from 'src/components/Dropdown';
 import Icons from 'src/components/Icons';
 import { Tooltip } from 'src/components/Tooltip';
 import { Dashboard } from 'src/views/CRUD/types';
+import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 
-interface DashboardCardProps {
+export interface DashboardCardProps {
   dashboard: Dashboard;
   hasPerm: boolean;
   showThumbnails?: boolean;
-  isFavorite?: boolean;
+  isFavorite: boolean;
   saveFavoriteStatus: (id: number, isStarred: boolean) => void;
   loading: boolean;
+  userId?: UserWithPermissionsAndRoles['userId'];
 }
 
 const DashboardCard = ({
   dashboard,
   hasPerm,
-  showThumbnails = false,
-  isFavorite = false,
+  showThumbnails,
+  isFavorite,
   saveFavoriteStatus,
   loading,
 }: DashboardCardProps) => {
@@ -27,9 +29,9 @@ const DashboardCard = ({
   };
 
   const menuOverlay = (
-    <div>
-      {hasPerm && <div className="dropdown-item">{t('Edit')}</div>}
-      <div className="dropdown-item">{t('Export')}</div>
+    <div className="menu">
+      <div>{t('Edit')}</div>
+      <div>{t('Delete')}</div>
     </div>
   );
 
@@ -37,24 +39,19 @@ const DashboardCard = ({
     <Card
       loading={loading}
       title={dashboard.dashboard_title}
-      cover={
-        showThumbnails && dashboard.thumbnail_url ? (
-          <img
-            src={dashboard.thumbnail_url}
-            alt=""
-            style={{ width: '100%', height: 'auto' }}
-          />
-        ) : null
-      }
+      url={dashboard.url}
+      imgURL={showThumbnails ? dashboard.thumbnail_url : undefined}
       actions={[
         <Tooltip title={t('Favorite')} key="favorite">
           <span role="button" tabIndex={0} onClick={handleFavoriteToggle}>
             {isFavorite ? <Icons.StarFilled /> : <Icons.StarOutlined />}
           </span>
         </Tooltip>,
-        hasPerm ? (
-          <Dropdown overlay={menuOverlay} trigger={['click']} key="menu" />
-        ) : null,
+        hasPerm && (
+          <Dropdown overlay={menuOverlay} trigger={['click']} key="menu">
+            <Icons.MoreVertical />
+          </Dropdown>
+        ),
       ]}
     />
   );
