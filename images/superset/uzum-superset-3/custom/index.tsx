@@ -1,50 +1,64 @@
-import React from 'react';
-import { t } from '@superset-ui/core';
-import ListView from 'src/components/ListView';
-import Icon from 'src/components/Icon';
-import CertifiedBadge from 'src/components/CertifiedBadge';
-import TooltipWrapper from 'src/components/TooltipWrapper';
-import FaveStar from 'src/components/FaveStar';
-import { createErrorHandler, handleSave } from 'src/views/CRUD/utils';
-import { Dashboard, DashboardListProps } from 'src/views/CRUD/types';
-import { getItemById, updateResource } from 'src/views/CRUD/utils/apiResources';
-import SubMenu from 'src/views/components/SubMenu';
+// UZUM CUSTOM - Dashboard List Page with Thumbnail Cards
+import React, { useEffect, useState } from 'react';
+import { t, SupersetClient } from '@superset-ui/core';
+import { Card, Empty, Row, Col, Spin } from 'antd';
+import { Link } from 'react-router-dom';
+import DashboardCard from './DashboardCard';
 
-const DashboardList: React.FC<DashboardListProps> = props => {
+const PAGE_SIZE = 20;
+
+interface Dashboard {
+  id: number;
+  dashboard_title: string;
+  thumbnail_url: string;
+  url: string;
+}
+
+export default function DashboardList() {
+  const [dashboards, setDashboards] = useState<Dashboard[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    SupersetClient.get({
+      endpoint: `/api/v1/dashboard/?q=${encodeURIComponent(
+        JSON.stringify({
+          order_column: 'changed_on_delta_humanized',
+          order_direction: 'desc',
+          page: 0,
+          page_size: PAGE_SIZE,
+        }),
+      )}`,
+    })
+      .then(({ json }) => {
+        setDashboards(json.result);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch dashboards:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return <Spin tip="Loading dashboards..." />;
+  }
+
+  if (!dashboards.length) {
+    return <Empty description={t('No dashboards found')} />;
+  }
+
   return (
-    <>
-      <SubMenu
-        name={t('Your Dashboards')}
-        breadcrumbParentId="Dashboards"
-        tabs={[
-          {
-            label: t('Your Dashboards'),
-            name: 'Dashboards',
-            icon: <Icon name="dashboard" />,
-            url: '/dashboard/list/',
-          },
-        ]}
-      />
-      <ListView
-        {...props}
-        title={t('Your Dashboards')}
-        renderItem={(dashboard: Dashboard) => ({
-          title: dashboard.dashboard_title,
-          description: dashboard.description,
-          actions: [
-            <FaveStar
-              key="fave-star"
-              itemId={dashboard.id}
-              fetchFaveStar={() => Promise.resolve(false)}
-              saveFaveStar={() => Promise.resolve()}
-            />,
-          ],
-        })}
-        loading={props.loading}
-        fetchData={props.fetchData}
-      />
-    </>
+    <div style={{ padding: 24 }}>
+      <h2>UZUM CUSTOM: Dashboards</h2>
+      <Row gutter={[16, 16]}>
+        {dashboards.map(dashboard => (
+          <Col key={dashboard.id} xs={24} sm={12} md={8} lg={6} xl={6}>
+            <Link to={dashboard.url}>
+              <DashboardCard dashboard={dashboard} />
+            </Link>
+          </Col>
+        ))}
+      </Row>
+    </div>
   );
-};
-
-export default DashboardList;
+}
