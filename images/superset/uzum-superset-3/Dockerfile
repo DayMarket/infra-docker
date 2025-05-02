@@ -16,7 +16,8 @@ RUN apt-get update -qq && \
 WORKDIR /git/superset/superset-frontend
 
 # Клонируем исходники и применяем frontend memory patch
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
+RUN rm -rf /git/superset && \
+    git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh
 
 # Копируем кастомные файлы
