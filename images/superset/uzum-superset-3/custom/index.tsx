@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import rison from 'rison';
 import { SupersetClient, t } from '@superset-ui/core';
 import { ListView } from 'src/components/ListView';
-import DashboardCard from 'src/views/DashboardList/DashboardCard';
+import DashboardCard from 'src/pages/DashboardList/DashboardCard';
 
 const DashboardList = () => {
   const [dashboards, setDashboards] = useState<any[]>([]);
