@@ -35,61 +35,61 @@ ENV LANG=C.UTF-8 \
 
 WORKDIR /app
 
-apt-get install -y --no-install-recommends \
-  build-essential \
-  ca-certificates \
-  curl \
-  default-libmysqlclient-dev \
-  git \
-  libasound2 \
-  libbz2-1.0 \
-  libc6 \
-  libcom-err2 \
-  libcrypt1 \
-  libdb5.3 \
-  libdbus-glib-1-2 \
-  libecpg-dev \
-  libffi8 \
-  libgdbm6 \
-  libgssapi-krb5-2 \
-  libgtk-3-0 \
-  libk5crypto3 \
-  libkeyutils1 \
-  libkrb5-3 \
-  libkrb5support0 \
-  libldap2-dev \
-  liblzma5 \
-  libncursesw6 \
-  libnsl2 \
-  libnss3 \
-  libpq-dev \
-  libreadline8 \
-  libsasl2-dev \
-  libsasl2-modules-gssapi-mit \
-  libsqlite3-0 \
-  libssl3 \
-  libssl-dev \
-  libtinfo6 \
-  libtirpc3 \
-  libuuid1 \
-  libx11-xcb1 \
-  libxtst6 \
-  libxml2-dev \
-  libxslt1-dev \
-  libjpeg-dev \
-  libsndfile1 \
-  libgl1 \
-  libglib2.0-0 \
-  libsm6 \
-  libxext6 \
-  libxrender1 \
-  fonts-dejavu \
-  ffmpeg \
-  netbase \
-  tzdata \
-  zlib1g-dev \
-  zlib1g && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    default-libmysqlclient-dev \
+    git \
+    libasound2 \
+    libbz2-1.0 \
+    libc6 \
+    libcom-err2 \
+    libcrypt1 \
+    libdb5.3 \
+    libdbus-glib-1-2 \
+    libecpg-dev \
+    libffi8 \
+    libgdbm6 \
+    libgssapi-krb5-2 \
+    libgtk-3-0 \
+    libk5crypto3 \
+    libkeyutils1 \
+    libkrb5-3 \
+    libkrb5support0 \
+    libldap2-dev \
+    liblzma5 \
+    libncursesw6 \
+    libnsl2 \
+    libnss3 \
+    libpq-dev \
+    libreadline8 \
+    libsasl2-dev \
+    libsasl2-modules-gssapi-mit \
+    libsqlite3-0 \
+    libssl3 \
+    libssl-dev \
+    libtinfo6 \
+    libtirpc3 \
+    libuuid1 \
+    libx11-xcb1 \
+    libxtst6 \
+    libxml2-dev \
+    libxslt1-dev \
+    libjpeg-dev \
+    libsndfile1 \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    fonts-dejavu \
+    ffmpeg \
+    netbase \
+    tzdata \
+    zlib1g-dev \
+    zlib1g && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /app/superset
 
