@@ -7,6 +7,10 @@ ENV SKIP_PREFLIGHT_CHECK=true
 
 WORKDIR /app
 
+# Устанавливаем git
+RUN apt-get update && apt-get install -y --no-install-recommends git && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Клонируем Superset 4.1.2
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git
 
