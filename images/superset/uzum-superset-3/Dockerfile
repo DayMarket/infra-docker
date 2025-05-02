@@ -102,7 +102,7 @@ RUN pip install --upgrade pip && \
 RUN pip install .
 
 # Копируем собранный frontend из этапа 1
-COPY --from=frontend-builder /app/superset-frontend /app/superset-frontend
+COPY --from=frontend-builder /app/superset/superset-frontend /app/superset-frontend
 
 # Кастомные HTML и иконки
 COPY custom/public_welcome.html /app/superset/templates/superset/
