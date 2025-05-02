@@ -13,7 +13,6 @@ RUN apt-get update -qq && \
         python3 \
         git
 
-# Удаляем старый путь и клонируем репозиторий
 WORKDIR /
 RUN rm -rf /git/superset && \
     git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
@@ -27,7 +26,7 @@ COPY custom/DashboardCard.tsx ./src/features/dashboards/DashboardCard.tsx
 RUN npm ci && npm run ${BUILD_CMD}
 
 ######################################################################
-# Final lean image with preview support
+# Final image with run-server.sh and full preview support
 ######################################################################
 FROM python:${PY_VER} AS lean
 
@@ -96,7 +95,9 @@ RUN cp -Rf /git/superset/superset/* /app/superset/ && \
     cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     mkdir -p /app/superset-frontend && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
-    cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/
+    cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/ && \
+    cp /git/superset/docker/run-server.sh /usr/bin/ && \
+    chmod 755 /usr/bin/run-server.sh
 
 COPY requirements-merged.txt /app/requirements.txt
 
