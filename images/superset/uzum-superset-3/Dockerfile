@@ -96,7 +96,7 @@ WORKDIR /app/superset
 
 # Устанавливаем Python зависимости
 RUN pip install --upgrade pip && \
-    pip install -r requirements/requirements-merge.txt
+    pip install -r customß/requirements-merge.txt
 
 # Устанавливаем Superset как Python пакет
 RUN pip install .
@@ -105,7 +105,7 @@ RUN pip install .
 COPY --from=frontend-builder /app/superset-frontend /app/superset-frontend
 
 # Кастомные HTML и иконки
-COPY custom/public_welcome.html /app/superset/templates/appbuilder/general/welcome.html
+COPY custom/public_welcome.html /app/superset/templates/superset/
 
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
