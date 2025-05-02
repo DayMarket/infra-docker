@@ -104,7 +104,7 @@ RUN pip install --upgrade pip && \
 RUN pip install .
 
 # Копируем стартовый скрипт из первого этапа
-COPY --from=frontend-builder /app/superset/docker/run-server.sh /usr/bin/
+COPY --from=frontend-builder /run-server.sh /usr/bin/run-server.sh
 RUN chmod 755 /usr/bin/run-server.sh
 
 # Копируем собранный frontend из этапа 1
