@@ -1,139 +1,112 @@
 import React, { useCallback } from 'react';
 import { t, isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
-import { useSelector } from 'react-redux';
-import { dangerouslyGetItemDoNotUse } from 'src/utils/localStorageHelpers';
-import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
-import SubMenu from 'src/features/home/SubMenu';
-import { ListView } from 'src/components/ListView';
-import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
-import { createFetchRelated, handleDashboardDelete } from 'src/views/CRUD/utils';
-import { DashboardStatus } from 'src/features/dashboards/types';
+import SubMenu from 'src/views/components/SubMenu';
+import ListView from 'src/components/ListView';
+import Icon from 'src/components/Icon';
 import FaveStar from 'src/components/FaveStar';
 import CertifiedBadge from 'src/components/CertifiedBadge';
-import FacePile from 'src/components/FacePile';
-import Icons from 'src/components/Icons';
-import Tooltip from 'src/components/Tooltip';
-import withToasts from 'src/components/MessageToasts/withToasts';
+import { createErrorHandler } from 'src/views/CRUD/utils';
+import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
+import { Dashboard } from 'src/views/CRUD/types';
 import DashboardCard from 'src/pages/DashboardList/DashboardCard';
 
-interface Dashboard {
-  id: number;
-  dashboard_title: string;
-  thumbnail_url?: string;
-  url: string;
-  certified_by?: string | null;
-  certification_details?: string | null;
-  changed_by_name?: string;
-  changed_by_url?: string;
-  changed_by?: any;
-  changed_on_delta_humanized?: string;
-  owners?: any[];
-  tags?: any[];
-}
-
-interface Props {
-  addDangerToast: (msg: string) => void;
-  addSuccessToast: (msg: string) => void;
-  user: {
-    userId: string | number;
-  };
-}
-
-function DashboardList(props: Props) {
-  const { addDangerToast, addSuccessToast, user } = props;
-
-  const { state, hasPerm, fetchData, toggleBulkSelect, refreshData } =
-    useListViewResource<Dashboard>(
-      'dashboard',
-      t('dashboard'),
-      addDangerToast,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      [
-        'id',
-        'dashboard_title',
-        'url',
-        'thumbnail_url',
-        'certified_by',
-        'certification_details',
-        'changed_by',
-        'changed_by_name',
-        'changed_by_url',
-        'changed_on_delta_humanized',
-        'owners',
-        'tags',
-      ],
-    );
-
+const DashboardList = () => {
   const {
-    loading,
-    resourceCollection: dashboards,
-    bulkSelectEnabled,
-  } = state;
+    state: { loading, resourceCount: count, resourceCollection: dashboards },
+    hasPerm,
+    fetchData,
+  } = useListViewResource<Dashboard>('dashboard', t('dashboard'), createErrorHandler);
 
   const dashboardIds = dashboards.map(d => d.id);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
     dashboardIds,
-    addDangerToast,
+    createErrorHandler,
   );
 
-  const userKey = dangerouslyGetItemDoNotUse(user?.userId?.toString(), null);
-
-  const showThumbnails =
-    userKey && typeof userKey.thumbnails !== 'undefined'
-      ? userKey.thumbnails
-      : isFeatureEnabled(FeatureFlag.Thumbnails);
+  const columns = [
+    {
+      Header: t('Title'),
+      accessor: 'dashboard_title',
+    },
+    {
+      Header: t('Certified'),
+      accessor: 'certified_by',
+      Cell: ({ cell: { value }, row: { original } }) =>
+        value ? (
+          <CertifiedBadge
+            certifiedBy={value}
+            details={original.certification_details}
+          />
+        ) : null,
+    },
+    {
+      Header: t('Modified'),
+      accessor: 'changed_on_delta_humanized',
+    },
+    {
+      Header: t('Modified by'),
+      accessor: 'changed_by_name',
+    },
+    {
+      Header: t('Actions'),
+      id: 'actions',
+      Cell: ({ row: { original } }) => (
+        <FaveStar
+          itemId={original.id}
+          saveFaveStar={saveFavoriteStatus}
+          isStarred={favoriteStatus[original.id]}
+        />
+      ),
+    },
+  ];
 
   const renderCard = useCallback(
-    (dashboard: Dashboard) => {
-      return (
-        <DashboardCard
-          dashboard={dashboard}
-          hasPerm={hasPerm}
-          bulkSelectEnabled={bulkSelectEnabled}
-          showThumbnails={showThumbnails}
-          userId={user?.userId}
-          loading={loading}
-          openDashboardEditModal={() => {}}
-          saveFavoriteStatus={saveFavoriteStatus}
-          favoriteStatus={favoriteStatus[dashboard.id]}
-          handleBulkDashboardExport={() => {}}
-          onDelete={() => {}}
-        />
-      );
-    },
-    [
-      hasPerm,
-      bulkSelectEnabled,
-      user?.userId,
-      loading,
-      userKey,
-      showThumbnails,
-      favoriteStatus,
-      saveFavoriteStatus,
-    ],
+    (dashboard: Dashboard) => (
+      <DashboardCard
+        dashboard={dashboard}
+        hasPerm={hasPerm}
+        bulkSelectEnabled={false}
+        showThumbnails={isFeatureEnabled(FeatureFlag.Thumbnails)}
+        userId={null}
+        loading={loading}
+        openDashboardEditModal={() => {}}
+        saveFavoriteStatus={saveFavoriteStatus}
+        favoriteStatus={favoriteStatus[dashboard.id]}
+        handleBulkDashboardExport={() => {}}
+        onDelete={() => {}}
+      />
+    ),
+    [hasPerm, loading, saveFavoriteStatus, favoriteStatus],
   );
 
   return (
     <>
-      <SubMenu name={t('Dashboards')} buttons={[]} />
+      <SubMenu
+        name={t('Dashboards')}
+        tabs={[
+          {
+            label: t('Dashboards'),
+            name: 'Dashboards',
+            icon: <Icon name="dashboard" />,
+            url: '/dashboard/list/',
+          },
+        ]}
+      />
       <ListView
         className="dashboard-list-view"
-        columns={[]} // simplified, as we focus on cards
+        columns={columns}
         data={dashboards}
-        count={dashboards.length}
+        count={count}
         loading={loading}
         fetchData={fetchData}
-        refreshData={refreshData}
+        title={t('Dashboards')}
         renderCard={renderCard}
-        showThumbnails={showThumbnails}
-        defaultViewMode="card"
+        cardView
+        enableViewModeToggle
       />
     </>
   );
-}
+};
 
-export default withToasts(DashboardList);
+export default DashboardList;
