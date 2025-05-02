@@ -1,19 +1,18 @@
-import Card from 'src/components/Card';
 import { t } from '@superset-ui/core';
-import { Dropdown } from 'src/components/Dropdown';
+import Card from 'src/components/Card';
 import Icons from 'src/components/Icons';
 import { Tooltip } from 'src/components/Tooltip';
+import { Dropdown } from 'src/components/Dropdown';
+import { Menu } from 'src/components/Menu';
 import { Dashboard } from 'src/views/CRUD/types';
-import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 
 export interface DashboardCardProps {
   dashboard: Dashboard;
   hasPerm: boolean;
   showThumbnails?: boolean;
-  isFavorite: boolean;
-  saveFavoriteStatus: (id: number, isStarred: boolean) => void;
+  isFavorite?: boolean;
   loading: boolean;
-  userId?: UserWithPermissionsAndRoles['userId'];
+  saveFavoriteStatus?: (id: number, isStarred: boolean) => void;
 }
 
 const DashboardCard = ({
@@ -21,29 +20,36 @@ const DashboardCard = ({
   hasPerm,
   showThumbnails,
   isFavorite,
-  saveFavoriteStatus,
   loading,
+  saveFavoriteStatus,
 }: DashboardCardProps) => {
   const handleFavoriteToggle = () => {
-    saveFavoriteStatus(dashboard.id, !isFavorite);
+    if (saveFavoriteStatus) {
+      saveFavoriteStatus(dashboard.id, !isFavorite);
+    }
   };
 
   const menuOverlay = (
-    <div className="menu">
-      <div>{t('Edit')}</div>
-      <div>{t('Delete')}</div>
-    </div>
+    <Menu>
+      <Menu.Item key="edit">
+        <a href={`/dashboard/edit/${dashboard.id}`}>{t('Edit')}</a>
+      </Menu.Item>
+      <Menu.Item key="explore">
+        <a href={`/superset/dashboard/${dashboard.id}/?standalone=true`} target="_blank" rel="noreferrer">
+          {t('Open')}
+        </a>
+      </Menu.Item>
+    </Menu>
   );
 
   return (
     <Card
       loading={loading}
       title={dashboard.dashboard_title}
-      url={dashboard.url}
       imgURL={showThumbnails ? dashboard.thumbnail_url : undefined}
       actions={[
         <Tooltip title={t('Favorite')} key="favorite">
-          <span role="button" tabIndex={0} onClick={handleFavoriteToggle}>
+          <span role="button" tabIndex={0} onClick={handleFavoriteToggle} onKeyPress={handleFavoriteToggle}>
             {isFavorite ? <Icons.StarFilled /> : <Icons.StarOutlined />}
           </span>
         </Tooltip>,
@@ -52,7 +58,7 @@ const DashboardCard = ({
             <Icons.MoreVertical />
           </Dropdown>
         ),
-      ]}
+      ].filter(Boolean)}
     />
   );
 };

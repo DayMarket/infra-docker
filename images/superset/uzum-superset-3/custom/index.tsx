@@ -19,14 +19,14 @@ const DashboardList = () => {
   } = useListViewResource<Dashboard>(
     'dashboard',
     t('dashboard'),
-    () => {}, // Заглушка обработчика ошибок
+    () => {},
   );
 
   const dashboardIds = dashboards.map(d => d.id);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
     dashboardIds,
-    () => {}, // Заглушка обработчика ошибок
+    () => {},
   );
 
   const columns = [
