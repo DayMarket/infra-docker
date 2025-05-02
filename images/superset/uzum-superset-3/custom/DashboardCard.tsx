@@ -1,8 +1,7 @@
-// src/views/DashboardList/DashboardCard.tsx
+// src/pages/DashboardList/DashboardCard.tsx
 
 import React from 'react';
 import { Card, Tooltip } from 'src/components';
-import Icons from 'src/components/Icons';
 import FaveStar from 'src/components/FaveStar';
 import InfoTooltip from 'src/components/InfoTooltip';
 import CertifiedBadge from 'src/components/CertifiedBadge';
@@ -29,42 +28,56 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ dashboard, loading }) => 
     return <div className="placeholder" style={{ height: '200px' }} />;
   }
 
+  const {
+    id,
+    dashboard_title,
+    thumbnail_url,
+    certified_by,
+    certification_details,
+    description,
+    changed_on_humanized,
+    changed_by_name,
+    url,
+  } = dashboard;
+
   return (
     <CardStyles>
       <Card
+        hoverable
         cover={
-          dashboard.thumbnail_url ? (
+          thumbnail_url ? (
             <img
-              src={dashboard.thumbnail_url}
-              style={{ height: 200, objectFit: 'cover' }}
+              src={thumbnail_url}
+              style={{ height: 200, objectFit: 'cover', width: '100%' }}
             />
           ) : (
-            <div style={{ height: 200, background: '#f0f0f0' }} />
+            <div style={{ height: 200, backgroundColor: '#f0f0f0' }} />
           )
         }
         title={
-          <Tooltip title={dashboard.dashboard_title}>
-            <a href={dashboard.url}>{dashboard.dashboard_title}</a>
+          <Tooltip title={dashboard_title}>
+            <a href={url}>{dashboard_title}</a>
           </Tooltip>
         }
         actions={[
           <FaveStar
-            itemId={dashboard.id}
+            itemId={id}
             fetchFaveStar={() => Promise.resolve(false)}
             saveFaveStar={() => Promise.resolve()}
           />,
-          <InfoTooltip tooltip={dashboard.description || t('No description')} />,
+          <InfoTooltip tooltip={description || t('No description')} />,
         ]}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          {dashboard.certified_by && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {certified_by && (
             <CertifiedBadge
-              certifiedBy={dashboard.certified_by}
-              details={dashboard.certification_details}
+              certifiedBy={certified_by}
+              details={certification_details}
             />
           )}
-          <span>
-            {t('Last modified')}: {dashboard.changed_on_humanized} {dashboard.changed_by_name && `by ${dashboard.changed_by_name}`}
+          <span style={{ fontSize: '0.85em', color: '#888' }}>
+            {t('Last modified')}: {changed_on_humanized}
+            {changed_by_name && ` by ${changed_by_name}`}
           </span>
         </div>
       </Card>
