@@ -1,64 +1,139 @@
-// UZUM CUSTOM - Dashboard List Page with Thumbnail Cards
-import React, { useEffect, useState } from 'react';
-import { t, SupersetClient } from '@superset-ui/core';
-import { Card, Empty, Row, Col, Spin } from 'antd';
-import { Link } from 'react-router-dom';
-import DashboardCard from './DashboardCard';
-
-const PAGE_SIZE = 20;
+import React, { useCallback } from 'react';
+import { t, isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
+import { useSelector } from 'react-redux';
+import { dangerouslyGetItemDoNotUse } from 'src/utils/localStorageHelpers';
+import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import SubMenu from 'src/features/home/SubMenu';
+import { ListView } from 'src/components/ListView';
+import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
+import { createFetchRelated, handleDashboardDelete } from 'src/views/CRUD/utils';
+import { DashboardStatus } from 'src/features/dashboards/types';
+import FaveStar from 'src/components/FaveStar';
+import CertifiedBadge from 'src/components/CertifiedBadge';
+import FacePile from 'src/components/FacePile';
+import Icons from 'src/components/Icons';
+import Tooltip from 'src/components/Tooltip';
+import withToasts from 'src/components/MessageToasts/withToasts';
+import DashboardCard from 'src/features/dashboards/DashboardCard';
 
 interface Dashboard {
   id: number;
   dashboard_title: string;
-  thumbnail_url: string;
+  thumbnail_url?: string;
   url: string;
+  certified_by?: string | null;
+  certification_details?: string | null;
+  changed_by_name?: string;
+  changed_by_url?: string;
+  changed_by?: any;
+  changed_on_delta_humanized?: string;
+  owners?: any[];
+  tags?: any[];
 }
 
-export default function DashboardList() {
-  const [dashboards, setDashboards] = useState<Dashboard[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Props {
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
+  user: {
+    userId: string | number;
+  };
+}
 
-  useEffect(() => {
-    SupersetClient.get({
-      endpoint: `/api/v1/dashboard/?q=${encodeURIComponent(
-        JSON.stringify({
-          order_column: 'changed_on_delta_humanized',
-          order_direction: 'desc',
-          page: 0,
-          page_size: PAGE_SIZE,
-        }),
-      )}`,
-    })
-      .then(({ json }) => {
-        setDashboards(json.result);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to fetch dashboards:', err);
-        setLoading(false);
-      });
-  }, []);
+function DashboardList(props: Props) {
+  const { addDangerToast, addSuccessToast, user } = props;
 
-  if (loading) {
-    return <Spin tip="Loading dashboards..." />;
-  }
+  const { state, hasPerm, fetchData, toggleBulkSelect, refreshData } =
+    useListViewResource<Dashboard>(
+      'dashboard',
+      t('dashboard'),
+      addDangerToast,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      [
+        'id',
+        'dashboard_title',
+        'url',
+        'thumbnail_url',
+        'certified_by',
+        'certification_details',
+        'changed_by',
+        'changed_by_name',
+        'changed_by_url',
+        'changed_on_delta_humanized',
+        'owners',
+        'tags',
+      ],
+    );
 
-  if (!dashboards.length) {
-    return <Empty description={t('No dashboards found')} />;
-  }
+  const {
+    loading,
+    resourceCollection: dashboards,
+    bulkSelectEnabled,
+  } = state;
+
+  const dashboardIds = dashboards.map(d => d.id);
+  const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
+    'dashboard',
+    dashboardIds,
+    addDangerToast,
+  );
+
+  const userKey = dangerouslyGetItemDoNotUse(user?.userId?.toString(), null);
+
+  const showThumbnails =
+    userKey && typeof userKey.thumbnails !== 'undefined'
+      ? userKey.thumbnails
+      : isFeatureEnabled(FeatureFlag.Thumbnails);
+
+  const renderCard = useCallback(
+    (dashboard: Dashboard) => {
+      return (
+        <DashboardCard
+          dashboard={dashboard}
+          hasPerm={hasPerm}
+          bulkSelectEnabled={bulkSelectEnabled}
+          showThumbnails={showThumbnails}
+          userId={user?.userId}
+          loading={loading}
+          openDashboardEditModal={() => {}}
+          saveFavoriteStatus={saveFavoriteStatus}
+          favoriteStatus={favoriteStatus[dashboard.id]}
+          handleBulkDashboardExport={() => {}}
+          onDelete={() => {}}
+        />
+      );
+    },
+    [
+      hasPerm,
+      bulkSelectEnabled,
+      user?.userId,
+      loading,
+      userKey,
+      showThumbnails,
+      favoriteStatus,
+      saveFavoriteStatus,
+    ],
+  );
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>UZUM CUSTOM: Dashboards</h2>
-      <Row gutter={[16, 16]}>
-        {dashboards.map(dashboard => (
-          <Col key={dashboard.id} xs={24} sm={12} md={8} lg={6} xl={6}>
-            <Link to={dashboard.url}>
-              <DashboardCard dashboard={dashboard} />
-            </Link>
-          </Col>
-        ))}
-      </Row>
-    </div>
+    <>
+      <SubMenu name={t('Dashboards')} buttons={[]} />
+      <ListView
+        className="dashboard-list-view"
+        columns={[]} // simplified, as we focus on cards
+        data={dashboards}
+        count={dashboards.length}
+        loading={loading}
+        fetchData={fetchData}
+        refreshData={refreshData}
+        renderCard={renderCard}
+        showThumbnails={showThumbnails}
+        defaultViewMode="card"
+      />
+    </>
   );
 }
+
+export default withToasts(DashboardList);
