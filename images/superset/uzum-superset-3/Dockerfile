@@ -13,22 +13,21 @@ RUN apt-get update -qq && \
         python3 \
         git
 
-WORKDIR /git/superset/superset-frontend
-
-# Клонируем исходники и применяем frontend memory patch
+# Удаляем старый путь и клонируем репозиторий
+WORKDIR /
 RUN rm -rf /git/superset && \
     git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh
 
-# Копируем кастомные файлы
+WORKDIR /git/superset/superset-frontend
+
 COPY custom/index.tsx ./src/pages/DashboardList/index.tsx
 COPY custom/DashboardCard.tsx ./src/features/dashboards/DashboardCard.tsx
 
-# Сборка frontend
 RUN npm ci && npm run ${BUILD_CMD}
 
 ######################################################################
-# Final image with full dependencies for preview support
+# Final lean image with preview support
 ######################################################################
 FROM python:${PY_VER} AS lean
 
@@ -87,14 +86,20 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     zlib1g && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
-    cp -Rf /git/superset/superset/* /app/superset/ && \
+WORKDIR /
+RUN rm -rf /git/superset && \
+    git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset
+
+WORKDIR /app
+
+RUN cp -Rf /git/superset/superset/* /app/superset/ && \
     cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     mkdir -p /app/superset-frontend && \
     cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
     cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/
 
 COPY requirements-merged.txt /app/requirements.txt
+
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -e . && \
@@ -115,4 +120,4 @@ USER superset
 
 HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health"
 EXPOSE ${SUPERSET_PORT}
-CMD ["superset", "run"]
+CMD ["/usr/bin/run-server.sh"]
