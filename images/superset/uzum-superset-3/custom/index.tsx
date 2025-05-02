@@ -3,7 +3,7 @@ import { t } from '@superset-ui/core';
 import ListView from 'src/components/ListView';
 import FaveStar from 'src/components/FaveStar';
 import CertifiedBadge from 'src/components/CertifiedBadge';
-import { createErrorHandler } from 'src/views/CRUD/utils';
+import { () => {} } from 'src/views/CRUD/utils';
 import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
 import { Dashboard } from 'src/views/CRUD/types';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
@@ -20,14 +20,14 @@ const DashboardList = () => {
   } = useListViewResource<Dashboard>(
     'dashboard',
     t('dashboard'),
-    createErrorHandler,
+    () => {},
   );
 
   const dashboardIds = dashboards.map(d => d.id);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
     dashboardIds,
-    createErrorHandler,
+    () => {},
   );
 
   const columns = [
