@@ -27,6 +27,7 @@ RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend
 
 # Копируем кастомные frontend-файлы в нужные места (после копирования всего superset-frontend)
 COPY custom/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
+
 COPY custom/DashboardCard.tsx /app/superset-frontend/src/pages/DashboardList/DashboardCard.tsx
 
 # Установка зависимостей и сборка
