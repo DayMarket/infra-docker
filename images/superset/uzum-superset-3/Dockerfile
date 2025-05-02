@@ -38,7 +38,7 @@ ENV LANG=C.UTF-8 \
 
 WORKDIR /app
 
-# Устанавливаем системные зависимости
+# Устанавливаем системные зависимости, кроме libmysqlclient-dev
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libssl-dev \
@@ -50,12 +50,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     libldap2-dev \
     libsasl2-dev \
-    libmysqlclient-dev \
-    default-libmysqlclient-dev \
     curl \
     wget \
     git \
     unzip \
+    gnupg \
+    lsb-release \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
@@ -70,6 +70,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     software-properties-common \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# === Установка libmysqlclient-dev через официальный MySQL APT ===
+RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.24-1_all.deb && \
+    echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.0" | debconf-set-selections && \
+    DEBIAN_FRONTEND=noninteractive dpkg -i mysql-apt-config_0.8.24-1_all.deb && \
+    apt-get update && \
+    apt-get install -y libmysqlclient-dev && \
+    rm -f mysql-apt-config_0.8.24-1_all.deb && \
+    rm -rf /var/lib/apt/lists/*
 
 # Клонируем Superset 4.1.2
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /app/superset
