@@ -1,4 +1,4 @@
-// UZUM CUSTOM - DashboardList without "Your Dashboards" and loading text
+// UZUM CUSTOM - Dashboard list view without headers or spinners
 
 import React from 'react';
 import ListView from 'src/components/ListView/ListView';
@@ -22,9 +22,10 @@ export default function DashboardList() {
     ),
   );
 
-  const renderCard = (dashboard: Dashboard) => (
-    <DashboardCard key={dashboard.id} dashboard={dashboard} />
-  );
+  const renderCard = (dashboard: Dashboard) =>
+    dashboard ? (
+      <DashboardCard key={dashboard.id} dashboard={dashboard} />
+    ) : null;
 
   return (
     <ListView<Dashboard>

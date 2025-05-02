@@ -1,20 +1,14 @@
-// UZUM CUSTOM - DashboardCard without jokes or fallbacks
+// UZUM CUSTOM - stable version for Superset 4.1.2
 
 import React from 'react';
-import { Card, CardBody } from 'src/components/Card';
-import { FallbackComponentProps } from 'src/components/FallbackComponent';
-import { t } from '@superset-ui/core';
+import Card from 'src/components/Card/Card';
 import { Dashboard } from 'src/views/DashboardList/types';
-import InfoTooltip from 'src/components/InfoTooltip';
-import Icons from 'src/components/Icons';
-import { getDashboardUrl } from 'src/views/DashboardList/utils';
-import { Tooltip } from 'src/components/Tooltip';
-import Actions from './Actions';
 
 interface DashboardCardProps {
   dashboard: Dashboard;
-  loading?: boolean;
 }
+
+const getDashboardUrl = (id: number | string) => `/dashboard/${id}/`;
 
 const DashboardCard: React.FC<DashboardCardProps> = ({ dashboard }) => {
   const { id, dashboard_title, thumbnail_url } = dashboard;
@@ -37,16 +31,13 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ dashboard }) => {
           />
         )}
       </a>
-      <CardBody>
+      <div className="dashboard-card-body">
         <div className="dashboard-title">
           <a href={getDashboardUrl(id)} className="title-link">
             {dashboard_title}
           </a>
         </div>
-        <div className="dashboard-actions">
-          <Actions dashboard={dashboard} />
-        </div>
-      </CardBody>
+      </div>
     </Card>
   );
 };
