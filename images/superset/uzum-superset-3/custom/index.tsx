@@ -1,15 +1,20 @@
+import React, { useCallback } from 'react';
 import { t } from '@superset-ui/core';
 import ListView from 'src/components/ListView';
 import FaveStar from 'src/components/FaveStar';
 import CertifiedBadge from 'src/components/CertifiedBadge';
-import { createErrorHandler } from 'src/utils/createErrorHandler';
+import { createErrorHandler } from 'src/views/CRUD/utils';
 import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
 import { Dashboard } from 'src/views/CRUD/types';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
 
 const DashboardList = () => {
   const {
-    state: { loading, resourceCount: dashboardsCount, resourceCollection: dashboards },
+    state: {
+      loading,
+      resourceCount: dashboardsCount,
+      resourceCollection: dashboards,
+    },
     hasPerm,
     fetchData,
   } = useListViewResource<Dashboard>(
@@ -27,50 +32,41 @@ const DashboardList = () => {
 
   const columns = [
     {
-      Header: t('Title'),
+      Header: t('Dashboard'),
       accessor: 'dashboard_title',
-    },
-    {
-      Header: t('Creator'),
-      accessor: 'creator.first_name',
     },
     {
       Header: t('Certified'),
       accessor: 'certified_by',
-      Cell: ({ cell, row }: any) =>
-        cell.value ? (
-          <CertifiedBadge
-            certifiedBy={cell.value}
-            details={row.original.certification_details}
-          />
-        ) : null,
+      Cell: ({ cell: { value } }: any) =>
+        value ? <CertifiedBadge certifiedBy={value} /> : null,
     },
     {
       Header: t('Actions'),
       id: 'actions',
-      Cell: ({ row }: any) => (
+      Cell: ({ row: { original } }: any) => (
         <FaveStar
-          itemId={row.original.id}
+          itemId={original.id}
           saveFaveStar={saveFavoriteStatus}
-          isStarred={favoriteStatus[row.original.id]}
-          className="m-0"
+          isStarred={favoriteStatus[original.id]}
         />
       ),
     },
   ];
 
-  const renderCard = (dashboard: Dashboard) => {
-    if (!dashboard) return null;
-    return (
+  const renderCard = useCallback(
+    (dashboard: Dashboard) => (
       <DashboardCard
         dashboard={dashboard}
-        hasPerm={hasPerm}
+        hasPerm={true}
         showThumbnails
         saveFavoriteStatus={saveFavoriteStatus}
         isFavorite={favoriteStatus[dashboard.id]}
+        loading={loading}
       />
-    );
-  };
+    ),
+    [saveFavoriteStatus, favoriteStatus, loading],
+  );
 
   return (
     <ListView
@@ -82,7 +78,6 @@ const DashboardList = () => {
       loading={loading}
       fetchData={fetchData}
       renderCard={renderCard}
-      cardView
       enableViewModeToggle
     />
   );
