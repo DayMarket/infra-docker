@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from 'src/components/Card';
 import { t } from '@superset-ui/core';
-import Dropdown from 'src/components/Dropdown';
+import { Dropdown } from 'src/components/Dropdown';
 import Icons from 'src/components/Icons';
 import { Tooltip } from 'src/components/Tooltip';
 import { Dashboard } from 'src/views/CRUD/types';
@@ -27,8 +27,8 @@ const DashboardCard = ({
     saveFavoriteStatus(dashboard.id, !isFavorite);
   };
 
-  const overlayMenu = (
-    <div className="dropdown-menu">
+  const menuOverlay = (
+    <div>
       {hasPerm && <div className="dropdown-item">{t('Edit')}</div>}
       <div className="dropdown-item">{t('Export')}</div>
     </div>
@@ -54,7 +54,7 @@ const DashboardCard = ({
           </span>
         </Tooltip>,
         hasPerm && (
-          <Dropdown overlay={overlayMenu} trigger={['click']} key="menu">
+          <Dropdown overlay={menuOverlay} trigger={['click']} key="menu">
             <Icons.MoreVertical />
           </Dropdown>
         ),

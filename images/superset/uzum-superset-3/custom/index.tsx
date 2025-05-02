@@ -15,19 +15,18 @@ const DashboardList = () => {
       resourceCount: dashboardsCount,
       resourceCollection: dashboards,
     },
-    hasPerm,
     fetchData,
   } = useListViewResource<Dashboard>(
     'dashboard',
     t('dashboard'),
-    createErrorHandler,
+    createErrorHandler as (msg: string) => void,
   );
 
   const dashboardIds = dashboards.map(d => d.id);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
     dashboardIds,
-    createErrorHandler,
+    createErrorHandler as (msg: string) => void,
   );
 
   const columns = [
@@ -78,7 +77,6 @@ const DashboardList = () => {
       loading={loading}
       fetchData={fetchData}
       renderCard={renderCard}
-      enableViewModeToggle
     />
   );
 };
