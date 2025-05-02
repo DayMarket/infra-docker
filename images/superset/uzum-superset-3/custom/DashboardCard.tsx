@@ -15,8 +15,7 @@ import PublishedLabel from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
-import { Button } from 'src/components';
-import { assetUrl } from 'src/utils/assetUrl';
+import Button from 'src/components/Button';
 
 interface DashboardCardProps {
   isChart?: boolean;
@@ -76,7 +75,7 @@ function DashboardCard({
   const menu = (
     <Menu>
       {canEdit && openDashboardEditModal && (
-        <Menu.Item>
+        <Menu.Item key="edit">
           <div
             role="button"
             tabIndex={0}
@@ -89,7 +88,7 @@ function DashboardCard({
         </Menu.Item>
       )}
       {canExport && (
-        <Menu.Item>
+        <Menu.Item key="export">
           <div
             role="button"
             tabIndex={0}
@@ -102,7 +101,7 @@ function DashboardCard({
         </Menu.Item>
       )}
       {canDelete && (
-        <Menu.Item>
+        <Menu.Item key="delete">
           <div
             role="button"
             tabIndex={0}
@@ -115,10 +114,6 @@ function DashboardCard({
         </Menu.Item>
       )}
     </Menu>
-  );
-
-  const fallback = assetUrl(
-    '/static/assets/images/dashboard-card-fallback.svg',
   );
 
   return (
@@ -134,15 +129,15 @@ function DashboardCard({
         title={dashboard.dashboard_title}
         certifiedBy={dashboard.certified_by}
         certificationDetails={dashboard.certification_details}
-        titleRight={<PublishedLabel isPublished={dashboard.published} />}
+        titleRight={<PublishedLabel published={dashboard.published} />}
         cover={
-          isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails ? (
+          isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails && thumbnailUrl ? (
             <img
-              src={thumbnailUrl || fallback}
+              src={thumbnailUrl}
               alt={t('Dashboard thumbnail')}
-              style={{ width: '100%', height: 'auto' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
-          ) : null
+          ) : undefined
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
@@ -162,7 +157,7 @@ function DashboardCard({
                 isStarred={favoriteStatus}
               />
             )}
-            <Dropdown dropdownRender={() => menu} trigger={['hover', 'click']}>
+            <Dropdown overlay={menu} trigger={['hover', 'click']}>
               <Button buttonSize="xsmall" type="link">
                 <Icons.MoreOutlined iconSize="xl" />
               </Button>
