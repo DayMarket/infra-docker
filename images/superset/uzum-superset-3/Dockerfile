@@ -41,45 +41,53 @@ WORKDIR /app
 
 # Устанавливаем системные зависимости, кроме libmysqlclient-dev
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libssl-dev \
-    libffi-dev \
-    libpq-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    libjpeg-dev \
-    zlib1g-dev \
-    libldap2-dev \
-    libsasl2-dev \
-    curl \
-    wget \
-    git \
-    unzip \
-    gnupg \
-    lsb-release \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    gcc \
-    g++ \
-    freetds-dev \
-    unixodbc-dev \
-    libsqlite3-dev \
-    libcurl4-openssl-dev \
-    libpng-dev \
-    pkg-config \
-    software-properties-common \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# === Установка libmysqlclient-dev через официальный MySQL APT ===
-RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.24-1_all.deb && \
-    echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.0" | debconf-set-selections && \
-    DEBIAN_FRONTEND=noninteractive dpkg -i mysql-apt-config_0.8.24-1_all.deb && \
-    apt-get update && \
-    apt-get install -y libmysqlclient-dev && \
-    rm -f mysql-apt-config_0.8.24-1_all.deb && \
-    rm -rf /var/lib/apt/lists/*
+build-essential \
+ca-certificates \
+curl \
+default-libmysqlclient-dev \
+git \
+libasound2 \
+libbz2-1.0 \
+libc6 \
+libcom-err2 \
+libcrypt1 \
+libdb5.3 \
+libdbus-glib-1-2 \
+libecpg-dev \
+libffi8 \
+libgdbm6 \
+libgssapi-krb5-2 \
+libgtk-3-0 \
+libk5crypto3 \
+libkeyutils1 \
+libkrb5-3 \
+libkrb5support0 \
+libldap2-dev \
+liblzma5 \
+libncursesw6 \
+libnsl2 \
+libnss3 \
+libpq-dev \
+libreadline8 \
+libsasl2-dev \
+libsasl2-modules-gssapi-mit \
+libsqlite3-0 \
+libssl3 \
+libtinfo6 \
+libtirpc3 \
+libuuid1 \
+libx11-xcb1 \
+libxtst6 \
+libssl-dev \
+libxml2-dev \
+libxslt1-dev \
+libjpeg-dev \
+zlib1g-dev \
+libldap2-dev \
+netbase \
+tzdata \
+zlib1g && \
+rm -rf /var/lib/apt/lists/*
 
 # Клонируем Superset 4.1.2
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /app/superset
