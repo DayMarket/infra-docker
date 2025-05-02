@@ -95,9 +95,6 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     zlib1g && \
     rm -rf /var/lib/apt/lists/*
 
-# Клонируем Superset 4.1.2
-RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /app/superset
-
 WORKDIR /app/superset
 
 # Устанавливаем Python зависимости
