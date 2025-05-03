@@ -31,7 +31,6 @@ ENV LANG=C.UTF-8 \
     FLASK_APP="superset.app:create_app()" \
     PYTHONPATH="/app/pythonpath" \
     SUPERSET_PORT=8088
-WORKDIR /app
 COPY custom/apt-dependencies.txt /tmp/apt-dependencies.txt
 RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
   && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
@@ -45,14 +44,15 @@ RUN set -eux; \
     pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r /tmp/requirements-merge.txt && \
     pip install --no-cache-dir --editable .
+WORKDIR /app/superset
 # Копируем собранные frontend ассеты в runtime
-COPY --from=frontend-builder /app/superset/static/assets ./superset/static/assets
+COPY --from=frontend-builder /app/superset/static/assets ./static/assets
 # collect static
 RUN superset collect --force --noinput
 # Поверх всего кладём кастомные HTML и иконки
-COPY custom/public_welcome.html  ./superset/templates/superset/public_welcome.html
-COPY custom/favicon.png          ./superset/static/assets/images/favicon.png
-COPY custom/uzum.png             ./superset/static/assets/images/uzum.png
+COPY custom/public_welcome.html  ./templates/superset/public_welcome.html
+COPY custom/favicon.png          ./static/assets/images/favicon.png
+COPY custom/uzum.png             ./static/assets/images/uzum.png
 # Копируем стартовый скрипт из первого этапа
 COPY --from=frontend-builder /app/superset/docker/run-server.sh /usr/bin/run-server.sh
 RUN chmod 755 /usr/bin/run-server.sh
