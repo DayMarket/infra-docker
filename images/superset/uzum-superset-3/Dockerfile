@@ -95,6 +95,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     zlib1g && \
     rm -rf /var/lib/apt/lists/*
 
+COPY --from=frontend-builder /app/superset /app/superset
 WORKDIR /app/superset
 
 # Устанавливаем Python зависимости
