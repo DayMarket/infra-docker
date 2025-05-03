@@ -32,13 +32,16 @@ jobs:
         run: |
           .ci/scripts/run.sh
 
-      - name: Size image
+      - name: Show published image size
         env:
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         run: |
           IMAGE=ghcr.io/daymarket:${SOURCE_TAG}
           echo "🔎 Pulling $IMAGE to inspect size"
-          docker pull $IMAGE
-          SIZE=$(docker image inspect $IMAGE --format='{{.Size}}')
-          SIZE_HUMAN=$(numfmt --to=iec --suffix=B $SIZE)
-          echo "🧱 Docker image size: $SIZE_HUMAN"
+          if docker pull $IMAGE > /dev/null 2>&1; then
+            SIZE=$(docker image inspect $IMAGE --format='{{.Size}}')
+            SIZE_HUMAN=$(numfmt --to=iec --suffix=B $SIZE)
+            echo "🧱 Docker image size: $SIZE_HUMAN"
+          else
+            echo "⚠️ Failed to pull image: $IMAGE — skipping size inspection"
+          fi

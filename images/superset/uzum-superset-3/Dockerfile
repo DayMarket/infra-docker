@@ -30,7 +30,6 @@ COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/image
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
     npm run ${BUILD_CMD}
 
-
 # === ЭТАП 2: Финальный backend-образ Superset ===
 FROM python:3.10-slim-bookworm AS lean
 
