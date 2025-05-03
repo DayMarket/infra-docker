@@ -59,7 +59,8 @@ RUN cp -Rf /git/superset/superset/* /app/superset/ && \
     cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/
 
 # Устанавливаем Python зависимости
-COPY requirements-merged.txt /app/requirements.txt
+COPY custom/requirements-merged.txt /app/requirements.txt
+ß
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -e . && \
