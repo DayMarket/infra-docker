@@ -47,7 +47,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
 COPY custom/requirements-merge.txt /app/requirements-merge.txt
 RUN set -eux; \
     pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r /app/superset/requirements-merge.txt && \
+    pip install --no-cache-dir -r ./requirements-merge.txt && \
     pip install --no-cache-dir --editable .
 # Копируем собранные frontend ассеты в runtime
 COPY --from=frontend-builder /app/superset/static/assets /app/superset/static/assets
