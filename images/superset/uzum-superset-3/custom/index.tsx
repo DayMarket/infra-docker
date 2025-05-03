@@ -112,6 +112,7 @@ import {
     'certified_by',
     'certification_details',
     'changed_on',
+    'thumbnail_url',
   ];
   
   function DashboardList(props: DashboardListProps) {
