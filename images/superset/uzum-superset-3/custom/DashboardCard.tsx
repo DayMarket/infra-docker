@@ -15,7 +15,7 @@ import Label from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
-import { CardCover } from 'src/components/Card';
+import fallbackLogo from 'src/static/images/fallback.png';
 
 interface DashboardCardProps {
   isChart?: boolean;
@@ -138,7 +138,7 @@ function DashboardCard({
           <Label>{dashboard.published ? t('published') : t('draft')}</Label>
         }
         cover={
-          showThumbnails && dashboard.thumbnail_url ? (
+          showThumbnails ? (
             <div
               style={{
                 width: '100%',
@@ -149,7 +149,12 @@ function DashboardCard({
               }}
             >
               <img
-                src={dashboard.thumbnail_url}
+                src={dashboard.thumbnail_url || fallbackLogo}
+                alt={dashboard.dashboard_title}
+                onError={e => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = fallbackLogo;
+                }}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -161,10 +166,11 @@ function DashboardCard({
           ) : undefined
         }
         
+        
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
         imgURL={dashboard.thumbnail_url}
-        imgFallbackURL="/static/assets/images/fallback.png"
+        imgFallbackURL={fallbackLogo}
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={

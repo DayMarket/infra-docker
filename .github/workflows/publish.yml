@@ -32,15 +32,13 @@ jobs:
         run: |
           .ci/scripts/run.sh
 
-      - name: Show published image size
+      - name: Size image
         env:
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         run: |
-          IMAGE_ID=$(docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | grep "ghcr.io.*:${SOURCE_TAG}" | awk '{print $2}')
-          if [ -n "$IMAGE_ID" ]; then
-            SIZE=$(docker image inspect $IMAGE_ID --format='{{.Size}}')
-            SIZE_HUMAN=$(numfmt --to=iec --suffix=B $SIZE)
-            echo "🧱 Final Docker image size: $SIZE_HUMAN"
-          else
-            echo "❗ Image with tag ${SOURCE_TAG} not found"
-          fi
+          IMAGE=ghcr.io/daymarket:${SOURCE_TAG}
+          echo "🔎 Pulling $IMAGE to inspect size"
+          docker pull $IMAGE
+          SIZE=$(docker image inspect $IMAGE --format='{{.Size}}')
+          SIZE_HUMAN=$(numfmt --to=iec --suffix=B $SIZE)
+          echo "🧱 Docker image size: $SIZE_HUMAN"
