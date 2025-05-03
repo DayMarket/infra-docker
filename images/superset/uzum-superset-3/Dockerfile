@@ -18,10 +18,6 @@ RUN npm ci
 # Копируем кастомные файлы
 COPY custom/DashboardCard.tsx ./src/features/dashboards/DashboardCard.tsx
 COPY custom/index.tsx ./src/pages/DashboardList/index.tsx
-# Копируем кастомные HTML и иконки
-COPY custom/public_welcome.html /app/superset/templates/superset/public_welcome.html
-COPY custom/favicon.png /app/superset/superset-frontend/static/assets/images/favicon.png
-COPY custom/uzum.png /app/superset/superset-frontend/static/assets/images/uzum.png
 # Собираем frontend
 RUN npm run build
 # === ЭТАП 2: backend Superset + системный пользователь ===
@@ -50,13 +46,13 @@ RUN set -eux; \
     pip install --no-cache-dir -r ./requirements-merge.txt && \
     pip install --no-cache-dir --editable .
 # Копируем собранные frontend ассеты в runtime
-COPY --from=frontend-builder /app/superset/static/assets /app/superset/static/assets
+COPY --from=frontend-builder /app/superset/static/assets ./superset/static/assets
 # collect static
 RUN superset collect --force --noinput
 # Поверх всего кладём кастомные HTML и иконки
-COPY custom/public_welcome.html /app/superset/templates/superset/public_welcome.html
-COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
-COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
+COPY custom/public_welcome.html  ./superset/templates/superset/public_welcome.html
+COPY custom/favicon.png          ./superset/static/assets/images/favicon.png
+COPY custom/uzum.png             ./superset/static/assets/images/uzum.png
 # Копируем стартовый скрипт из первого этапа
 COPY --from=frontend-builder /app/superset/docker/run-server.sh /usr/bin/run-server.sh
 RUN chmod 755 /usr/bin/run-server.sh
