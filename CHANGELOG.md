@@ -1,3 +1,9 @@
+## v0.414.0 (2025-05-03)
+
+### Feat
+
+- upd DashboardCard/index
+
 ## v0.413.0 (2025-05-03)
 
 ### Feat
