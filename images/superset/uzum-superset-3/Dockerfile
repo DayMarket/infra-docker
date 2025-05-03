@@ -60,7 +60,7 @@ RUN cp -Rf /git/superset/superset/* /app/superset/ && \
 
 # Устанавливаем Python зависимости
 COPY custom/requirements-merged.txt /app/requirements.txt
-ß
+
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -e . && \
