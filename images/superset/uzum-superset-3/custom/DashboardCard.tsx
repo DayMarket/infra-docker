@@ -150,7 +150,6 @@ function DashboardCard({
             >
               <img
                 src={dashboard.thumbnail_url}
-                alt=""
                 style={{
                   width: '100%',
                   height: '100%',
@@ -165,7 +164,7 @@ function DashboardCard({
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
         imgURL={dashboard.thumbnail_url}
-        imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
+        imgFallbackURL="/static/assets/images/fallback.png"
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
