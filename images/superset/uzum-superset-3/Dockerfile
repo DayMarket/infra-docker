@@ -80,7 +80,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     libkrb5support0 \
     libldap2-dev \
     liblzma5 \
-    libmysqlclient-dev \
+    default-libmysqlclient-dev \
     libncursesw6 \
     libnsl2 \
     libnss3 \
