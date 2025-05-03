@@ -67,18 +67,16 @@ RUN set -eux; \
 
 # Копируем стартовый скрипт из первого этапа
 COPY --from=frontend-builder /app/superset/docker/run-server.sh /usr/bin/run-server.sh
+
 RUN chmod 755 /usr/bin/run-server.sh
 
 # Копируем собранный frontend из этапа 1
 COPY --from=frontend-builder /app/superset/superset-frontend /app/superset-frontend
 
-# Кастомные HTML и иконки
-COPY custom/public_welcome.html /app/superset/templates/appbuilder/general/public_welcome.html
+# Копируем кастомные HTML и иконки
+COPY custom/public_welcome.html /app/superset/templates/superset/public_welcome.html
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
-
-# Удаляем старые ассеты
-RUN rm -rf /app/superset/static/assets/*
 
 # Переключаемся на безопасного пользователя
 USER superset
