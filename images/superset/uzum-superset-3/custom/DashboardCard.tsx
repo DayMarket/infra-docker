@@ -15,7 +15,6 @@ import Label from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
-import fallbackLogo from 'src/static/assets/images/fallback.png';
 
 interface DashboardCardProps {
   isChart?: boolean;
@@ -31,6 +30,8 @@ interface DashboardCardProps {
   handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
   onDelete: (dashboard: Dashboard) => void;
 }
+
+const fallbackLogo = '/static/assets/images/fallback.png';
 
 function DashboardCard({
   dashboard,
@@ -55,16 +56,8 @@ function DashboardCard({
   const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
 
   useEffect(() => {
-    // fetch thumbnail only if it's not already fetched
-    if (
-      !fetchingThumbnail &&
-      dashboard.id &&
-      isFeatureEnabled(true)
-    ) {
-      // fetch thumbnail
+    if (!fetchingThumbnail && dashboard.id && isFeatureEnabled(true)) {
       if (dashboard.thumbnail_url) {
-        // set to empty string if null so that we don't
-        // keep fetching the thumbnail
         setThumbnailUrl(dashboard.thumbnail_url || '');
         return;
       }
@@ -121,6 +114,7 @@ function DashboardCard({
       )}
     </Menu>
   );
+
   return (
     <CardStyles
       onClick={() => {
@@ -149,8 +143,7 @@ function DashboardCard({
               }}
             >
               <img
-                src={dashboard.thumbnail_url || fallbackLogo}
-                alt={dashboard.dashboard_title}
+                src={thumbnailUrl || fallbackLogo}
                 onError={e => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = fallbackLogo;
@@ -165,11 +158,9 @@ function DashboardCard({
             </div>
           ) : undefined
         }
-        
-        
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
-        imgURL={dashboard.thumbnail_url}
+        imgURL={thumbnailUrl || fallbackLogo}
         imgFallbackURL={fallbackLogo}
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
