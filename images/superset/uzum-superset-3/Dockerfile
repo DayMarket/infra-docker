@@ -6,6 +6,7 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     GIT_SSL_NO_VERIFY=1
 
+# hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install -yqq --no-install-recommends \
         build-essential \
@@ -37,7 +38,6 @@ ENV LANG=C.UTF-8 \
     SUPERSET_ENV=production \
     FLASK_APP="superset.app:create_app()" \
     PYTHONPATH="/app/pythonpath" \
-    SUPERSET_HOME="/app/superset_home" \
     SUPERSET_PORT=8088
 
 WORKDIR /app
@@ -45,7 +45,7 @@ WORKDIR /app
 # Копируем список зависимостей и устанавливаем
 COPY custom/apt-dependencies.txt /tmp/apt-dependencies.txt
 RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements && \
-    useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset && \
+    useradd --user-group -m --no-log-init --shell /bin/bash superset && \
     apt-get update -qq && \
     xargs -a /tmp/apt-dependencies.txt apt-get install -yqq --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -61,6 +61,7 @@ RUN cp -Rf /git/superset/superset/* /app/superset/ && \
 # Устанавливаем Python зависимости
 COPY custom/requirements-merged.txt /app/requirements.txt
 
+# hadolint ignore=DL3013
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -e . && \
@@ -77,6 +78,27 @@ COPY --chown=superset:superset --from=superset-node /app/superset/static/assets 
 COPY custom/public_welcome.html /app/superset/templates/superset/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
+COPY custom/fallback.png /static/assets/images/fallback.png
+
+# Очистка после сборки: APT, Python, frontend-исходники и временные данные
+RUN apt-get remove --purge -y \
+    build-essential \
+    git \
+    python3-dev \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -rf \
+    /app/superset-frontend \
+    /app/requirements \
+    /app/setup.cfg \
+    /app/MANIFEST.in \
+    /app/README.md \
+    /app/.git \
+    /app/tests \
+    /app/docs \
+    /root/.cache \
+    /tmp/* \
+    /var/lib/apt/lists/*
 
 USER superset
 

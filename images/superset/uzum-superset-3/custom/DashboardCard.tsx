@@ -15,18 +15,7 @@ import Label from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
-import React from 'react';
-import { CardCover } from 'src/components/Card'; // 👈 CardCover добавлен
-import Icons from 'src/components/Icons';
-import FaveStar from 'src/components/FaveStar';
-import FacePile from 'src/components/FacePile';
-import Label from 'src/components/Label';
-import { AntdDropdown } from 'src/components';
-import { Menu } from 'src/components/Menu';
-import { Link } from 'react-router-dom';
-import { Dashboard } from 'src/views/CRUD/types';
-import { CardStyles } from 'src/views/CRUD/utils';
-
+import { CardCover } from 'src/components/Card';
 
 interface DashboardCardProps {
   isChart?: boolean;
@@ -161,7 +150,6 @@ function DashboardCard({
             >
               <img
                 src={dashboard.thumbnail_url}
-                alt=""
                 style={{
                   width: '100%',
                   height: '100%',
@@ -176,7 +164,7 @@ function DashboardCard({
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
         imgURL={dashboard.thumbnail_url}
-        imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
+        imgFallbackURL="/static/assets/images/fallback.png"
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
