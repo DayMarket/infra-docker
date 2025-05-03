@@ -150,13 +150,13 @@ function DashboardCard({
         }
         cover={
           showThumbnails && dashboard.thumbnail_url ? (
-            <CardCover>
+            <div style={{ width: '100%', height: '100%' }}>
               <img
                 src={dashboard.thumbnail_url}
                 alt=""
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
-            </CardCover>
+            </div>
           ) : undefined
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
