@@ -15,7 +15,7 @@ import Label from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
-import fallbackLogo from 'src/static/images/fallback.png';
+import fallbackLogo from 'src/static/assets/images/fallback.png';
 
 interface DashboardCardProps {
   isChart?: boolean;
