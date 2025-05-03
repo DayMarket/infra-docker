@@ -1,194 +1,213 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-import { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import {
-  isFeatureEnabled,
-  FeatureFlag,
-  t,
-  useTheme,
-  SupersetClient,
-} from '@superset-ui/core';
-import { CardStyles } from 'src/views/CRUD/utils';
-import { AntdDropdown } from 'src/components';
-import { Menu } from 'src/components/Menu';
-import ListViewCard from 'src/components/ListViewCard';
+import React, { useMemo } from 'react';
+import { styled, t } from '@superset-ui/core';
+import { Card, CardActions, CardCover } from 'src/components/Card';
+import { Tooltip } from 'src/components/Tooltip';
 import Icons from 'src/components/Icons';
-import Label from 'src/components/Label';
-import FacePile from 'src/components/FacePile';
+import { Dropdown } from 'src/components/Dropdown';
+import { Menu } from 'src/components/Menu';
+import { MenuItem } from 'src/components/MenuItem';
 import FaveStar from 'src/components/FaveStar';
-import { Dashboard } from 'src/views/CRUD/types';
+import CertifiedBadge from 'src/components/CertifiedBadge';
+import { Owner } from 'src/types';
+import { useFavoriteStatus } from 'src/views/CRUD/hooks';
+import { useUser } from 'src/features/auth';
+import { TooltipWrapper } from 'src/components/Tooltip';
+import { ImportResourceButton } from 'src/views/CRUD/alerts/ImportModal';
+import { isUserAdmin } from 'src/views/CRUD/utils';
+import PublishedLabel from 'src/components/PublishedLabel';
 
-interface DashboardCardProps {
-  isChart?: boolean;
-  dashboard: Dashboard;
-  hasPerm: (name: string) => boolean;
-  bulkSelectEnabled: boolean;
-  loading: boolean;
-  openDashboardEditModal?: (d: Dashboard) => void;
-  saveFavoriteStatus: (id: number, isStarred: boolean) => void;
-  favoriteStatus: boolean;
-  userId?: string | number;
+const Actions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Title = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.gridUnit}px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100%;
+`;
+
+const StyledFaveStar = styled(FaveStar)`
+  svg {
+    margin-right: 0;
+  }
+`;
+
+const Metadata = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: ${({ theme }) => theme.typography.sizes.s}px;
+  color: ${({ theme }) => theme.colors.grayscale.base};
+`;
+
+const OwnersLabel = styled.span`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export type DashboardCardProps = {
+  loading?: boolean;
   showThumbnails?: boolean;
-  handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
-  onDelete: (dashboard: Dashboard) => void;
-}
+  userKey: string;
+  card: {
+    id: number;
+    title: string;
+    url: string;
+    modified?: string;
+    certified?: boolean;
+    certifiedBy?: string;
+    certificationDetails?: string;
+    published?: boolean;
+    owners: Owner[];
+    created_by: Owner;
+    thumbnail_url?: string;
+  };
+  actions?: React.ReactNode[];
+  editUrl?: string;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  canExport?: boolean;
+  canShare?: boolean;
+  showActions?: boolean;
+};
 
-function DashboardCard({
-  dashboard,
-  hasPerm,
-  bulkSelectEnabled,
-  userId,
-  openDashboardEditModal,
-  favoriteStatus,
-  saveFavoriteStatus,
-  showThumbnails,
-  handleBulkDashboardExport,
-  onDelete,
+export default function DashboardCard({
+  loading = false,
+  showThumbnails = false,
+  userKey,
+  card,
+  actions = [],
+  editUrl,
+  canEdit = false,
+  canDelete = false,
+  canExport = false,
+  canShare = false,
+  showActions = true,
 }: DashboardCardProps) {
-  const history = useHistory();
-  const canEdit = hasPerm('can_write');
-  const canDelete = hasPerm('can_write');
-  const canExport = hasPerm('can_export');
-
-  const theme = useTheme();
-
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
-  const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
-
-  useEffect(() => {
-    // fetch thumbnail only if it's not already fetched
-    if (
-      !fetchingThumbnail &&
-      dashboard.id &&
-      (thumbnailUrl === undefined || thumbnailUrl === null) &&
-      isFeatureEnabled(FeatureFlag.Thumbnails)
-    ) {
-      // fetch thumbnail
-      if (dashboard.thumbnail_url) {
-        // set to empty string if null so that we don't
-        // keep fetching the thumbnail
-        setThumbnailUrl(dashboard.thumbnail_url || '');
-        return;
-      }
-      setFetchingThumbnail(true);
-      SupersetClient.get({
-        endpoint: `/api/v1/dashboard/${dashboard.id}`,
-      }).then(({ json = {} }) => {
-        setThumbnailUrl(json.thumbnail_url || '');
-        setFetchingThumbnail(false);
-      });
-    }
-  }, [dashboard, thumbnailUrl]);
-
-  const menu = (
-    <Menu>
-      {canEdit && openDashboardEditModal && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            className="action-button"
-            onClick={() => openDashboardEditModal?.(dashboard)}
-            data-test="dashboard-card-option-edit-button"
-          >
-            <Icons.EditAlt iconSize="l" data-test="edit-alt" /> {t('Edit')}
-          </div>
-        </Menu.Item>
-      )}
-      {canExport && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => handleBulkDashboardExport([dashboard])}
-            className="action-button"
-            data-test="dashboard-card-option-export-button"
-          >
-            <Icons.Share iconSize="l" /> {t('Export')}
-          </div>
-        </Menu.Item>
-      )}
-      {canDelete && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            className="action-button"
-            onClick={() => onDelete(dashboard)}
-            data-test="dashboard-card-option-delete-button"
-          >
-            <Icons.Trash iconSize="l" /> {t('Delete')}
-          </div>
-        </Menu.Item>
-      )}
-    </Menu>
+  const { user } = useUser();
+  const [isFavorited, toggleFavoriteStatus] = useFavoriteStatus(
+    'dashboard',
+    card.id,
+    card?.created_by?.id,
   );
+
+  const canImport = useMemo(() => isUserAdmin(user), [user]);
+
+  const menuItems = useMemo(() => {
+    const items: JSX.Element[] = [];
+
+    if (canShare) {
+      items.push(
+        <MenuItem key="share">
+          <Icons.Share iconSize="m" /> {t('Share')}
+        </MenuItem>,
+      );
+    }
+
+    if (canExport) {
+      items.push(
+        <MenuItem key="export">
+          <Icons.Export iconSize="m" /> {t('Export')}
+        </MenuItem>,
+      );
+    }
+
+    if (canEdit) {
+      items.push(
+        <MenuItem key="duplicate">
+          <Icons.Copy iconSize="m" /> {t('Duplicate')}
+        </MenuItem>,
+      );
+    }
+
+    if (canDelete) {
+      items.push(
+        <MenuItem key="delete">
+          <Icons.Trash iconSize="m" /> {t('Delete')}
+        </MenuItem>,
+      );
+    }
+
+    return items;
+  }, [canShare, canExport, canEdit, canDelete]);
+
   return (
-    <CardStyles
-      onClick={() => {
-        if (!bulkSelectEnabled) {
-          history.push(dashboard.url);
-        }
-      }}
-    >
-      <ListViewCard
-        loading={dashboard.loading || false}
-        title={dashboard.dashboard_title}
-        certifiedBy={dashboard.certified_by}
-        certificationDetails={dashboard.certification_details}
-        titleRight={
-          <Label>{dashboard.published ? t('published') : t('draft')}</Label>
-        }
-        cover={
-          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
-            <></>
-          ) : null
-        }
-        url={bulkSelectEnabled ? undefined : dashboard.url}
-        linkComponent={Link}
-        imgURL={dashboard.thumbnail_url}
-        imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
-        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
-        coverLeft={<FacePile users={dashboard.owners || []} />}
-        actions={
-          <ListViewCard.Actions
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
-            {userId && (
-              <FaveStar
-                itemId={dashboard.id}
-                saveFaveStar={saveFavoriteStatus}
-                isStarred={favoriteStatus}
+    <Card
+      loading={loading}
+      title={
+        <TitleRow>
+          <Title>
+            {card.certified && (
+              <CertifiedBadge
+                certifiedBy={card.certifiedBy}
+                certificationDetails={card.certificationDetails}
               />
             )}
-            <AntdDropdown overlay={menu}>
-              <Icons.MoreVert iconColor={theme.colors.grayscale.base} />
-            </AntdDropdown>
-          </ListViewCard.Actions>
-        }
-      />
-    </CardStyles>
+            <a href={card.url}>{card.title}</a>
+          </Title>
+          <StyledFaveStar
+            itemId={card.id}
+            saveFaveStar={toggleFavoriteStatus}
+            isStarred={isFavorited}
+          />
+        </TitleRow>
+      }
+      url={card.url}
+      cover={
+        showThumbnails && card.thumbnail_url ? (
+          <CardCover>
+            <img
+              src={card.thumbnail_url}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </CardCover>
+        ) : undefined
+      }
+      actions={
+        showActions ? (
+          <CardActions>
+            <Dropdown
+              overlay={<Menu>{menuItems}</Menu>}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <Icons.MoreHoriz iconSize="l" />
+            </Dropdown>
+            {canImport && (
+              <ImportResourceButton resourceName="dashboard" record={card} />
+            )}
+          </CardActions>
+        ) : undefined
+      }
+    >
+      <Metadata>
+        <div>
+          {card.owners?.length > 0 && (
+            <TooltipWrapper label={t('Owners')} tooltip={card.owners.map(o => o.username).join(', ')}>
+              <OwnersLabel>
+                {card.owners.slice(0, 1).map(owner => owner.username).join(', ')}
+                {card.owners.length > 1 && '…'}
+              </OwnersLabel>
+            </TooltipWrapper>
+          )}
+        </div>
+        <div>
+          <PublishedLabel published={card.published} />
+        </div>
+      </Metadata>
+    </Card>
   );
 }
-
-export default DashboardCard;
