@@ -44,74 +44,14 @@ ENV LANG=C.UTF-8 \
 
 WORKDIR /app
 
+COPY custom/apt-dependencies.txt /tmp/apt-dependencies.txt
+
 RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements \
   && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
-  && apt-get update -qq && apt-get install -yqq --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    curl \
-    default-libmysqlclient-dev \
-    git \
-    gcc \
-    g++ \
-    make \
-    unzip \
-    wget \
-    xauth \
-    xvfb \
-    libasound2 \
-    libbz2-1.0 \
-    libc6 \
-    libcom-err2 \
-    libcrypt1 \
-    libdb5.3 \
-    libdbus-glib-1-2 \
-    libecpg-dev \
-    libevent-dev \
-    libffi-dev \
-    libffi8 \
-    libgdbm6 \
-    libgeos-dev \
-    libgssapi-krb5-2 \
-    libgtk-3-0 \
-    libk5crypto3 \
-    libkeyutils1 \
-    libkrb5-3 \
-    libkrb5support0 \
-    libldap2-dev \
-    liblzma5 \
-    default-libmysqlclient-dev \
-    libncursesw6 \
-    libnsl2 \
-    libnss3 \
-    libpq-dev \
-    libpangoft2-1.0-0 \
-    libpangocairo-1.0-0 \
-    libreadline8 \
-    libsasl2-dev \
-    libsasl2-modules-gssapi-mit \
-    libsqlite3-0 \
-    libsqlite3-dev \
-    libssl3 \
-    libssl-dev \
-    libtinfo6 \
-    libtirpc3 \
-    libuuid1 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libxtst6 \
-    libxml2-dev \
-    libxslt1-dev \
-    libjpeg-dev \
-    freetds-dev \
-    unixodbc-dev \
-    netbase \
-    tzdata \
-    zlib1g \
-    zlib1g-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+  && apt-get update -qq \
+  && xargs -a /tmp/apt-dependencies.txt apt-get install -yqq --no-install-recommends \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 
 COPY --from=frontend-builder /app/superset /app/superset
