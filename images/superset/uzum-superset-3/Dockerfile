@@ -44,7 +44,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 # Устанавливаем Python зависимости
-COPY custom/requirements-merge.txt /app/requirements-merge.txt
+COPY custom/requirements-merge.txt ./requirements-merge.txt
 RUN set -eux; \
     pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r ./requirements-merge.txt && \
