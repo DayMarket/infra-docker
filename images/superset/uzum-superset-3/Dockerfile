@@ -6,6 +6,7 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     GIT_SSL_NO_VERIFY=1
 
+# hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install -yqq --no-install-recommends \
         build-essential \
@@ -60,6 +61,7 @@ RUN cp -Rf /git/superset/superset/* /app/superset/ && \
 # Устанавливаем Python зависимости
 COPY custom/requirements-merged.txt /app/requirements.txt
 
+# hadolint ignore=DL3013
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -e . && \
