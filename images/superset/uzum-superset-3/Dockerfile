@@ -43,14 +43,20 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
   && xargs -a /tmp/apt-dependencies.txt apt-get install -yqq --no-install-recommends \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-COPY --from=frontend-builder /app/superset /app/superset
-WORKDIR /app/superset
 # Устанавливаем Python зависимости
 COPY custom/requirements-merge.txt /app/requirements-merge.txt
 RUN set -eux; \
     pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r /app/requirements-merge.txt && \
     pip install --no-cache-dir --editable .
+# Копируем собранные frontend ассеты в runtime
+COPY --from=frontend-builder /app/superset/static/assets /app/superset/static/assets
+# collect static
+RUN superset collect --force --noinput
+# Поверх всего кладём кастомные HTML и иконки
+COPY custom/public_welcome.html /app/superset/templates/superset/public_welcome.html
+COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
+COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 # Копируем стартовый скрипт из первого этапа
 COPY --from=frontend-builder /app/superset/docker/run-server.sh /usr/bin/run-server.sh
 RUN chmod 755 /usr/bin/run-server.sh
