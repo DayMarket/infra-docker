@@ -116,3 +116,13 @@ jobs:
           push: false
           builder: ${{ steps.buildx.outputs.name }}
           tags: test:${{ github.sha }}
+      - name: Show built image size
+        run: |
+          IMAGE_ID=$(docker images --format '{{.Repository}} {{.ID}}' | grep "^test:" | awk '{print $2}')
+          if [ -n "$IMAGE_ID" ]; then
+            SIZE=$(docker image inspect $IMAGE_ID --format='{{.Size}}')
+            SIZE_HUMAN=$(numfmt --to=iec --suffix=B $SIZE)
+            echo "🧱 Docker image size: $SIZE_HUMAN"
+          else
+            echo "❗ No matching image found for test:${{ github.sha }}"
+          fi
