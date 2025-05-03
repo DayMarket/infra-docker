@@ -1,3 +1,9 @@
+## v0.420.0 (2025-05-03)
+
+### Feat
+
+- clean dockerfile for superset (#233)
+
 ## v0.419.0 (2025-05-03)
 
 ### Feat
