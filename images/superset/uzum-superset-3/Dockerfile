@@ -9,9 +9,9 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
 # hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install -yqq --no-install-recommends \
-        build-essential \
-        python3 \
-        git
+    build-essential \
+    python3 \
+    git
 
 WORKDIR /app/superset-frontend
 
@@ -24,11 +24,11 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
 # Копируем кастомные frontend-файлы
 COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
 COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
+COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
 
 # Сборка frontend
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
     npm run ${BUILD_CMD}
-
 
 # === ЭТАП 2: Финальный backend-образ Superset ===
 FROM python:3.10-slim-bookworm AS lean
@@ -78,7 +78,7 @@ COPY --chown=superset:superset --from=superset-node /app/superset/static/assets 
 COPY custom/public_welcome.html /app/superset/templates/superset/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
-COPY custom/fallback.png /static/assets/images/fallback.png
+COPY custom/fallback.png /app/superset/static/assets/images/fallback.png
 
 # Очистка после сборки: APT, Python, frontend-исходники и временные данные
 RUN apt-get remove --purge -y \
