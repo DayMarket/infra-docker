@@ -28,7 +28,9 @@ COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/image
 
 # Сборка frontend
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
-    npm run ${BUILD_CMD}
+    cd /app/superset-frontend && \
+    npm run ${BUILD_CMD} && \
+    rm -rf node_modules .cache src test public
 
 # === ЭТАП 2: Финальный backend-образ Superset ===
 FROM python:3.10-slim-bookworm AS lean
@@ -50,13 +52,16 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     xargs -a /tmp/apt-dependencies.txt apt-get install -yqq --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Копируем Superset исходники
-COPY --from=superset-node /git/superset /git/superset
-RUN cp -Rf /git/superset/superset/* /app/superset/ && \
-    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
-    mkdir -p /app/superset-frontend && \
-    cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
-    cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/
+# Копируем исходники
+COPY --from=superset-node \
+    /git/superset/superset /app/superset \
+    /git/superset/setup.py \
+    /git/superset/pyproject.toml \
+    /git/superset/MANIFEST.in \
+    /git/superset/README.md \
+    /git/superset/superset-frontend/package.json \
+    /git/superset/superset-frontend/package-lock.json \
+    /app/superset-frontend/
 
 # Устанавливаем Python зависимости
 COPY custom/requirements-merged.txt /app/requirements.txt
@@ -64,9 +69,7 @@ COPY custom/requirements-merged.txt /app/requirements.txt
 # hadolint ignore=DL3013
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -e . && \
-    playwright install-deps && \
-    playwright install chromium
+    pip install --no-cache-dir -e . 
 
 # Копируем скрипт запуска
 RUN cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && chmod 755 /usr/bin/run-server.sh
@@ -84,7 +87,6 @@ COPY custom/fallback.png /app/superset/static/assets/images/fallback.png
 RUN apt-get remove --purge -y \
     build-essential \
     git \
-    python3-dev \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf \
