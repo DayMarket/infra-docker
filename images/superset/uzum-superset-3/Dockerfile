@@ -78,6 +78,7 @@ COPY --chown=superset:superset --from=superset-node /app/superset/static/assets 
 COPY custom/public_welcome.html /app/superset/templates/superset/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
+COPY custom/fallback.png /app/superset/static/assets/images/fallback.png
 
 # Очистка после сборки: APT, Python, frontend-исходники и временные данные
 RUN apt-get remove --purge -y \
