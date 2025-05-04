@@ -21,15 +21,16 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp /git/superset/superset-frontend/package-lock.json ./ && \
     npm ci
 
-COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
-COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
-COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
+RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend
 
-RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
-    cd /app/superset-frontend && \
+COPY custom/DashboardCard.tsx /app/superset-frontend/src/features/dashboards/DashboardCard.tsx
+COPY custom/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
+COPY custom/fallback.png /app/superset-frontend/src/static/assets/images/fallback.png
+    
+RUN cd /app/superset-frontend && \
     npm run ${BUILD_CMD} && \
     rm -rf node_modules .cache src test public
-
+    
 # === ЭТАП 2: Финальный backend-образ Superset ===
 FROM python:3.10-slim-bookworm AS lean
 
