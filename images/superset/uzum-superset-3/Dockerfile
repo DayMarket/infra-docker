@@ -4,14 +4,14 @@ FROM node:18-bullseye-slim AS superset-node
 ARG NPM_BUILD_CMD="build"
 ENV BUILD_CMD=${NPM_BUILD_CMD} \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    GIT_SSL_NO_VERIFY=1 \
-    PIP_ROOT_USER_ACTION=ignore
+    GIT_SSL_NO_VERIFY=1
 
+# hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install -yqq --no-install-recommends \
-    build-essential \
-    python3 \
-    git
+        build-essential \
+        python3 \
+        git
 
 WORKDIR /app/superset-frontend
 
@@ -21,16 +21,15 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp /git/superset/superset-frontend/package-lock.json ./ && \
     npm ci
 
-RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend
+# Копируем кастомные frontend-файлы
+COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
+COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
 
-COPY custom/DashboardCard.tsx /app/superset-frontend/src/features/dashboards/DashboardCard.tsx
-COPY custom/index.tsx /app/superset-frontend/src/pages/DashboardList/index.tsx
-COPY custom/fallback.png /app/superset-frontend/src/static/assets/images/fallback.png
-    
-RUN cd /app/superset-frontend && \
-    npm run ${BUILD_CMD} && \
-    rm -rf node_modules .cache src test public
-    
+# Сборка frontend
+RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
+    npm run ${BUILD_CMD}
+
+
 # === ЭТАП 2: Финальный backend-образ Superset ===
 FROM python:3.10-slim-bookworm AS lean
 
@@ -38,11 +37,12 @@ ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     SUPERSET_ENV=production \
     FLASK_APP="superset.app:create_app()" \
-    SUPERSET_PORT=8088 \
-    PIP_ROOT_USER_ACTION=ignore
+    PYTHONPATH="/app/pythonpath" \
+    SUPERSET_PORT=8088
 
 WORKDIR /app
 
+# Копируем список зависимостей и устанавливаем
 COPY custom/apt-dependencies.txt /tmp/apt-dependencies.txt
 RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements && \
     useradd --user-group -m --no-log-init --shell /bin/bash superset && \
@@ -50,38 +50,53 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     xargs -a /tmp/apt-dependencies.txt apt-get install -yqq --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Копируем весь репозиторий Superset целиком
-COPY --from=superset-node /git/superset/ /app/
+# Копируем Superset исходники
+COPY --from=superset-node /git/superset /git/superset
+RUN cp -Rf /git/superset/superset/* /app/superset/ && \
+    cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
+    mkdir -p /app/superset-frontend && \
+    cp /git/superset/superset-frontend/package.json /app/superset-frontend/ && \
+    cp /git/superset/superset-frontend/package-lock.json /app/superset-frontend/
 
-# Копируем frontend-манифесты для совместимости
-COPY --from=superset-node /app/superset-frontend/package.json /app/superset-frontend/
-COPY --from=superset-node /app/superset-frontend/package-lock.json /app/superset-frontend/
-
+# Устанавливаем Python зависимости
 COPY custom/requirements-merged.txt /app/requirements.txt
 
+# hadolint ignore=DL3013
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -e .
+    pip install --no-cache-dir -e . && \
+    playwright install-deps && \
+    playwright install chromium
 
-COPY --from=superset-node /git/superset/docker/run-server.sh /usr/bin/
-RUN chmod 755 /usr/bin/run-server.sh
+# Копируем скрипт запуска
+RUN cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && chmod 755 /usr/bin/run-server.sh
 
+# Копируем собранные frontend ассеты
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
+# Копируем кастомные шаблоны и иконки
 COPY custom/public_welcome.html /app/superset/templates/superset/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
-COPY custom/fallback.png /app/superset/static/assets/images/fallback.png
+COPY custom/fallback.png /static/assets/images/fallback.png
 
-# === ОЧИСТКА МУСОРА ===
+# Очистка после сборки: APT, Python, frontend-исходники и временные данные
 RUN apt-get remove --purge -y \
     build-essential \
     git \
-  && apt-get autoremove -y \
-  && apt-get clean \
-  && rm -rf \
-    /root/.cache \
+    python3-dev \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -rf \
+    /app/superset-frontend \
     /app/requirements \
+    /app/setup.cfg \
+    /app/MANIFEST.in \
+    /app/README.md \
+    /app/.git \
+    /app/tests \
+    /app/docs \
+    /root/.cache \
     /tmp/* \
     /var/lib/apt/lists/*
 
