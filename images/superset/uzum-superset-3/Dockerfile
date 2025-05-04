@@ -64,7 +64,7 @@ COPY custom/requirements-merged.txt /app/requirements.txt
 # hadolint ignore=DL3013
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -e . &&
+    pip install --no-cache-dir -e . 
 
     # Копируем скрипт запуска
 RUN cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && chmod 755 /usr/bin/run-server.sh
