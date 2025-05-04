@@ -4,7 +4,8 @@ FROM node:18-bullseye-slim AS superset-node
 ARG NPM_BUILD_CMD="build"
 ENV BUILD_CMD=${NPM_BUILD_CMD} \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    GIT_SSL_NO_VERIFY=1
+    GIT_SSL_NO_VERIFY=1 \
+    PIP_ROOT_USER_ACTION=ignore
 
 # hadolint ignore=DL3008
 RUN apt-get update -qq && \
@@ -52,16 +53,21 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     xargs -a /tmp/apt-dependencies.txt apt-get install -yqq --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Копируем исходники
+# Копируем исходники Superset
 COPY --from=superset-node \
     /git/superset/superset /app/superset \
     /git/superset/setup.py \
     /git/superset/pyproject.toml \
     /git/superset/MANIFEST.in \
     /git/superset/README.md \
+    /app/
+
+# Копируем frontend-манифесты
+COPY --from=superset-node \
     /git/superset/superset-frontend/package.json \
     /git/superset/superset-frontend/package-lock.json \
     /app/superset-frontend/
+
 
 # Устанавливаем Python зависимости
 COPY custom/requirements-merged.txt /app/requirements.txt
