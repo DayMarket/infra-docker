@@ -54,13 +54,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Копируем исходники Superset
-COPY --from=superset-node \
-    /git/superset/superset /app/superset \
-    /git/superset/setup.py \
-    /git/superset/pyproject.toml \
-    /git/superset/MANIFEST.in \
-    /git/superset/README.md \
-    /app/
+COPY --from=superset-node /git/superset/ /app/
 
 # Копируем frontend-манифесты
 COPY --from=superset-node \
