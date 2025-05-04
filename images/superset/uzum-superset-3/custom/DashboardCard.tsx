@@ -56,7 +56,7 @@ function DashboardCard({
   const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!fetchingThumbnail && dashboard.id && isFeatureEnabled(true)) {
+    if (!fetchingThumbnail && dashboard.id && isFeatureEnabled('THUMBNAILS')) {
       if (dashboard.thumbnail_url) {
         setThumbnailUrl(dashboard.thumbnail_url || '');
         return;
