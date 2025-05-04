@@ -78,7 +78,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -e . 
 
 # Копируем скрипт запуска
-RUN cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && chmod 755 /usr/bin/run-server.sh
+COPY --from=superset-node /git/superset/docker/run-server.sh /usr/bin/
+RUN chmod 755 /usr/bin/run-server.sh
 
 # Копируем собранные frontend ассеты
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
