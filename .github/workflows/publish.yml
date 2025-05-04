@@ -31,29 +31,3 @@ jobs:
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         run: |
           .ci/scripts/run.sh
-
-      - name: Show published image size
-        env:
-          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
-        run: |
-          echo "🔎 Detecting image name from Dockerfile changes..."
-          
-          IMAGE_PATH=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA | grep 'images/.*/Dockerfile' | head -n1 | xargs dirname)
-
-          if [ -z "$IMAGE_PATH" ]; then
-            echo "⚠️ No Dockerfile changes detected. Skipping image size check."
-            exit 0
-          fi
-
-          IMAGE_NAME=$(basename "$IMAGE_PATH")
-          IMAGE=ghcr.io/daymarket/$IMAGE_NAME:${SOURCE_TAG}
-          
-          echo "🔎 Pulling image $IMAGE to inspect size..."
-          
-          if docker pull $IMAGE > /dev/null 2>&1; then
-            SIZE=$(docker image inspect $IMAGE --format='{{.Size}}')
-            SIZE_HUMAN=$(numfmt --to=iec --suffix=B $SIZE)
-            echo "🧱 Docker image size: $SIZE_HUMAN"
-          else
-            echo "⚠️ Failed to pull $IMAGE — skipping size check."
-          fi

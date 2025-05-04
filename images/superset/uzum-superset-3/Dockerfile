@@ -9,9 +9,9 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
 # hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install -yqq --no-install-recommends \
-        build-essential \
-        python3 \
-        git
+    build-essential \
+    python3 \
+    git
 
 WORKDIR /app/superset-frontend
 
