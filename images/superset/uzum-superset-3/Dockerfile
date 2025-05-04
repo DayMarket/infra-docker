@@ -64,11 +64,9 @@ COPY custom/requirements-merged.txt /app/requirements.txt
 # hadolint ignore=DL3013
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -e . && \
-    playwright install-deps && \
-    playwright install chromium
+    pip install --no-cache-dir -e . &&
 
-# Копируем скрипт запуска
+    # Копируем скрипт запуска
 RUN cp -Rf /git/superset/docker/run-server.sh /usr/bin/ && chmod 755 /usr/bin/run-server.sh
 
 # Копируем собранные frontend ассеты
@@ -98,7 +96,10 @@ RUN apt-get remove --purge -y \
     /app/docs \
     /root/.cache \
     /tmp/* \
-    /var/lib/apt/lists/*
+    /var/lib/apt/lists/* \
+    /git/superset/.git \
+    /tmp/* \
+    /var/tmp/*
 
 USER superset
 
