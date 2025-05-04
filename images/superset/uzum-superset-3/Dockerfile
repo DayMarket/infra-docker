@@ -7,7 +7,6 @@ ENV BUILD_CMD=${NPM_BUILD_CMD} \
     GIT_SSL_NO_VERIFY=1 \
     PIP_ROOT_USER_ACTION=ignore
 
-# hadolint ignore=DL3008
 RUN apt-get update -qq && \
     apt-get install -yqq --no-install-recommends \
     build-essential \
@@ -22,12 +21,10 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp /git/superset/superset-frontend/package-lock.json ./ && \
     npm ci
 
-# Копируем кастомные frontend-файлы
 COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
 COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
 COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
 
-# Сборка frontend
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
     cd /app/superset-frontend && \
     npm run ${BUILD_CMD} && \
@@ -41,11 +38,11 @@ ENV LANG=C.UTF-8 \
     SUPERSET_ENV=production \
     FLASK_APP="superset.app:create_app()" \
     PYTHONPATH="/app" \
-    SUPERSET_PORT=8088
+    SUPERSET_PORT=8088 \
+    PIP_ROOT_USER_ACTION=ignore
 
 WORKDIR /app
 
-# Копируем список зависимостей и устанавливаем
 COPY custom/apt-dependencies.txt /tmp/apt-dependencies.txt
 RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements && \
     useradd --user-group -m --no-log-init --shell /bin/bash superset && \
@@ -53,53 +50,38 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
     xargs -a /tmp/apt-dependencies.txt apt-get install -yqq --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Копируем исходники Superset
+# Копируем весь репозиторий Superset целиком
 COPY --from=superset-node /git/superset/ /app/
 
-# Копируем frontend-манифесты
-COPY --from=superset-node \
-    /git/superset/superset-frontend/package.json \
-    /git/superset/superset-frontend/package-lock.json \
-    /app/superset-frontend/
+# Копируем frontend-манифесты для совместимости
+COPY --from=superset-node /app/superset-frontend/package.json /app/superset-frontend/
+COPY --from=superset-node /app/superset-frontend/package-lock.json /app/superset-frontend/
 
-
-# Устанавливаем Python зависимости
 COPY custom/requirements-merged.txt /app/requirements.txt
 
-# hadolint ignore=DL3013
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -e . 
+    pip install --no-cache-dir -e .
 
-# Копируем скрипт запуска
 COPY --from=superset-node /git/superset/docker/run-server.sh /usr/bin/
 RUN chmod 755 /usr/bin/run-server.sh
 
-# Копируем собранные frontend ассеты
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
 
-# Копируем кастомные шаблоны и иконки
 COPY custom/public_welcome.html /app/superset/templates/superset/
 COPY custom/uzum.png /app/superset/static/assets/images/uzum.png
 COPY custom/favicon.png /app/superset/static/assets/images/favicon.png
 COPY custom/fallback.png /app/superset/static/assets/images/fallback.png
 
-# Очистка после сборки: APT, Python, frontend-исходники и временные данные
+# === ОЧИСТКА МУСОРА ===
 RUN apt-get remove --purge -y \
     build-essential \
     git \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf \
-    /app/superset-frontend \
-    /app/requirements \
-    /app/setup.cfg \
-    /app/MANIFEST.in \
-    /app/README.md \
-    /app/.git \
-    /app/tests \
-    /app/docs \
+  && apt-get autoremove -y \
+  && apt-get clean \
+  && rm -rf \
     /root/.cache \
+    /app/requirements \
     /tmp/* \
     /var/lib/apt/lists/*
 
