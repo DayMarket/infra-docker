@@ -97,7 +97,6 @@ RUN set -ex; \
         rm -f "/tmp/limesurvey.tar.gz" && \
         chown -R "$USER:$USER" /var/www/html /etc/apache2
 
-
 COPY limesurvey-6-uz.po /tmp/limesurvey-6-uz.po
 
 RUN set -ex; \
@@ -117,7 +116,6 @@ RUN set -ex; \
     \
     # tidy up build artefacts
     rm /tmp/limesurvey-6-uz.po
-
 
 EXPOSE $LISTEN_PORT
 
