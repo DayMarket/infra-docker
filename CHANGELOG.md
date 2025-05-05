@@ -1,3 +1,9 @@
+## v0.441.0 (2025-05-05)
+
+### Feat
+
+- **limesurvey**: add Uzbek translation support in Dockerfile (#237)
+
 ## v0.440.1 (2025-05-05)
 
 ### Fix
