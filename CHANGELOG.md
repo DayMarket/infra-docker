@@ -1,3 +1,9 @@
+## v0.440.1 (2025-05-05)
+
+### Fix
+
+- **limesurvey**: correct gettext installation in Dockerfile and optimize cleanup process (#236)
+
 ## v0.440.0 (2025-05-05)
 
 ### Feat
