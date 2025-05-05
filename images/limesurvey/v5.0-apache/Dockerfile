@@ -111,7 +111,7 @@ RUN set -ex; \
             -o /var/www/html/locale/uz/LC_MESSAGES/limesurvey.mo; \
     \
     # permissions consistent with the rest of /var/www
-    chown -R "${USER}:root" /var/www/html/locale/uz; \
+    chown -R "${USER}:${USER}" /var/www/html/locale/uz; \
     chmod -R g=u /var/www/html/locale/uz; \
     \
     # tidy up build artefacts
