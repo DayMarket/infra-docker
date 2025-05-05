@@ -98,7 +98,7 @@ RUN set -ex; \
         chown -R "$USER:$USER" /var/www/html /etc/apache2
 
 
-COPY limesurvey-5-uz.po /tmp/limesurvey-5-uz.po
+COPY limesurvey-6-uz.po /tmp/limesurvey-6-uz.po
 
 RUN set -ex; \
     # msgfmt lives in the gettext package
