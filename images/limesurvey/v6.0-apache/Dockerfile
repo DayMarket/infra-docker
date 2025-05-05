@@ -108,7 +108,8 @@ COPY limesurvey-6-uz.po /tmp/limesurvey-6-uz.po
 
 RUN set -ex; \
     # msgfmt lives in the gettext package
-    apk add --no-cache gettext; \
+    apt-get update && \
+    apt-get install -y --no-install-recommends gettext && \
     \
     # Location LimeSurvey looks for translations:
     #   /var/www/html/locale/<lang>/LC_MESSAGES/limesurvey.mo
@@ -121,7 +122,9 @@ RUN set -ex; \
     chmod -R g=u /var/www/html/locale/uz; \
     \
     # tidy up build artefacts
-    rm /tmp/limesurvey-6-uz.po
+    rm /tmp/limesurvey-6-uz.po && \
+    apt-get purge -y --auto-remove gettext && \
+    rm -rf /var/lib/apt/lists/*
 
 EXPOSE $LISTEN_PORT
 
