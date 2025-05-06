@@ -1,3 +1,9 @@
+## v0.443.0 (2025-05-06)
+
+### Feat
+
+- **docker**: add Dockerfile for file.d version 0.61.0 build process (#239)
+
 ## v0.442.0 (2025-05-05)
 
 ### Feat
