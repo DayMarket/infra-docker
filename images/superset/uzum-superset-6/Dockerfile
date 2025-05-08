@@ -25,7 +25,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
 COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
 COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
 COPY custom/ChartCard.tsx /git/superset/superset-frontend/src/views/ChartList/ChartCard.tsx
-COPY custom/Welcome/ /app/superset-frontend/src/views/Welcome/
+COPY custom/Welcome.tsx /app/superset-frontend/src/views/Welcome/Welcome.tsx
 COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
 
 # Сборка frontend
