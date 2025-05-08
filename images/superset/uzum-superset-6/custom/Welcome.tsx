@@ -56,6 +56,7 @@ import ActivityTable from 'src/features/home/ActivityTable';
 import ChartTable from 'src/features/home/ChartTable';
 import SavedQueries from 'src/features/home/SavedQueries';
 import DashboardTable from 'src/features/home/DashboardTable';
+import { SupersetClient } from '@superset-ui/core';
 
 const extensionsRegistry = getExtensionsRegistry();
 
