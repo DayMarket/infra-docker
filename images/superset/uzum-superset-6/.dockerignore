@@ -1,0 +1,28 @@
+# Общие игнорируемые файлы
+.git
+.gitignore
+.env
+*.env
+*.log
+*.md
+*.DS_Store
+__pycache__/
+*.pyc
+
+# Лишние IDE-файлы
+.vscode/
+.idea/
+
+# Исключаем node_modules — собирается заново в контейнере
+superset-frontend/node_modules/
+
+# Кэш сборки
+npm-debug.log
+yarn-error.log
+.cache/
+dist/
+
+# Исключаем всё, кроме нужного
+# Если ты копируешь только custom/ и superset-frontend/
+!custom/
+!superset-frontend/
