@@ -273,11 +273,13 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
           setDashboardData(json.result);
           return Promise.resolve();
         })
-        .catch((err: unknown) => {
+        .catch((err: Response) => {
+          err.text?.().then(msg => {
+            addDangerToast(t('Dashboard fetch failed: %s', msg));
+          });
           setDashboardData([]);
-          addDangerToast(t('There was an issue fetching your dashboards'));
           return Promise.resolve();
-        }),
+        })
     
       SupersetClient.get({
         endpoint: `/api/v1/chart/?q=${rison.encode({
@@ -291,11 +293,13 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
           setChartData(json.result);
           return Promise.resolve();
         })
-        .catch((err: unknown) => {
-          setChartData([]);
-          addDangerToast(t('There was an issue fetching your chart'));
+        .catch((err: Response) => {
+          err.text?.().then(msg => {
+            addDangerToast(t('Dashboard fetch failed: %s', msg));
+          });
+          setDashboardData([]);
           return Promise.resolve();
-        }),
+        })
     
       canReadSavedQueries
         ? SupersetClient.get({
@@ -310,11 +314,11 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               setQueryData(json.result);
               return Promise.resolve();
             })
-            .catch((err: unknown) => {
-              setQueryData([]);
-              addDangerToast(
-                t('There was an issue fetching your saved queries'),
-              );
+            .catch((err: Response) => {
+              err.text?.().then(msg => {
+                addDangerToast(t('Dashboard fetch failed: %s', msg));
+              });
+              setDashboardData([]);
               return Promise.resolve();
             })
         : Promise.resolve(),
