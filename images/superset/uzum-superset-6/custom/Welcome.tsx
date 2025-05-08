@@ -260,53 +260,63 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       },
     ];
     Promise.all([
-      getUserOwnedObjects(id, 'dashboard', [], {
-        order_column: 'changed_on',
-        order_direction: 'desc',
+      SupersetClient.get({
+        endpoint: `/api/v1/dashboard/?q=${rison.encode({
+          page_size: 6,
+          order_column: 'changed_on',
+          order_direction: 'desc',
+          filters: [{ col: 'owners', opr: 'rel_m_m', value: 'self' }],
+        })}`,
       })
-        .then(r => {
-          setDashboardData(r);
+        .then(({ json }) => {
+          setDashboardData(json.result);
           return Promise.resolve();
         })
         .catch((err: unknown) => {
           setDashboardData([]);
-          addDangerToast(
-            t('There was an issue fetching your dashboards: %s', err),
-          );
+          addDangerToast(t('There was an issue fetching your dashboards'));
           return Promise.resolve();
         }),
     
-      getUserOwnedObjects(id, 'chart', [], {
-        order_column: 'changed_on',
-        order_direction: 'desc',
+      SupersetClient.get({
+        endpoint: `/api/v1/chart/?q=${rison.encode({
+          page_size: 6,
+          order_column: 'changed_on',
+          order_direction: 'desc',
+          filters: [{ col: 'owners', opr: 'rel_m_m', value: 'self' }],
+        })}`,
       })
-        .then(r => {
-          setChartData(r);
+        .then(({ json }) => {
+          setChartData(json.result);
           return Promise.resolve();
         })
         .catch((err: unknown) => {
           setChartData([]);
-          addDangerToast(t('There was an issue fetching your chart: %s', err));
+          addDangerToast(t('There was an issue fetching your chart'));
           return Promise.resolve();
         }),
     
       canReadSavedQueries
-        ? getUserOwnedObjects(id, 'saved_query', ownSavedQueryFilters, {
-            order_column: 'changed_on',
-            order_direction: 'desc',
+        ? SupersetClient.get({
+            endpoint: `/api/v1/saved_query/?q=${rison.encode({
+              page_size: 6,
+              order_column: 'changed_on',
+              order_direction: 'desc',
+              filters: [{ col: 'created_by', opr: 'rel_o_m', value: id }],
+            })}`,
           })
-            .then(r => {
-              setQueryData(r);
+            .then(({ json }) => {
+              setQueryData(json.result);
               return Promise.resolve();
             })
             .catch((err: unknown) => {
               setQueryData([]);
               addDangerToast(
-                t('There was an issue fetching your saved queries: %s', err),
+                t('There was an issue fetching your saved queries'),
               );
               return Promise.resolve();
             })
-        : Promise.resolve(),    
+        : Promise.resolve(),
     ]).then(() => {
       setIsFetchingActivityData(false);
     });
