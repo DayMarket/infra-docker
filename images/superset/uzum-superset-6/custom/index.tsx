@@ -64,11 +64,6 @@ const CONFIRM_OVERWRITE_MESSAGE = t(
     'Overwriting might cause you to lose some of your work. Are you ' +
     'sure you want to overwrite?',
 );
-function DashboardList(props: DashboardListProps) {
-  const { addDangerToast, addSuccessToast, user } = props;
-
-  const [showThumbnails, setShowThumbnails] = useState(true);
-
 interface DashboardListProps {
   addDangerToast: (msg: string) => void;
   addSuccessToast: (msg: string) => void;
