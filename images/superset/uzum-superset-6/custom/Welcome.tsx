@@ -1,3 +1,5 @@
+// Home/index.tsx
+
 import { useEffect, useMemo, useState } from 'react';
 import {
   isFeatureEnabled,
@@ -145,13 +147,11 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const recent = `/api/v1/log/recent_activity/?q=${params}`;
   const [activeChild, setActiveChild] = useState('Loading');
   const userKey = dangerouslyGetItemDoNotUse(id, null);
-  let defaultChecked = false;
   const isThumbnailsEnabled = isFeatureEnabled(FeatureFlag.Thumbnails);
-  if (isThumbnailsEnabled) {
-    defaultChecked =
-      userKey?.thumbnails === undefined ? true : userKey?.thumbnails;
-  }
-  const [checked, setChecked] = useState(defaultChecked);
+  const [checked, setChecked] = useState(
+    isThumbnailsEnabled && userKey?.thumbnails !== false,
+  );
+
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [chartData, setChartData] = useState<Array<object> | null>(null);
   const [queryData, setQueryData] = useState<Array<object> | null>(null);
@@ -172,8 +172,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const WelcomeMainExtension = extensionsRegistry.get('welcome.main.replacement');
 
   const [otherTabTitle, otherTabFilters] = useMemo(() => {
-    const lastTab = bootstrapData.common?.conf
-      .WELCOME_PAGE_LAST_TAB as WelcomePageLastTab;
+    const lastTab = bootstrapData.common?.conf.WELCOME_PAGE_LAST_TAB as WelcomePageLastTab;
     const [customTitle, customFilter] = Array.isArray(lastTab)
       ? lastTab
       : [undefined, undefined];
@@ -203,120 +202,77 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
 
     getRecentActivityObjs(user.userId!, recent, addDangerToast, otherTabFilters)
       .then(res => {
-        const data: ActivityData | null = {};
-        data[TableTab.Other] = res.other;
+        const data: ActivityData | null = { [TableTab.Other]: res.other };
         if (res.viewed) {
           const filtered = reject(res.viewed, ['item_url', null]);
           data[TableTab.Viewed] = filtered;
-          if (!activeTab && data[TableTab.Viewed]) {
-            setActiveChild(TableTab.Viewed);
-          } else if (!activeTab && !data[TableTab.Viewed]) {
-            setActiveChild(TableTab.Created);
-          } else {
-            setActiveChild(activeTab || TableTab.Created);
-          }
+          setActiveChild(activeTab || TableTab.Viewed || TableTab.Created);
         } else {
           setActiveChild(activeTab || TableTab.Created);
         }
-        setActivityData(prev => ({ ...prev, ...data }));
+        setActivityData(old => ({ ...old, ...data }));
       })
       .catch(
-        createErrorHandler(errMsg => {
-          setActivityData(prev => ({
-            ...prev,
-            [TableTab.Viewed]: [],
-          }));
+        createErrorHandler((err: unknown) => {
+          setActivityData(old => ({ ...old, [TableTab.Viewed]: [] }));
           addDangerToast(
-            t('There was an issue fetching your recent activity: %s', errMsg),
+            t('There was an issue fetching your recent activity: %s', err),
           );
         }),
       );
 
-    const ownSavedQueryFilters = [
-      { col: 'created_by', opr: 'rel_o_m', value: id },
-    ];
+    const filters = [{ col: 'owners', opr: 'rel_m_m', value: id }];
+    const queryFilters = [{ col: 'created_by', opr: 'rel_o_m', value: id }];
 
     Promise.all([
       SupersetClient.get({
         endpoint: `/api/v1/dashboard/?q=${rison.encode({
           page_size: 6,
-          order_column: 'id',
-          order_direction: 'desc',
-          filters: [{ col: 'owners', opr: 'rel_m_m', value: id }],
+          filters,
         })}`,
-      })
-        .then(({ json }) => {
-          setDashboardData(json.result);
-        })
-        .catch(err =>
-          err.text?.().then(msg => {
-            addDangerToast(t('Dashboard fetch failed: %s', msg));
-            setDashboardData([]);
-          }),
-        ),
+      }).then(({ json }) => setDashboardData(json.result)).catch(() => setDashboardData([])),
 
       SupersetClient.get({
         endpoint: `/api/v1/chart/?q=${rison.encode({
           page_size: 6,
-          order_column: 'id',
-          order_direction: 'desc',
-          filters: [{ col: 'owners', opr: 'rel_m_m', value: id }],
+          filters,
         })}`,
-      })
-        .then(({ json }) => {
-          setChartData(json.result);
-        })
-        .catch(err =>
-          err.text?.().then(msg => {
-            addDangerToast(t('Chart fetch failed: %s', msg));
-            setChartData([]);
-          }),
-        ),
+      }).then(({ json }) => setChartData(json.result)).catch(() => setChartData([])),
 
       canReadSavedQueries
         ? SupersetClient.get({
             endpoint: `/api/v1/saved_query/?q=${rison.encode({
               page_size: 6,
-              order_column: 'id',
-              order_direction: 'desc',
-              filters: [{ col: 'created_by', opr: 'rel_o_m', value: id }],
+              filters: queryFilters,
             })}`,
-          })
-            .then(({ json }) => {
-              setQueryData(json.result);
-            })
-            .catch(err =>
-              err.text?.().then(msg => {
-                addDangerToast(t('Saved query fetch failed: %s', msg));
-                setQueryData([]);
-              }),
-            )
+          }).then(({ json }) => setQueryData(json.result)).catch(() => setQueryData([]))
         : Promise.resolve(),
-    ]).then(() => setIsFetchingActivityData(false));
+    ]).finally(() => setIsFetchingActivityData(false));
   }, [otherTabFilters]);
 
   const handleToggle = () => {
-    setChecked(!checked);
-    dangerouslySetItemDoNotUse(id, { thumbnails: !checked });
+    const next = !checked;
+    setChecked(next);
+    dangerouslySetItemDoNotUse(id, { thumbnails: next });
   };
 
   useEffect(() => {
     if (!collapseState && queryData?.length) {
-      setActiveState(prev => [...prev, '4']);
+      setActiveState(current => [...current, '4']);
     }
-    setActivityData(prev => ({
-      ...prev,
+    setActivityData(current => ({
+      ...current,
       Created: [
         ...(chartData?.slice(0, 3) || []),
         ...(dashboardData?.slice(0, 3) || []),
         ...(queryData?.slice(0, 3) || []),
       ],
     }));
-  }, [chartData, queryData, dashboardData]);
+  }, [chartData, dashboardData, queryData]);
 
   useEffect(() => {
     if (!collapseState && activityData?.[TableTab.Viewed]?.length) {
-      setActiveState(prev => ['1', ...prev]);
+      setActiveState(current => ['1', ...current]);
     }
   }, [activityData]);
 
@@ -326,24 +282,23 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const menuData: SubMenuProps = {
     activeChild: 'Home',
     name: t('Home'),
+    ...(isThumbnailsEnabled && {
+      buttons: [
+        {
+          name: (
+            <WelcomeNav>
+              <div className="switch">
+                <AntdSwitch checked={checked} onClick={handleToggle} />
+                <span>{t('Thumbnails')}</span>
+              </div>
+            </WelcomeNav>
+          ),
+          onClick: handleToggle,
+          buttonStyle: 'link',
+        },
+      ],
+    }),
   };
-
-  if (isThumbnailsEnabled) {
-    menuData.buttons = [
-      {
-        name: (
-          <WelcomeNav>
-            <div className="switch">
-              <AntdSwitch checked={checked} onClick={handleToggle} />
-              <span>{t('Thumbnails')}</span>
-            </div>
-          </WelcomeNav>
-        ),
-        onClick: handleToggle,
-        buttonStyle: 'link',
-      },
-    ];
-  }
 
   return (
     <>
@@ -353,12 +308,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         {WelcomeTopExtension && <WelcomeTopExtension />}
         {WelcomeMainExtension && <WelcomeMainExtension />}
         {(!WelcomeTopExtension || !WelcomeMainExtension) && (
-          <Collapse
-            activeKey={activeState}
-            onChange={handleCollapse}
-            ghost
-            bigger
-          >
+          <Collapse activeKey={activeState} onChange={handleCollapse} ghost bigger>
             <Collapse.Panel header={t('Recents')} key="1">
               {activityData &&
               (activityData[TableTab.Viewed] ||
