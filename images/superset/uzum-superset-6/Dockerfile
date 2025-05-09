@@ -56,6 +56,7 @@ RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg
 
 # Копируем Superset исходники
 COPY --from=superset-node /git/superset /git/superset
+
 RUN cp -Rf /git/superset/superset/* /app/superset/ && \
     cp /git/superset/setup.py /git/superset/pyproject.toml /git/superset/MANIFEST.in /git/superset/README.md /app/ && \
     mkdir -p /app/superset-frontend && \
