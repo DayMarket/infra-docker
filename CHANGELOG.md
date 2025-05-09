@@ -1,3 +1,9 @@
+## v0.446.36 (2025-05-09)
+
+### Fix
+
+- showThumbnails={showThumbnails}
+
 ## v0.446.35 (2025-05-09)
 
 ### Fix
