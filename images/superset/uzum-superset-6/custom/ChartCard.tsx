@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { t, useTheme } from '@superset-ui/core';
+import {
+  isFeatureEnabled,
+  SupersetClient,
+  t,
+  useTheme,
+} from '@superset-ui/core';
 import { AntdDropdown } from 'src/components';
 import { Menu } from 'src/components/Menu';
 import { CardStyles } from 'src/views/CRUD/utils';
@@ -24,8 +29,6 @@ interface ChartCardProps {
   onDelete: (chart: Chart) => void;
 }
 
-const fallbackLogo = '/static/assets/images/fallback.png';
-
 export default function ChartCard({
   chart,
   hasPerm,
@@ -41,33 +44,29 @@ export default function ChartCard({
   const history = useHistory();
   const theme = useTheme();
 
-  const [thumbnailSrc, setThumbnailSrc] = useState<string>(fallbackLogo);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
+    chart.thumbnail_url || null,
+  );
+  const [fetchingThumbnail, setFetchingThumbnail] = useState(false);
 
   useEffect(() => {
-    let canceled = false;
-    async function fetchThumbnail() {
-      if (showThumbnails && chart.thumbnail_url) {
-        try {
-          const response = await fetch(chart.thumbnail_url);
-          if (!canceled && response.ok) {
-            const blob = await response.blob();
-            setThumbnailSrc(URL.createObjectURL(blob));
-          } else {
-            setThumbnailSrc(fallbackLogo);
-          }
-        } catch {
-          if (!canceled) setThumbnailSrc(fallbackLogo);
-        }
-      } else {
-        setThumbnailSrc(fallbackLogo);
-      }
+    if (
+      showThumbnails &&
+      !thumbnailUrl &&
+      !fetchingThumbnail &&
+      isFeatureEnabled('THUMBNAILS')
+    ) {
+      setFetchingThumbnail(true);
+      SupersetClient.get({ endpoint: `/api/v1/chart/${chart.id}` })
+        .then(({ json = {} }) => {
+          setThumbnailUrl(json.thumbnail_url || null);
+        })
+        .catch(() => {
+          setThumbnailUrl(null);
+        })
+        .finally(() => setFetchingThumbnail(false));
     }
-
-    fetchThumbnail();
-    return () => {
-      canceled = true;
-    };
-  }, [chart.thumbnail_url, showThumbnails]);
+  }, [showThumbnails, chart.id, fetchingThumbnail, thumbnailUrl]);
 
   const menu = (
     <Menu>
@@ -119,14 +118,11 @@ export default function ChartCard({
       }}
     >
       <ListViewCard
-        loading={chart.loading || false}
         title={chart.slice_name}
         description={t('Modified %s', chart.changed_on_delta_humanized)}
-        titleRight={
-          <Label>{chart.published ? t('published') : t('draft')}</Label>
-        }
+        titleRight={<Label>{chart.published ? t('published') : t('draft')}</Label>}
         cover={
-          showThumbnails ? (
+          showThumbnails && thumbnailUrl ? (
             <div
               style={{
                 width: '100%',
@@ -137,13 +133,8 @@ export default function ChartCard({
               }}
             >
               <img
-                src={thumbnailSrc}
-                alt=""
+                src={thumbnailUrl}
                 loading="lazy"
-                onError={e => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = fallbackLogo;
-                }}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -156,8 +147,6 @@ export default function ChartCard({
         }
         url={bulkSelectEnabled ? undefined : chart.url}
         linkComponent={Link}
-        imgURL={thumbnailSrc}
-        imgFallbackURL={fallbackLogo}
         coverLeft={<FacePile users={chart.owners || []} />}
         actions={
           <ListViewCard.Actions
@@ -169,7 +158,7 @@ export default function ChartCard({
             {userId && (
               <FaveStar
                 itemId={chart.id}
-                saveFavoriteStatus={saveFavoriteStatus}
+                saveFaveStar={saveFavoriteStatus}
                 isStarred={favoriteStatus}
               />
             )}

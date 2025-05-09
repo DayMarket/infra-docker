@@ -151,6 +151,7 @@ function DashboardList(props: DashboardListProps) {
     undefined,
     DASHBOARD_COLUMNS_TO_FETCH,
   );
+
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
