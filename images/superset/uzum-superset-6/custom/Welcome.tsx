@@ -1,5 +1,3 @@
-// Home/index.tsx
-
 import { useEffect, useMemo, useState } from 'react';
 import {
   isFeatureEnabled,
@@ -198,9 +196,8 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   }, []);
 
   useEffect(() => {
-    if (!otherTabFilters || WelcomeMainExtension) {
-      return;
-    }
+    if (!otherTabFilters || WelcomeMainExtension) return;
+
     const activeTab = getItem(LocalStorageKeys.HomepageActivityFilter, null);
     setActiveState(collapseState.length > 0 ? collapseState : DEFAULT_TAB_ARR);
 
@@ -209,18 +206,24 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         const data: ActivityData | null = {};
         data[TableTab.Other] = res.other;
         if (res.viewed) {
-          const filtered = reject(res.viewed, ['item_url', null]).map(r => r);
+          const filtered = reject(res.viewed, ['item_url', null]);
           data[TableTab.Viewed] = filtered;
-          setActiveChild(activeTab || TableTab.Viewed || TableTab.Created);
+          if (!activeTab && data[TableTab.Viewed]) {
+            setActiveChild(TableTab.Viewed);
+          } else if (!activeTab && !data[TableTab.Viewed]) {
+            setActiveChild(TableTab.Created);
+          } else {
+            setActiveChild(activeTab || TableTab.Created);
+          }
         } else {
           setActiveChild(activeTab || TableTab.Created);
         }
-        setActivityData(activityData => ({ ...activityData, ...data }));
+        setActivityData(prev => ({ ...prev, ...data }));
       })
       .catch(
-        createErrorHandler((errMsg: unknown) => {
-          setActivityData(activityData => ({
-            ...activityData,
+        createErrorHandler(errMsg => {
+          setActivityData(prev => ({
+            ...prev,
             [TableTab.Viewed]: [],
           }));
           addDangerToast(
@@ -229,30 +232,67 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         }),
       );
 
-    const filters = [{ col: 'owners', opr: 'rel_m_m', value: 'self' }];
-    const queryFilters = [{ col: 'created_by', opr: 'rel_o_m', value: id }];
+    const ownSavedQueryFilters = [
+      { col: 'created_by', opr: 'rel_o_m', value: id },
+    ];
+
     Promise.all([
       SupersetClient.get({
         endpoint: `/api/v1/dashboard/?q=${rison.encode({
           page_size: 6,
-          filters,
+          order_column: 'id',
+          order_direction: 'desc',
+          filters: [{ col: 'owners', opr: 'rel_m_m', value: id }],
         })}`,
-      }).then(({ json }) => setDashboardData(json.result)).catch(() => setDashboardData([])),
+      })
+        .then(({ json }) => {
+          setDashboardData(json.result);
+        })
+        .catch(err =>
+          err.text?.().then(msg => {
+            addDangerToast(t('Dashboard fetch failed: %s', msg));
+            setDashboardData([]);
+          }),
+        ),
+
       SupersetClient.get({
         endpoint: `/api/v1/chart/?q=${rison.encode({
           page_size: 6,
-          filters,
+          order_column: 'id',
+          order_direction: 'desc',
+          filters: [{ col: 'owners', opr: 'rel_m_m', value: id }],
         })}`,
-      }).then(({ json }) => setChartData(json.result)).catch(() => setChartData([])),
+      })
+        .then(({ json }) => {
+          setChartData(json.result);
+        })
+        .catch(err =>
+          err.text?.().then(msg => {
+            addDangerToast(t('Chart fetch failed: %s', msg));
+            setChartData([]);
+          }),
+        ),
+
       canReadSavedQueries
         ? SupersetClient.get({
             endpoint: `/api/v1/saved_query/?q=${rison.encode({
               page_size: 6,
-              filters: queryFilters,
+              order_column: 'id',
+              order_direction: 'desc',
+              filters: [{ col: 'created_by', opr: 'rel_o_m', value: id }],
             })}`,
-          }).then(({ json }) => setQueryData(json.result)).catch(() => setQueryData([]))
+          })
+            .then(({ json }) => {
+              setQueryData(json.result);
+            })
+            .catch(err =>
+              err.text?.().then(msg => {
+                addDangerToast(t('Saved query fetch failed: %s', msg));
+                setQueryData([]);
+              }),
+            )
         : Promise.resolve(),
-    ]).finally(() => setIsFetchingActivityData(false));
+    ]).then(() => setIsFetchingActivityData(false));
   }, [otherTabFilters]);
 
   const handleToggle = () => {
@@ -262,10 +302,10 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
 
   useEffect(() => {
     if (!collapseState && queryData?.length) {
-      setActiveState(activeState => [...activeState, '4']);
+      setActiveState(prev => [...prev, '4']);
     }
-    setActivityData(activityData => ({
-      ...activityData,
+    setActivityData(prev => ({
+      ...prev,
       Created: [
         ...(chartData?.slice(0, 3) || []),
         ...(dashboardData?.slice(0, 3) || []),
@@ -276,7 +316,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
 
   useEffect(() => {
     if (!collapseState && activityData?.[TableTab.Viewed]?.length) {
-      setActiveState(activeState => ['1', ...activeState]);
+      setActiveState(prev => ['1', ...prev]);
     }
   }, [activityData]);
 
@@ -313,7 +353,12 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         {WelcomeTopExtension && <WelcomeTopExtension />}
         {WelcomeMainExtension && <WelcomeMainExtension />}
         {(!WelcomeTopExtension || !WelcomeMainExtension) && (
-          <Collapse activeKey={activeState} onChange={handleCollapse} ghost bigger>
+          <Collapse
+            activeKey={activeState}
+            onChange={handleCollapse}
+            ghost
+            bigger
+          >
             <Collapse.Panel header={t('Recents')} key="1">
               {activityData &&
               (activityData[TableTab.Viewed] ||
