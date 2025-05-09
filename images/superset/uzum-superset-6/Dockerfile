@@ -2,7 +2,6 @@
 FROM node:18-bullseye-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
-
 ENV BUILD_CMD=${NPM_BUILD_CMD} \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     GIT_SSL_NO_VERIFY=1

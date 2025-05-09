@@ -279,7 +279,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
           });
           setDashboardData([]);
           return Promise.resolve();
-        })
+        }),
     
       SupersetClient.get({
         endpoint: `/api/v1/chart/?q=${rison.encode({
@@ -295,11 +295,11 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         })
         .catch((err: Response) => {
           err.text?.().then(msg => {
-            addDangerToast(t('Dashboard fetch failed: %s', msg));
+            addDangerToast(t('Chart fetch failed: %s', msg));
           });
-          setDashboardData([]);
+          setChartData([]);
           return Promise.resolve();
-        })
+        }),
     
       canReadSavedQueries
         ? SupersetClient.get({
@@ -316,9 +316,9 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
             })
             .catch((err: Response) => {
               err.text?.().then(msg => {
-                addDangerToast(t('Dashboard fetch failed: %s', msg));
+                addDangerToast(t('Saved query fetch failed: %s', msg));
               });
-              setDashboardData([]);
+              setQueryData([]);
               return Promise.resolve();
             })
         : Promise.resolve(),
