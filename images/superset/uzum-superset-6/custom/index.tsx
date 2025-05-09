@@ -626,7 +626,7 @@ function DashboardList(props: DashboardListProps) {
         loading={loading}
         openDashboardEditModal={openDashboardEditModal}
         saveFavoriteStatus={saveFavoriteStatus}
-        favoriteStatus={favoriteStatus[dashboard.id]}
+        favoriteStatus={!!favoriteStatus[dashboard.id]}
         handleBulkDashboardExport={handleBulkDashboardExport}
         onDelete={dashboard => setDashboardToDelete(dashboard)}
       />
