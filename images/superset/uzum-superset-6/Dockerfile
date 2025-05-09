@@ -27,7 +27,7 @@ COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashb
 COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/index.tsx
 COPY custom/ChartCard.tsx /git/superset/superset-frontend/src/views/ChartList/ChartCard.tsx
 
-#COPY custom/Welcome.tsx /git/superset/superset-frontend/src/pages/Home/index.tsx
+COPY custom/Welcome.tsx /git/superset/superset-frontend/src/pages/Home/index.tsx
 
 #COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
 
