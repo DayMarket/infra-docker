@@ -29,7 +29,7 @@ COPY custom/index.tsx /git/superset/superset-frontend/src/pages/DashboardList/in
 
 #COPY custom/Welcome.tsx /git/superset/superset-frontend/src/pages/Home/index.tsx
 
-COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
+#COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
 
 # Сборка frontend
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \

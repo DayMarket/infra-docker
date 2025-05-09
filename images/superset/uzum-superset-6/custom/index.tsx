@@ -73,6 +73,7 @@ interface DashboardListProps {
     firstName: string;
     lastName: string;
   };
+  showThumbnails?: boolean;
 }
 
 export interface Dashboard {
@@ -116,7 +117,12 @@ const DASHBOARD_COLUMNS_TO_FETCH = [
 ];
 
 function DashboardList(props: DashboardListProps) {
-  const { addDangerToast, addSuccessToast, user } = props;
+  const {
+    addDangerToast,
+    addSuccessToast,
+    user,
+    showThumbnails = true,
+  } = props;
 
   const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
@@ -756,14 +762,11 @@ function DashboardList(props: DashboardListProps) {
                 pageSize={PAGE_SIZE}
                 addSuccessToast={addSuccessToast}
                 addDangerToast={addDangerToast}
-                showThumbnails={true}
+                showThumbnails={showThumbnails}
                 renderCard={renderCard}
-                defaultViewMode={
-                  isFeatureEnabled(FeatureFlag.ListviewsDefaultCardView)
-                    ? 'card'
-                    : 'table'
-                }
+                defaultViewMode={showThumbnails ? 'card' : 'table'}
                 enableBulkTag
+                enableViewModeToggle
                 bulkTagResourceName="dashboard"
               />
             </>
