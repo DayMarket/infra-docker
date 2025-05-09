@@ -1,5 +1,5 @@
 [tool]
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.446.18"
+version = "0.446.19"
 tag_format = "v$version"
