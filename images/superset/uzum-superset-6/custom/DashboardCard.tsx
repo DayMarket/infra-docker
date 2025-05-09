@@ -110,7 +110,9 @@ function DashboardList(props: DashboardListProps) {
 
   const renderCard = useCallback(
     (dashboard: Dashboard) => {
-      if (!dashboard.dashboard_title) return null;
+      if (!dashboard || typeof dashboard.id !== 'number' || !dashboard.dashboard_title) {
+        return null;
+      }
 
       return (
         <DashboardCard
@@ -151,9 +153,7 @@ function DashboardList(props: DashboardListProps) {
       <ListView<Dashboard>
         bulkActions={[]}
         bulkSelectEnabled={bulkSelectEnabled}
-        cardSortSelectOptions={[
-          { id: 'changed_on_delta_humanized', label: t('Modified'), desc: true },
-        ]}
+        cardSortSelectOptions={[{ id: 'changed_on_delta_humanized', label: t('Modified'), desc: true }]}
         className="dashboard-list-view"
         columns={[]}
         count={dashboardCount}
