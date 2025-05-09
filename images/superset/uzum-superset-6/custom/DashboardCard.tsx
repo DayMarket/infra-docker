@@ -64,7 +64,7 @@ export default function DashboardCard({
           setThumbnailUrl(json.thumbnail_url || null);
         })
         .catch(() => {
-          setThumbnailUrl(null); // без fallback
+          setThumbnailUrl(null);
         })
         .finally(() => setFetchingThumbnail(false));
     }
@@ -120,8 +120,12 @@ export default function DashboardCard({
       }}
     >
       <ListViewCard
-        title={dashboard.dashboard_title}
-        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
+        title={dashboard.dashboard_title || t('[No title]')}
+        description={
+          dashboard.changed_on_delta_humanized
+            ? t('Modified %s', dashboard.changed_on_delta_humanized)
+            : ''
+        }
         titleRight={<Label>{dashboard.published ? t('published') : t('draft')}</Label>}
         cover={
           showThumbnails && thumbnailUrl ? (
