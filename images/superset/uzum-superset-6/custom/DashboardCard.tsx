@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import {
   isFeatureEnabled,
@@ -161,7 +161,7 @@ function DashboardCard({
                 }}
               />
             </div>
-          ) : undefined
+          ) : <div style={{ display: 'none' }} />
         }
         actions={
           <ListViewCard.Actions
