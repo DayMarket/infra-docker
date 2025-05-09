@@ -6,7 +6,7 @@ import {
   t,
 } from '@superset-ui/core';
 import { useSelector } from 'react-redux';
-import { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
 import {
@@ -64,6 +64,7 @@ const CONFIRM_OVERWRITE_MESSAGE = t(
     'Overwriting might cause you to lose some of your work. Are you ' +
     'sure you want to overwrite?',
 );
+const [showThumbnails, setShowThumbnails] = useState(true);
 
 interface DashboardListProps {
   addDangerToast: (msg: string) => void;
@@ -620,7 +621,7 @@ function DashboardList(props: DashboardListProps) {
         dashboard={dashboard}
         hasPerm={hasPerm}
         bulkSelectEnabled={bulkSelectEnabled}
-        showThumbnails={true}
+        showThumbnails={showThumbnails}
         userId={user?.userId}
         loading={loading}
         openDashboardEditModal={openDashboardEditModal}
@@ -675,6 +676,11 @@ function DashboardList(props: DashboardListProps) {
       ),
       buttonStyle: 'link',
       onClick: openDashboardImportModal,
+    });
+    subMenuButtons.push({
+      name: showThumbnails ? t('Hide thumbnails') : t('Show thumbnails'),
+      buttonStyle: 'tertiary',
+      onClick: () => setShowThumbnails(!showThumbnails),
     });
   }
   return (
@@ -756,13 +762,9 @@ function DashboardList(props: DashboardListProps) {
                 pageSize={PAGE_SIZE}
                 addSuccessToast={addSuccessToast}
                 addDangerToast={addDangerToast}
-                showThumbnails={true}
+                showThumbnails={showThumbnails}
                 renderCard={renderCard}
-                defaultViewMode={
-                  isFeatureEnabled(FeatureFlag.ListviewsDefaultCardView)
-                    ? 'card'
-                    : 'table'
-                }
+                defaultViewMode={showThumbnails ? 'card' : 'table'}
                 enableBulkTag
                 bulkTagResourceName="dashboard"
               />
