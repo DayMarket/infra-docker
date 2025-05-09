@@ -109,7 +109,6 @@ RUN apt-get remove --purge -y \
 USER superset
 
 HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health"
-
 EXPOSE ${SUPERSET_PORT}
 
 CMD ["/usr/bin/run-server.sh"]
