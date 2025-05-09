@@ -116,7 +116,7 @@ const DASHBOARD_COLUMNS_TO_FETCH = [
 
 function DashboardList(props: DashboardListProps) {
   const { addDangerToast, addSuccessToast, user } = props;
-
+  const [showThumbnails, setShowThumbnails] = useState(true);
   const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
   );
