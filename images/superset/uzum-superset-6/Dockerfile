@@ -47,6 +47,7 @@ WORKDIR /app
 
 # Копируем список зависимостей и устанавливаем
 COPY custom/apt-dependencies.txt /tmp/apt-dependencies.txt
+
 RUN mkdir -p ${PYTHONPATH} superset/static superset-frontend apache_superset.egg-info requirements && \
     useradd --user-group -m --no-log-init --shell /bin/bash superset && \
     apt-get update -qq && \
