@@ -264,7 +264,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       SupersetClient.get({
         endpoint: `/api/v1/dashboard/?q=${rison.encode({
           page_size: 6,
-          order_column: 'id',
+          order_column: 'changed_on_delta_humanized',
           order_direction: 'desc',
           filters: [{ col: 'owners', opr: 'rel_m_m', value: 'self' }],
         })}`,
@@ -284,7 +284,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       SupersetClient.get({
         endpoint: `/api/v1/chart/?q=${rison.encode({
           page_size: 6,
-          order_column: 'id',
+          order_column: 'changed_on_delta_humanized',
           order_direction: 'desc',
           filters: [{ col: 'owners', opr: 'rel_m_m', value: 'self' }],
         })}`,
@@ -305,7 +305,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         ? SupersetClient.get({
             endpoint: `/api/v1/saved_query/?q=${rison.encode({
               page_size: 6,
-              order_column: 'id',
+              order_column: 'changed_on_delta_humanized',
               order_direction: 'desc',
               filters: [{ col: 'created_by', opr: 'rel_o_m', value: id }],
             })}`,
