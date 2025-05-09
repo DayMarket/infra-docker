@@ -1,181 +1,179 @@
-import { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+/* eslint-disable no-param-reassign */
 import {
-  isFeatureEnabled,
+  styled,
   SupersetClient,
   t,
-  useTheme,
 } from '@superset-ui/core';
-import { AntdDropdown } from 'src/components';
-import { Menu } from 'src/components/Menu';
-import { CardStyles } from 'src/views/CRUD/utils';
-import ListViewCard from 'src/components/ListViewCard';
-import Icons from 'src/components/Icons';
-import FacePile from 'src/components/FacePile';
-import Label from 'src/components/Label';
-import FaveStar from 'src/components/FaveStar';
-import { Dashboard } from 'src/views/CRUD/types';
+import { useSelector } from 'react-redux';
+import { useState, useCallback } from 'react';
+import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
+import Loading from 'src/components/Loading';
+import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
+import ListView from 'src/components/ListView';
+import withToasts from 'src/components/MessageToasts/withToasts';
+import DashboardCard from 'src/features/dashboards/DashboardCard';
+import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import { Owner, Tag } from 'src/types';
+import { findPermission } from 'src/utils/findPermission';
 
-interface DashboardCardProps {
-  dashboard: Dashboard;
-  hasPerm: (name: string) => boolean;
-  bulkSelectEnabled: boolean;
-  userId?: string | number;
+const PAGE_SIZE = 25;
+
+interface DashboardListProps {
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
+  user: {
+    userId: string | number;
+    firstName: string;
+    lastName: string;
+  };
   showThumbnails?: boolean;
-  favoriteStatus: boolean;
-  saveFavoriteStatus: (id: number, isStarred: boolean) => void;
-  openDashboardEditModal?: (d: Dashboard) => void;
-  handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
-  onDelete: (dashboard: Dashboard) => void;
 }
 
-export default function DashboardCard({
-  dashboard,
-  hasPerm,
-  bulkSelectEnabled,
-  userId,
-  showThumbnails,
-  favoriteStatus,
-  saveFavoriteStatus,
-  openDashboardEditModal,
-  handleBulkDashboardExport,
-  onDelete,
-}: DashboardCardProps) {
-  const history = useHistory();
-  const theme = useTheme();
+export interface Dashboard {
+  changed_by_name: string;
+  changed_on_delta_humanized: string;
+  changed_by: string;
+  dashboard_title: string;
+  id: number;
+  published: boolean;
+  url: string;
+  thumbnail_url: string;
+  owners: Owner[];
+  tags: Tag[];
+  created_by: object;
+}
 
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
-    dashboard.thumbnail_url || null,
+const Actions = styled.div`
+  color: ${({ theme }) => theme.colors.grayscale.base};
+`;
+
+const DASHBOARD_COLUMNS_TO_FETCH = [
+  'id',
+  'dashboard_title',
+  'published',
+  'url',
+  'slug',
+  'changed_by',
+  'changed_on_delta_humanized',
+  'owners.id',
+  'owners.first_name',
+  'owners.last_name',
+  'owners',
+  'tags.id',
+  'tags.name',
+  'tags.type',
+  'status',
+  'certified_by',
+  'certification_details',
+  'changed_on',
+  'thumbnail_url',
+];
+
+function DashboardList(props: DashboardListProps) {
+  const {
+    addDangerToast,
+    addSuccessToast,
+    user,
+    showThumbnails = true,
+  } = props;
+
+  const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
+    state => state.user,
   );
-  const [fetchingThumbnail, setFetchingThumbnail] = useState(false);
-
-  useEffect(() => {
-    if (
-      showThumbnails &&
-      !thumbnailUrl &&
-      !fetchingThumbnail &&
-      isFeatureEnabled('THUMBNAILS')
-    ) {
-      setFetchingThumbnail(true);
-      SupersetClient.get({ endpoint: `/api/v1/dashboard/${dashboard.id}` })
-        .then(({ json = {} }) => {
-          setThumbnailUrl(json.thumbnail_url || null);
-        })
-        .catch(() => {
-          setThumbnailUrl(null);
-        })
-        .finally(() => setFetchingThumbnail(false));
-    }
-  }, [showThumbnails, dashboard.id, fetchingThumbnail, thumbnailUrl]);
-
-  const menu = (
-    <Menu>
-      {hasPerm('can_write') && openDashboardEditModal && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            className="action-button"
-            onClick={() => openDashboardEditModal(dashboard)}
-          >
-            <Icons.EditAlt iconSize="l" /> {t('Edit')}
-          </div>
-        </Menu.Item>
-      )}
-      {hasPerm('can_export') && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => handleBulkDashboardExport([dashboard])}
-            className="action-button"
-          >
-            <Icons.Share iconSize="l" /> {t('Export')}
-          </div>
-        </Menu.Item>
-      )}
-      {hasPerm('can_write') && (
-        <Menu.Item>
-          <div
-            role="button"
-            tabIndex={0}
-            className="action-button"
-            onClick={() => onDelete(dashboard)}
-          >
-            <Icons.Trash iconSize="l" /> {t('Delete')}
-          </div>
-        </Menu.Item>
-      )}
-    </Menu>
+  const {
+    state: {
+      loading,
+      resourceCount: dashboardCount,
+      resourceCollection: dashboards,
+      bulkSelectEnabled,
+    },
+    hasPerm,
+    fetchData,
+    toggleBulkSelect,
+    refreshData,
+  } = useListViewResource<Dashboard>(
+    'dashboard',
+    t('dashboard'),
+    addDangerToast,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    DASHBOARD_COLUMNS_TO_FETCH,
   );
+
+  const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
+    'dashboard',
+    dashboards.map(d => d.id),
+    addDangerToast,
+  );
+
+  const renderCard = useCallback(
+    (dashboard: Dashboard) => {
+      if (!dashboard.dashboard_title) return null;
+
+      return (
+        <DashboardCard
+          dashboard={dashboard}
+          hasPerm={hasPerm}
+          bulkSelectEnabled={bulkSelectEnabled}
+          showThumbnails={showThumbnails}
+          userId={user?.userId}
+          openDashboardEditModal={() => {}}
+          saveFavoriteStatus={saveFavoriteStatus}
+          favoriteStatus={favoriteStatus[dashboard.id] || false}
+          handleBulkDashboardExport={() => {}}
+          onDelete={() => {}}
+        />
+      );
+    },
+    [bulkSelectEnabled, favoriteStatus, hasPerm, showThumbnails, user?.userId, saveFavoriteStatus],
+  );
+
+  const subMenuButtons: SubMenuProps['buttons'] = [];
+  if (hasPerm('can_write')) {
+    subMenuButtons.push({
+      name: (
+        <>
+          <i className="fa fa-plus" /> {t('Dashboard')}
+        </>
+      ),
+      buttonStyle: 'primary',
+      onClick: () => {
+        window.location.assign('/dashboard/new');
+      },
+    });
+  }
 
   return (
-    <CardStyles
-      onClick={() => {
-        if (!bulkSelectEnabled) {
-          history.push(dashboard.url);
-        }
-      }}
-    >
-      <ListViewCard
-        title={dashboard.dashboard_title || t('[No title]')}
-        description={
-          dashboard.changed_on_delta_humanized
-            ? t('Modified %s', dashboard.changed_on_delta_humanized)
-            : ''
-        }
-        titleRight={<Label>{dashboard.published ? t('published') : t('draft')}</Label>}
-        cover={
-          showThumbnails && thumbnailUrl ? (
-            <div
-              style={{
-                width: '100%',
-                height: '160px',
-                overflow: 'hidden',
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
-              }}
-            >
-              <img
-                src={thumbnailUrl}
-                alt=""
-                loading="lazy"
-                onError={e => {
-                  e.currentTarget.style.display = 'none';
-                }}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ) : undefined
-        }
-        url={bulkSelectEnabled ? undefined : dashboard.url}
-        linkComponent={Link}
-        coverLeft={<FacePile users={dashboard.owners || []} />}
-        actions={
-          <ListViewCard.Actions
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
-            {userId && (
-              <FaveStar
-                itemId={dashboard.id}
-                saveFaveStar={saveFavoriteStatus}
-                isStarred={favoriteStatus}
-              />
-            )}
-            <AntdDropdown overlay={menu}>
-              <Icons.MoreVert iconColor={theme.colors.grayscale.base} />
-            </AntdDropdown>
-          </ListViewCard.Actions>
-        }
+    <>
+      <SubMenu name={t('Dashboards')} buttons={subMenuButtons} />
+      <ListView<Dashboard>
+        bulkActions={[]}
+        bulkSelectEnabled={bulkSelectEnabled}
+        cardSortSelectOptions={[]}
+        className="dashboard-list-view"
+        columns={[]}
+        count={dashboardCount}
+        data={dashboards}
+        disableBulkSelect={toggleBulkSelect}
+        fetchData={fetchData}
+        refreshData={refreshData}
+        filters={[]}
+        initialSort={[]}
+        loading={loading}
+        pageSize={PAGE_SIZE}
+        addSuccessToast={addSuccessToast}
+        addDangerToast={addDangerToast}
+        showThumbnails={showThumbnails}
+        renderCard={renderCard}
+        defaultViewMode={showThumbnails ? 'card' : 'table'}
+        enableViewModeToggle
+        bulkTagResourceName="dashboard"
       />
-    </CardStyles>
+      {loading && <Loading />}
+    </>
   );
 }
+
+export default withToasts(DashboardList);
