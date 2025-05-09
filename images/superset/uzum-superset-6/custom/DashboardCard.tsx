@@ -151,7 +151,9 @@ function DashboardList(props: DashboardListProps) {
       <ListView<Dashboard>
         bulkActions={[]}
         bulkSelectEnabled={bulkSelectEnabled}
-        cardSortSelectOptions={[]}
+        cardSortSelectOptions={[
+          { id: 'changed_on_delta_humanized', label: t('Modified'), desc: true },
+        ]}
         className="dashboard-list-view"
         columns={[]}
         count={dashboardCount}
