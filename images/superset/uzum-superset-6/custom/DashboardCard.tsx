@@ -27,7 +27,6 @@ interface DashboardCardProps {
   openDashboardEditModal?: (d: Dashboard) => void;
   handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
   onDelete: (dashboard: Dashboard) => void;
-  loading: boolean;
 }
 
 export default function DashboardCard({
@@ -41,7 +40,6 @@ export default function DashboardCard({
   openDashboardEditModal,
   handleBulkDashboardExport,
   onDelete,
-  loading,
 }: DashboardCardProps) {
   const history = useHistory();
   const theme = useTheme();
@@ -142,6 +140,9 @@ export default function DashboardCard({
                 src={thumbnailUrl}
                 alt=""
                 loading="lazy"
+                onError={e => {
+                  e.currentTarget.style.display = 'none';
+                }}
                 style={{
                   width: '100%',
                   height: '100%',
