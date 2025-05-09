@@ -157,7 +157,7 @@ function DashboardList(props: DashboardListProps) {
         className="dashboard-list-view"
         columns={[]}
         count={dashboardCount}
-        data={dashboards}
+        data={dashboards.filter(d => d && typeof d.id === 'number' && !!d.dashboard_title)}
         disableBulkSelect={toggleBulkSelect}
         fetchData={fetchData}
         refreshData={refreshData}
