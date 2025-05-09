@@ -282,14 +282,16 @@ function DashboardList(props: DashboardListProps) {
           row: {
             original: { id },
           },
-        }: any) =>
-          user?.userId && (
+        }: any) => {
+          if (!user?.userId) return null;
+          return (
             <FaveStar
               itemId={id}
               saveFaveStar={saveFavoriteStatus}
-              isStarred={favoriteStatus[id]}
+              isStarred={!!favoriteStatus[id]}
             />
-          ),
+          );
+        },
         Header: '',
         id: 'id',
         disableSortBy: true,
@@ -338,14 +340,7 @@ function DashboardList(props: DashboardListProps) {
           row: {
             original: { tags = [] },
           },
-        }: {
-          row: {
-            original: {
-              tags: Tag[];
-            };
-          };
-        }) => (
-          // Only show custom type tags
+        }: { row: { original: { tags: Tag[] } } }) => (
           <TagsList
             tags={tags.filter(
               (tag: Tag) => tag.type === 'TagTypes.custom' || tag.type === 1,
@@ -384,6 +379,8 @@ function DashboardList(props: DashboardListProps) {
       },
       {
         Cell: ({ row: { original } }: any) => {
+          if (!canDelete && !canEdit && !canExport) return null;
+  
           const handleDelete = () =>
             handleDashboardDelete(
               original,
@@ -393,7 +390,7 @@ function DashboardList(props: DashboardListProps) {
             );
           const handleEdit = () => openDashboardEditModal(original);
           const handleExport = () => handleBulkDashboardExport([original]);
-
+  
           return (
             <Actions className="actions">
               {canDelete && (
