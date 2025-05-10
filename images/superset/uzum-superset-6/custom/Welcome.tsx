@@ -220,7 +220,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
             />
           </Collapse.Panel>
           <Collapse.Panel header={t('Dashboards')} key="2">
-            {!dashboardData ? (
+            {isFetchingActivityData ? (
               <LoadingCards cover={checked} />
             ) : (
               <DashboardTable
@@ -234,7 +234,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
             )}
           </Collapse.Panel>
           <Collapse.Panel header={t('Charts')} key="3">
-            {!chartData ? (
+            {isFetchingActivityData ? (
               <LoadingCards cover={checked} />
             ) : (
               <ChartTable
