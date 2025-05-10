@@ -119,8 +119,10 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const [dashboardData, setDashboardData] = useState<Array<object> | null>(null);
   const [isFetchingActivityData, setIsFetchingActivityData] = useState(true);
 
-  const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, []);
-  const [activeState, setActiveState] = useState<Array<string>>(collapseState);
+  const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, null);
+  const [activeState, setActiveState] = useState<Array<string>>(
+    collapseState ?? DEFAULT_TAB_ARR,
+  );
 
   const handleCollapse = (state: Array<string>) => {
     setActiveState(state);
