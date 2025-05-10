@@ -163,7 +163,19 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         : Promise.resolve(),
     ]).finally(() => setIsFetchingActivityData(false));
   }, [user.userId]);
-
+  // тестовый блок- начало
+  useEffect(() => {
+    if (!isFetchingActivityData && checked) {
+      const timer = setTimeout(() => {
+        document.querySelectorAll('img[data-lazy="true"]').forEach(img => {
+          img.setAttribute('src', img.getAttribute('data-src') || '');
+          img.removeAttribute('data-lazy');
+        });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isFetchingActivityData, checked]);
+  // тестовый блок- конец
   const handleToggle = () => {
     setChecked(!checked);
     dangerouslySetItemDoNotUse(id, { thumbnails: !checked });
