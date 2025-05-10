@@ -134,12 +134,20 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       ? lastTab
       : [undefined, undefined];
     if (customTitle && customFilter) return [t(customTitle), customFilter];
-    if (!lastTab || lastTab === 'favorites') return [t('Favorite'), []];
-    return [
-      t('Examples'),
-      [{ col: 'created_by', opr: 'rel_o_m', value: 0 }],
-    ];
-  }, []);
+    if (!lastTab || lastTab === 'favorites') {
+      // По умолчанию — Favorite
+      return [t('Favorite'), [{ col: 'id', opr: 'rel_m_m', value: 'favorites' }]];
+    }
+    if (lastTab === 'mine') {
+      return [t('Mine'), [{ col: 'created_by', opr: 'rel_o_m', value: user.userId }]];
+    }
+    if (lastTab === 'all') {
+      return [t('All'), []];
+    }
+  
+    // fallback если что-то другое
+    return [t('Favorite'), [{ col: 'id', opr: 'rel_m_m', value: 'favorites' }]];
+  }, [user.userId]);
 
   useEffect(() => {
     if (!otherTabFilters) return;
