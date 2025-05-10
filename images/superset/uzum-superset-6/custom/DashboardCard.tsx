@@ -136,7 +136,7 @@ function DashboardCard({
         linkComponent={Link}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         cover={
-          isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails && thumbnailUrl ? (
+          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
             <div
               style={{
                 width: '100%',
@@ -148,11 +148,7 @@ function DashboardCard({
             >
               <img
                 src={thumbnailUrl}
-                alt=""
                 loading="lazy"
-                onError={e => {
-                  e.currentTarget.style.display = 'none';
-                }}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -161,7 +157,7 @@ function DashboardCard({
                 }}
               />
             </div>
-          ) : <div style={{ display: 'none' }} />
+          ) : null
         }
         actions={
           <ListViewCard.Actions
