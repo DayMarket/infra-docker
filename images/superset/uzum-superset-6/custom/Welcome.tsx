@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   isFeatureEnabled,
   FeatureFlag,
@@ -110,7 +110,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const [dashboardData, setDashboardData] = useState<Array<object> | null>(null);
   const [isFetchingActivityData, setIsFetchingActivityData] = useState(true);
   const [activeState, setActiveState] = useState<Array<string>>([]);
-
+  const [showThumbnails, setShowThumbnails] = useState(true);
   const handleCollapse = (state: Array<string>) => {
     setActiveState(state);
   };

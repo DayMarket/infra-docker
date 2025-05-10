@@ -72,6 +72,7 @@ interface DashboardListProps {
     firstName: string;
     lastName: string;
   };
+  showThumbnails?: boolean;
 }
 
 export interface Dashboard {
@@ -115,8 +116,7 @@ const DASHBOARD_COLUMNS_TO_FETCH = [
 ];
 
 function DashboardList(props: DashboardListProps) {
-  const { addDangerToast, addSuccessToast, user } = props;
-  const [showThumbnails, setShowThumbnails] = useState(true);
+  const { addDangerToast, addSuccessToast, user, showThumbnails = true } = props;
   const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
   );
@@ -634,6 +634,7 @@ function DashboardList(props: DashboardListProps) {
       user?.userId,
       saveFavoriteStatus,
       userKey,
+      showThumbnails,
     ],
   );
 
@@ -671,11 +672,6 @@ function DashboardList(props: DashboardListProps) {
       ),
       buttonStyle: 'link',
       onClick: openDashboardImportModal,
-    });
-    subMenuButtons.push({
-      name: showThumbnails ? t('Hide thumbnails') : t('Show thumbnails'),
-      buttonStyle: 'tertiary',
-      onClick: () => setShowThumbnails(!showThumbnails),
     });
   }
   return (
