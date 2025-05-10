@@ -23,6 +23,7 @@ import {
 } from 'src/utils/localStorageHelpers';
 import ListViewCard from 'src/components/ListViewCard';
 import withToasts from 'src/components/MessageToasts/withToasts';
+import { useLocation } from 'react-router-dom';
 import {
   CardContainer,
   createErrorHandler,
@@ -110,7 +111,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const [checked, setChecked] = useState(
     isThumbnailsEnabled ? userKey?.thumbnails ?? true : false,
   );
-
+  const location = useLocation();
   const [activeChild, setActiveChild] = useState('Loading');
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [chartData, setChartData] = useState<Array<object> | null>(null);
@@ -184,7 +185,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
             .catch(() => setQueryData([]))
         : Promise.resolve(),
     ]).finally(() => setIsFetchingActivityData(false));
-  }, [otherTabFilters]);
+  }, [otherTabFilters, location.pathname]);
 
   const handleToggle = () => {
     setChecked(!checked);
