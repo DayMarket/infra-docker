@@ -1,5 +1,3 @@
-// Home/index.tsx
-
 import { useEffect, useMemo, useState } from 'react';
 import {
   isFeatureEnabled,
@@ -186,6 +184,43 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         : Promise.resolve(),
     ]).finally(() => setIsFetchingActivityData(false));
   }, [otherTabFilters, location.pathname]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        getRecentActivityObjs(user.userId!, recent, addDangerToast, otherTabFilters)
+          .then(res => {
+            const data: ActivityData | null = {};
+            data[TableTab.Other] = res.other;
+            data[TableTab.Viewed] = reject(res.viewed, ['item_url', null]);
+            setActiveChild(TableTab.Viewed);
+            setActivityData(prev => ({ ...prev, ...data }));
+          })
+          .catch(() => {});
+
+        const filters: any[] = [];
+        const queryFilters = [{ col: 'created_by', opr: 'rel_o_m', value: id }];
+
+        Promise.all([
+          SupersetClient.get({ endpoint: `/api/v1/dashboard/?q=${rison.encode({ page_size: 6, filters })}` })
+            .then(({ json }) => setDashboardData(json.result))
+            .catch(() => setDashboardData([])),
+          SupersetClient.get({ endpoint: `/api/v1/chart/?q=${rison.encode({ page_size: 6, filters })}` })
+            .then(({ json }) => setChartData(json.result))
+            .catch(() => setChartData([])),
+          canReadSavedQueries
+            ? SupersetClient.get({ endpoint: `/api/v1/saved_query/?q=${rison.encode({ page_size: 6, filters: queryFilters })}` })
+                .then(({ json }) => setQueryData(json.result))
+                .catch(() => setQueryData([]))
+            : Promise.resolve(),
+        ]);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [otherTabFilters]);
 
   const handleToggle = () => {
     setChecked(!checked);
