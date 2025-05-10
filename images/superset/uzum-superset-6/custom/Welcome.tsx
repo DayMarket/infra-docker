@@ -134,7 +134,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       ? lastTab
       : [undefined, undefined];
     if (customTitle && customFilter) return [t(customTitle), customFilter];
-    if (!lastTab || lastTab === 'all') return [t('Favorite'), []];
+    if (!lastTab || lastTab === 'favorite') return [t('Favorite'), []];
     return [
       t('Examples'),
       [{ col: 'created_by', opr: 'rel_o_m', value: 0 }],
