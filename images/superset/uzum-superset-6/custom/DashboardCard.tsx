@@ -56,19 +56,20 @@ function DashboardCard({
     if (
       !fetchingThumbnail &&
       dashboard.id &&
-      !thumbnailUrl &&
+      (thumbnailUrl === undefined || thumbnailUrl === null) &&
       isFeatureEnabled(FeatureFlag.Thumbnails)
     ) {
+      if (dashboard.thumbnail_url) {
+        setThumbnailUrl(dashboard.thumbnail_url || '');
+        return;
+      }
       setFetchingThumbnail(true);
       SupersetClient.get({
         endpoint: `/api/v1/dashboard/${dashboard.id}`,
-      })
-        .then(({ json = {} }) => {
-          setThumbnailUrl(json.thumbnail_url || '');
-        })
-        .finally(() => {
-          setFetchingThumbnail(false);
-        });
+      }).then(({ json = {} }) => {
+        setThumbnailUrl(json.thumbnail_url || '');
+        setFetchingThumbnail(false);
+      });
     }
   }, [dashboard.id, thumbnailUrl]);
 
@@ -115,7 +116,6 @@ function DashboardCard({
       )}
     </Menu>
   );
-
   return (
     <CardStyles
       onClick={() => {
@@ -125,16 +125,17 @@ function DashboardCard({
       }}
     >
       <ListViewCard
+        loading={dashboard.loading || false}
         title={dashboard.dashboard_title}
         certifiedBy={dashboard.certified_by}
         certificationDetails={dashboard.certification_details}
         titleRight={
           <Label>{dashboard.published ? t('published') : t('draft')}</Label>
         }
-        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
-        coverLeft={<FacePile users={dashboard.owners || []} />}
+        imgURL={dashboard.thumbnail_url}
+        imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
         cover={
           !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
             <div
@@ -159,6 +160,8 @@ function DashboardCard({
             </div>
           ) : null
         }
+        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
+        coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
           <ListViewCard.Actions
             onClick={e => {
