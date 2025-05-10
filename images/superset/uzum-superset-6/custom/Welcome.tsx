@@ -159,7 +159,8 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         }),
       );
 
-    const filters = [{ col: 'owners', opr: 'rel_m_m', value: id }];
+    // const filters = [{ col: 'owners', opr: 'rel_m_m', value: id }];
+    const filters: any[] = [];
     const queryFilters = [{ col: 'created_by', opr: 'rel_o_m', value: id }];
 
     Promise.all([
