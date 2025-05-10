@@ -28,7 +28,6 @@ import {
   createErrorHandler,
   getRecentActivityObjs,
   loadingCardCount,
-  mq,
 } from 'src/views/CRUD/utils';
 import { AntdSwitch } from 'src/components';
 import getBootstrapData from 'src/utils/getBootstrapData';
@@ -247,6 +246,22 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               />
             )}
           </Collapse.Panel>
+          {canReadSavedQueries && (
+            <Collapse.Panel header={t('SQL queries')} key="4">
+              {!queryData ? (
+                <LoadingCards cover={checked} />
+              ) : (
+                <SavedQueries
+                  showThumbnails={checked}
+                  user={user}
+                  mine={queryData}
+                  otherTabData={activityData?.[TableTab.Other]}
+                  otherTabFilters={otherTabFilters}
+                  otherTabTitle={otherTabTitle}
+                />
+              )}
+            </Collapse.Panel>
+          )}
         </Collapse>
       </WelcomeContainer>
     </>
