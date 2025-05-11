@@ -214,7 +214,17 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       )
       .finally(() => setIsFetchingActivityData(false));
   }, []);
-
+  
+  useEffect(() => {
+    if (!dashboardData && !chartData && !queryData) {
+      setActiveState(DEFAULT_TAB_ARR);
+      const prev = dangerouslyGetItemDoNotUse(id, {});
+      dangerouslySetItemDoNotUse(id, {
+        ...prev,
+        collapseState: DEFAULT_TAB_ARR,
+      });
+    }
+  }, [dashboardData, chartData, queryData]);
   const menuData: SubMenuProps = {
     activeChild: 'Home',
     name: t('Home'),
