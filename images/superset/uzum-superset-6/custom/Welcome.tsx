@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   isFeatureEnabled,
   FeatureFlag,
@@ -281,14 +281,12 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               <LoadingCards cover={checked} />
             ) : (
               <DashboardTable
-                user={user}
-                mine={dashboardData}
                 showThumbnails={checked}
+                user={user}                
+                mine={dashboardData}
                 otherTabData={[]}
-                otherTabFilters={[
-                  { col: 'id', opr: 'dashboard_is_fav', value: true },
-                ]}
-                otherTabTitle={t('Favorite')}
+                otherTabFilters={[]}
+                otherTabTitle={t('All')}
               />
             )}
           </Collapse.Panel>
