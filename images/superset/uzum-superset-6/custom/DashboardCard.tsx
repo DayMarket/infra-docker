@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import {
   isFeatureEnabled,
@@ -22,6 +22,7 @@ interface DashboardCardProps {
   dashboard: Dashboard;
   hasPerm: (name: string) => boolean;
   bulkSelectEnabled: boolean;
+  loading: boolean;
   openDashboardEditModal?: (d: Dashboard) => void;
   saveFavoriteStatus: (id: number, isStarred: boolean) => void;
   favoriteStatus: boolean;
@@ -47,19 +48,24 @@ function DashboardCard({
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
   const canExport = hasPerm('can_export');
+
   const theme = useTheme();
 
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(dashboard.thumbnail_url || null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
 
   useEffect(() => {
+    // fetch thumbnail only if it's not already fetched
     if (
       !fetchingThumbnail &&
       dashboard.id &&
       (thumbnailUrl === undefined || thumbnailUrl === null) &&
       isFeatureEnabled(FeatureFlag.Thumbnails)
     ) {
+      // fetch thumbnail
       if (dashboard.thumbnail_url) {
+        // set to empty string if null so that we don't
+        // keep fetching the thumbnail
         setThumbnailUrl(dashboard.thumbnail_url || '');
         return;
       }
@@ -71,7 +77,7 @@ function DashboardCard({
         setFetchingThumbnail(false);
       });
     }
-  }, [dashboard.id, thumbnailUrl]);
+  }, [dashboard, thumbnailUrl]);
 
   const menu = (
     <Menu>
@@ -132,33 +138,15 @@ function DashboardCard({
         titleRight={
           <Label>{dashboard.published ? t('published') : t('draft')}</Label>
         }
-        url={bulkSelectEnabled ? undefined : dashboard.url}
-        imgURL={showThumbnails ? dashboard.thumbnail_url : undefined}
-        linkComponent={Link}
         cover={
-          showThumbnails && thumbnailUrl ? (
-            <div
-              style={{
-                width: '100%',
-                height: '160px',
-                overflow: 'hidden',
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
-              }}
-            >
-              <img
-                src={thumbnailUrl}
-                loading="lazy"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ) : undefined
+          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
+            <></>
+          ) : null
         }
+        url={bulkSelectEnabled ? undefined : dashboard.url}
+        linkComponent={Link}
+        imgURL={dashboard.thumbnail_url}
+        imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
