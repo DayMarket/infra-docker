@@ -156,7 +156,11 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
     });
   };
   
-  
+  const lastTab = dangerouslyGetItemDoNotUse(
+    user?.userId?.toString(),
+    null,
+  )?.last_tab ?? 'favorite';
+
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [chartData, setChartData] = useState<object[] | null>(null);
   const [queryData, setQueryData] = useState<object[] | null>(null);
@@ -282,7 +286,8 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
             ) : (
               <DashboardTable
                 showThumbnails={checked}
-                user={user}                
+                user={user}
+                selectedTab={lastTab}   
                 mine={dashboardData}
                 otherTabData={[]}
                 otherTabFilters={[]}

@@ -616,7 +616,9 @@ function DashboardList(props: DashboardListProps) {
         dashboard={dashboard}
         hasPerm={hasPerm}
         bulkSelectEnabled={bulkSelectEnabled}
-        showThumbnails={showThumbnails}
+        showThumbnails={
+          userKey?.thumbnails ?? true
+        }
         userId={user?.userId}
         loading={loading}
         openDashboardEditModal={openDashboardEditModal}
@@ -753,7 +755,9 @@ function DashboardList(props: DashboardListProps) {
                 pageSize={PAGE_SIZE}
                 addSuccessToast={addSuccessToast}
                 addDangerToast={addDangerToast}
-                showThumbnails={showThumbnails}
+                showThumbnails={
+                  userKey?.thumbnails ?? true
+                }
                 renderCard={renderCard}
                 defaultViewMode={showThumbnails ? 'card' : 'table'}
                 enableBulkTag
