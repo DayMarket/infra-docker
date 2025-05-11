@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { reject } from 'lodash';
 import {
   isFeatureEnabled,
   FeatureFlag,
@@ -7,16 +8,16 @@ import {
   styled,
   t,
 } from '@superset-ui/core';
+import { WelcomePageLastTab } from 'src/features/home/types';
 import rison from 'rison';
 import Collapse from 'src/components/Collapse';
 import { User } from 'src/types/bootstrapTypes';
-import { reject } from 'lodash';
 import {
-  dangerouslyGetItemDoNotUse,
-  dangerouslySetItemDoNotUse,
   getItem,
   LocalStorageKeys,
   setItem,
+  dangerouslyGetItemDoNotUse,
+  dangerouslySetItemDoNotUse,
 } from 'src/utils/localStorageHelpers';
 import ListViewCard from 'src/components/ListViewCard';
 import withToasts from 'src/components/MessageToasts/withToasts';
@@ -33,7 +34,6 @@ import getBootstrapData from 'src/utils/getBootstrapData';
 import { TableTab } from 'src/views/CRUD/types';
 import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
 import { userHasPermission } from 'src/dashboard/util/permissionUtils';
-import { WelcomePageLastTab } from 'src/features/home/types';
 import ActivityTable from 'src/features/home/ActivityTable';
 import ChartTable from 'src/features/home/ChartTable';
 import SavedQueries from 'src/features/home/SavedQueries';
@@ -53,11 +53,11 @@ export interface ActivityData {
   [TableTab.Other]?: JsonObject[];
 }
 
+const DEFAULT_TAB_ARR = [];
+
 interface LoadingProps {
   cover?: boolean;
 }
-
-const DEFAULT_TAB_ARR: string[] = [];
 
 const WelcomeContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.grayscale.light4};
@@ -68,12 +68,12 @@ const WelcomeContainer = styled.div`
       content: '';
       display: block;
       border: 1px solid ${({ theme }) => theme.colors.grayscale.light2};
-      margin: 0 ${({ theme }) => theme.gridUnit * 6}px;
+      margin: 0px ${({ theme }) => theme.gridUnit * 6}px;
       position: relative;
       width: 100%;
       ${mq[1]} {
         margin-top: 5px;
-        margin: 0 2px;
+        margin: 0px 2px;
       }
     }
     .ant-menu.ant-menu-light.ant-menu-root.ant-menu-horizontal {
@@ -136,12 +136,15 @@ export const LoadingCards = ({ cover }: LoadingProps) => (
     ))}
   </CardContainer>
 );
+
 function Welcome({ user, addDangerToast }: WelcomeProps) {
   const canReadSavedQueries = userHasPermission(user, 'SavedQuery', 'can_read');
   const userid = user.userId;
   const id = userid!.toString();
-  const params = rison.encode({ page_size: 6 });
-  const recent = `/api/v1/log/recent_activity/?q=${params}`;
+  const lastTab = bootstrapData.common?.conf.WELCOME_PAGE_LAST_TAB as WelcomePageLastTab;
+  const recent = `/api/v1/log/recent_activity/?q=${rison.encode({
+    page_size: 6,
+  })}`;
   const [activeChild, setActiveChild] = useState('Loading');
   const userKey = dangerouslyGetItemDoNotUse(id, null);
   let defaultChecked = false;
@@ -152,17 +155,12 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   }
   const [checked, setChecked] = useState(defaultChecked);
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
-  const [chartData, setChartData] = useState<Array<object> | null>(null);
-  const [queryData, setQueryData] = useState<Array<object> | null>(null);
-  const [dashboardData, setDashboardData] = useState<Array<object> | null>(
-    null,
-  );
+  const [chartData, setChartData] = useState<object[] | null>(null);
+  const [queryData, setQueryData] = useState<object[] | null>(null);
+  const [dashboardData, setDashboardData] = useState<object[] | null>(null);
   const [isFetchingActivityData, setIsFetchingActivityData] = useState(true);
-
   const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, []);
-  const [activeState, setActiveState] = useState<string[]>(
-    collapseState,
-  );
+  const [activeState, setActiveState] = useState<string[]>(collapseState);
 
   const handleCollapse = (keys: string[] | string) => {
     const keysArray = Array.isArray(keys) ? keys : [keys];
@@ -170,16 +168,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
     setItem(LocalStorageKeys.HomepageCollapseState, keysArray);
   };
 
-  const SubmenuExtension = extensionsRegistry.get('home.submenu');
-  const WelcomeMessageExtension = extensionsRegistry.get('welcome.message');
-  const WelcomeTopExtension = extensionsRegistry.get('welcome.banner');
-  const WelcomeMainExtension = extensionsRegistry.get(
-    'welcome.main.replacement',
-  );
-
   const [otherTabTitle, otherTabFilters] = useMemo(() => {
-    const lastTab = bootstrapData.common?.conf
-      .WELCOME_PAGE_LAST_TAB as WelcomePageLastTab;
     const [customTitle, customFilter] = Array.isArray(lastTab)
       ? lastTab
       : [undefined, undefined];
@@ -200,40 +189,48 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       ],
     ];
   }, []);
+  
   useEffect(() => {
-    if (!otherTabFilters || WelcomeMainExtension) {
-      return;
-    }
     const activeTab = getItem(LocalStorageKeys.HomepageActivityFilter, null);
     setActiveState(collapseState.length > 0 ? collapseState : DEFAULT_TAB_ARR);
-    getRecentActivityObjs(user.userId!, recent, addDangerToast, otherTabFilters)
-      .then(res => {
-        const data: ActivityData | null = {};
-        data[TableTab.Other] = res.other;
-        if (res.viewed) {
-          const filtered = reject(res.viewed, ['item_url', null]).map(r => r);
-          data[TableTab.Viewed] = filtered;
-          if (!activeTab && data[TableTab.Viewed]) {
-            setActiveChild(TableTab.Viewed);
-          } else if (!activeTab && !data[TableTab.Viewed]) {
-            setActiveChild(TableTab.Created);
-          } else setActiveChild(activeTab || TableTab.Created);
-        } else if (!activeTab) setActiveChild(TableTab.Created);
-        else setActiveChild(activeTab);
-        setActivityData(activityData => ({ ...activityData, ...data }));
-      })
+    getRecentActivityObjs(
+      user.userId!,
+      recent,
+      otherTabFilters,
+      addDangerToast,
+      [],
+    )
+    .then(res => {
+      const data: ActivityData = {
+        [TableTab.Created]: [],
+        [TableTab.Edited]: [],
+        [TableTab.Viewed]: [],
+        [TableTab.Other]: [],
+      };
+      data[TableTab.Other] = res.other;
+      if (res.viewed) {
+        const filtered = reject(res.viewed, ['item_url', null]).map(r => r);
+        data[TableTab.Viewed] = filtered;
+        if (!activeTab && data[TableTab.Viewed]) {
+          setActiveChild(TableTab.Viewed);
+        } else if (!activeTab && !data[TableTab.Viewed]) {
+          setActiveChild(TableTab.Created);
+        } else setActiveChild(activeTab || TableTab.Created);
+      } else if (!activeTab) setActiveChild(TableTab.Created);
+      else setActiveChild(activeTab);
+      setActivityData(activityData => ({ ...activityData, ...data }));
+    })
       .catch(
-        createErrorHandler((errMsg: unknown) => {
+        createErrorHandler(errMsg => {
           setActivityData(activityData => ({
             ...activityData,
             [TableTab.Viewed]: [],
           }));
           addDangerToast(
-            t('There was an issue fetching your recent activity: %s', errMsg),
+            t('There was an issue fetching recent activity: %s', errMsg),
           );
         }),
       );
-
     const ownSavedQueryFilters = [
       {
         col: 'created_by',
@@ -247,20 +244,36 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
           setDashboardData(r);
           return Promise.resolve();
         })
-        .catch(() => setDashboardData([])),
+        .catch((err: unknown) => {
+          setDashboardData([]);
+          addDangerToast(
+            t('There was an issue fetching your dashboards: %s', err),
+          );
+          return Promise.resolve();
+        }),
       getUserOwnedObjects(id, 'chart')
         .then(r => {
           setChartData(r);
           return Promise.resolve();
         })
-        .catch(() => setChartData([])),
+        .catch((err: unknown) => {
+          setChartData([]);
+          addDangerToast(t('There was an issue fetching your chart: %s', err));
+          return Promise.resolve();
+        }),
       canReadSavedQueries
         ? getUserOwnedObjects(id, 'saved_query', ownSavedQueryFilters)
             .then(r => {
               setQueryData(r);
               return Promise.resolve();
             })
-            .catch(() => setQueryData([]))
+            .catch((err: unknown) => {
+              setQueryData([]);
+              addDangerToast(
+                t('There was an issue fetching your saved queries: %s', err),
+              );
+              return Promise.resolve();
+            })
         : Promise.resolve(),
     ]).then(() => {
       setIsFetchingActivityData(false);
@@ -271,7 +284,6 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
     setChecked(!checked);
     dangerouslySetItemDoNotUse(id, { thumbnails: !checked });
   };
-
   useEffect(() => {
     if (!collapseState && queryData?.length) {
       setActiveState(activeState => [...activeState, '4']);
@@ -319,85 +331,75 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
 
   return (
     <>
-      {SubmenuExtension ? (
-        <SubmenuExtension {...menuData} />
-      ) : (
-        <SubMenu {...menuData} />
-      )}
+      <SubMenu {...menuData} />
       <WelcomeContainer>
-        {WelcomeMessageExtension && <WelcomeMessageExtension />}
-        {WelcomeTopExtension && <WelcomeTopExtension />}
-        {WelcomeMainExtension && <WelcomeMainExtension />}
-        {(!WelcomeTopExtension || !WelcomeMainExtension) && (
-          <>
-            <Collapse
-              activeKey={activeState}
-              onChange={handleCollapse}
-              ghost
-              bigger
-            >
-              <Collapse.Panel header={t('Recents')} key="1">
-                {activityData &&
-                (activityData[TableTab.Viewed] ||
-                  activityData[TableTab.Other] ||
-                  activityData[TableTab.Created]) &&
-                activeChild !== 'Loading' ? (
-                  <ActivityTable
-                    user={{ userId: user.userId! }}
-                    activeChild={activeChild}
-                    setActiveChild={setActiveChild}
-                    activityData={activityData}
-                    isFetchingActivityData={isFetchingActivityData}
-                  />
-                ) : (
-                  <LoadingCards />
-                )}
-              </Collapse.Panel>
-              <Collapse.Panel header={t('Dashboards')} key="2">
-                {!dashboardData || isRecentActivityLoading ? (
-                  <LoadingCards cover={checked} />
-                ) : (
-                  <DashboardTable
-                    user={user}
-                    mine={dashboardData}
-                    showThumbnails={checked}
-                    otherTabData={activityData?.[TableTab.Other]}
-                    otherTabFilters={otherTabFilters}
-                    otherTabTitle={otherTabTitle}
-                  />
-                )}
-              </Collapse.Panel>
-              <Collapse.Panel header={t('Charts')} key="3">
-                {!chartData || isRecentActivityLoading ? (
-                  <LoadingCards cover={checked} />
-                ) : (
-                  <ChartTable
-                    showThumbnails={checked}
-                    user={user}
-                    mine={chartData}
-                    otherTabData={activityData?.[TableTab.Other]}
-                    otherTabFilters={otherTabFilters}
-                    otherTabTitle={otherTabTitle}
-                  />
-                )}
-              </Collapse.Panel>
-              {canReadSavedQueries && (
-                <Collapse.Panel header={t('Saved queries')} key="4">
-                  {!queryData ? (
-                    <LoadingCards cover={checked} />
-                  ) : (
-                    <SavedQueries
-                      showThumbnails={checked}
-                      user={user}
-                      mine={queryData}
-                      featureFlag={isThumbnailsEnabled}
-                    />
-                  )}
-                </Collapse.Panel>
+        <Collapse
+          activeKey={activeState}
+          onChange={handleCollapse}
+          ghost
+          bigger
+        >
+          <Collapse.Panel header={t('Recents')} key="1">
+            {activityData && !isFetchingActivityData ? (
+              <ActivityTable
+                user={{ userId: user.userId! }}
+                activeChild={'Viewed'}
+                setActiveChild={() => {}}
+                activityData={activityData}
+                isFetchingActivityData={isFetchingActivityData}
+              />
+            ) : (
+              <LoadingCards />
+            )}
+          </Collapse.Panel>
+          <Collapse.Panel header={t('Dashboards')} key="2">
+            {!dashboardData ? (
+              <LoadingCards cover={checked} />
+            ) : (
+              <DashboardTable
+                showThumbnails={checked}
+                user={user}
+                selectedTab={lastTab}   
+                mine={dashboardData}
+                otherTabData={[]}
+                otherTabFilters={[]}
+                otherTabTitle={t('All')}
+              />
+            )}
+          </Collapse.Panel>
+          <Collapse.Panel header={t('Charts')} key="3">
+            {!chartData ? (
+              <LoadingCards cover={checked} />
+            ) : (
+              <ChartTable
+                showThumbnails={
+                  userKey?.thumbnails ?? true
+                }
+                user={user}
+                mine={chartData}
+                otherTabData={[]}
+                otherTabFilters={[]}
+                otherTabTitle={t('All')}
+              />
+            )}
+          </Collapse.Panel>
+          {canReadSavedQueries && (
+            <Collapse.Panel header={t('Saved queries')} key="4">
+              {!queryData ? (
+                <LoadingCards cover={checked} />
+              ) : (
+                <SavedQueries
+                  showThumbnails={
+                    userKey?.thumbnails ?? true
+                  }
+                  user={user}
+                  mine={queryData}
+                  featureFlag={isThumbnailsEnabled}
+                />
               )}
-            </Collapse>
-          </>
-        )}
+            </Collapse.Panel>
+          )}
+        </Collapse>
       </WelcomeContainer>
     </>
   );
