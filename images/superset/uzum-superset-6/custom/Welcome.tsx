@@ -140,6 +140,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const canReadSavedQueries = userHasPermission(user, 'SavedQuery', 'can_read');
   const userid = user.userId;
   const id = userid!.toString();
+  const lastTab = bootstrapData.common?.conf.WELCOME_PAGE_LAST_TAB as WelcomePageLastTab;
   const recent = `/api/v1/log/recent_activity/?q=${rison.encode({
     page_size: 6,
   })}`;
@@ -159,10 +160,8 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const [isFetchingActivityData, setIsFetchingActivityData] = useState(true);
   const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, []);
   const [activeState, setActiveState] = useState<string[]>(collapseState);
-  const [otherTabTitle, otherTabFilters] = useMemo(() => {
 
-  const lastTab = bootstrapData.common?.conf
-      .WELCOME_PAGE_LAST_TAB as WelcomePageLastTab;
+  const [otherTabTitle, otherTabFilters] = useMemo(() => {
     const [customTitle, customFilter] = Array.isArray(lastTab)
       ? lastTab
       : [undefined, undefined];
