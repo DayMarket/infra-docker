@@ -6,7 +6,7 @@ import {
   t,
 } from '@superset-ui/core';
 import { useSelector } from 'react-redux';
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
 import {
@@ -194,6 +194,22 @@ function DashboardList(props: DashboardListProps) {
   const canExport = hasPerm('can_export');
 
   const initialSort = [{ id: 'changed_on_delta_humanized', desc: true }];
+
+  useEffect(() => {
+    if (showThumbnails && dashboards.length > 0) {
+      const batchSize = 3;
+      const loadThumbnails = async () => {
+        for (let i = 0; i < dashboards.length; i += batchSize) {
+          await Promise.all(
+            dashboards.slice(i, i + batchSize).map(dashboard =>
+              SupersetClient.get({ endpoint: `/api/v1/dashboard/${dashboard.id}` }),
+            ),
+          );
+        }
+      };
+      loadThumbnails();
+    }
+  }, [dashboards, showThumbnails]);
 
   function openDashboardEditModal(dashboard: Dashboard) {
     setDashboardToEdit(dashboard);

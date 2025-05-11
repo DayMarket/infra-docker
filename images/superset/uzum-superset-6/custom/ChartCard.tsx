@@ -51,21 +51,22 @@ export default function ChartCard({
 
   useEffect(() => {
     if (
-      showThumbnails &&
-      !thumbnailUrl &&
-      !fetchingThumbnail &&
-      isFeatureEnabled('THUMBNAILS')
+      !showThumbnails ||
+      fetchingThumbnail ||
+      thumbnailUrl ||
+      !isFeatureEnabled('THUMBNAILS')
     ) {
-      setFetchingThumbnail(true);
-      SupersetClient.get({ endpoint: `/api/v1/chart/${chart.id}` })
-        .then(({ json = {} }) => {
-          setThumbnailUrl(json.thumbnail_url || null);
-        })
-        .catch(() => {
-          setThumbnailUrl(null);
-        })
-        .finally(() => setFetchingThumbnail(false));
+      return;
     }
+    setFetchingThumbnail(true);
+    SupersetClient.get({ endpoint: `/api/v1/chart/${chart.id}` })
+      .then(({ json = {} }) => {
+        setThumbnailUrl(json.thumbnail_url || null);
+      })
+      .catch(() => {
+        setThumbnailUrl(null);
+      })
+      .finally(() => setFetchingThumbnail(false));
   }, [showThumbnails, chart.id, fetchingThumbnail, thumbnailUrl]);
 
   const menu = (
@@ -122,7 +123,7 @@ export default function ChartCard({
         description={t('Modified %s', chart.changed_on_delta_humanized)}
         titleRight={<Label>{chart.published ? t('published') : t('draft')}</Label>}
         cover={
-          showThumbnails && thumbnailUrl ? (
+          showThumbnails && (
             <div
               style={{
                 width: '100%',
@@ -133,7 +134,7 @@ export default function ChartCard({
               }}
             >
               <img
-                src={thumbnailUrl}
+                src={thumbnailUrl ?? '/static/assets/images/chart-card-fallback.svg'}
                 loading="lazy"
                 style={{
                   width: '100%',
@@ -143,7 +144,7 @@ export default function ChartCard({
                 }}
               />
             </div>
-          ) : undefined
+          )
         }
         url={bulkSelectEnabled ? undefined : chart.url}
         linkComponent={Link}

@@ -55,17 +55,13 @@ function DashboardCard({
   const [fetchingThumbnail, setFetchingThumbnail] = useState<boolean>(false);
 
   useEffect(() => {
-    // fetch thumbnail only if it's not already fetched
     if (
       !fetchingThumbnail &&
       dashboard.id &&
       (thumbnailUrl === undefined || thumbnailUrl === null) &&
       isFeatureEnabled(FeatureFlag.Thumbnails)
     ) {
-      // fetch thumbnail
       if (dashboard.thumbnail_url) {
-        // set to empty string if null so that we don't
-        // keep fetching the thumbnail
         setThumbnailUrl(dashboard.thumbnail_url || '');
         return;
       }
@@ -122,6 +118,7 @@ function DashboardCard({
       )}
     </Menu>
   );
+
   return (
     <CardStyles
       onClick={() => {
@@ -139,14 +136,31 @@ function DashboardCard({
           <Label>{dashboard.published ? t('published') : t('draft')}</Label>
         }
         cover={
-          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
-            <></>
-          ) : null
+          showThumbnails && dashboard.thumbnail_url ? (
+            <div
+              style={{
+                width: '100%',
+                height: '160px',
+                overflow: 'hidden',
+                borderTopLeftRadius: '8px',
+                borderTopRightRadius: '8px',
+              }}
+            >
+              <img
+                src={dashboard.thumbnail_url}
+                loading="lazy"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+              />
+            </div>
+          ) : undefined
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
-        imgURL={dashboard.thumbnail_url}
-        imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
