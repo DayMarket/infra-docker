@@ -200,7 +200,12 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       [],
     )
     .then(res => {
-      const data: ActivityData | null = {};
+      const data: ActivityData = {
+        [TableTab.Created]: [],
+        [TableTab.Edited]: [],
+        [TableTab.Viewed]: [],
+        [TableTab.Other]: [],
+      };
       data[TableTab.Other] = res.other;
       if (res.viewed) {
         const filtered = reject(res.viewed, ['item_url', null]).map(r => r);
