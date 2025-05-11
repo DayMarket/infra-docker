@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   isFeatureEnabled,
   FeatureFlag,
@@ -7,6 +7,7 @@ import {
   styled,
   t,
 } from '@superset-ui/core';
+import { WelcomePageLastTab } from 'src/features/home/types';
 import rison from 'rison';
 import Collapse from 'src/components/Collapse';
 import { User } from 'src/types/bootstrapTypes';
@@ -51,7 +52,11 @@ export interface ActivityData {
   [TableTab.Other]?: JsonObject[];
 }
 
-const DEFAULT_TAB_ARR: string[] = [];
+const DEFAULT_TAB_ARR = [];
+
+interface LoadingProps {
+  cover?: boolean;
+}
 
 const WelcomeContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.grayscale.light4};
@@ -118,7 +123,7 @@ const WelcomeNav = styled.div`
 
 const bootstrapData = getBootstrapData();
 
-export const LoadingCards = ({ cover }: { cover?: boolean }) => (
+export const LoadingCards = ({ cover }: LoadingProps) => (
   <CardContainer showThumbnails={cover} className="loading-cards">
     {[...new Array(loadingCardCount)].map((_, index) => (
       <ListViewCard
@@ -130,6 +135,7 @@ export const LoadingCards = ({ cover }: { cover?: boolean }) => (
     ))}
   </CardContainer>
 );
+
 function Welcome({ user, addDangerToast }: WelcomeProps) {
   const canReadSavedQueries = userHasPermission(user, 'SavedQuery', 'can_read');
   const userid = user.userId;
@@ -137,102 +143,159 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const recent = `/api/v1/log/recent_activity/?q=${rison.encode({
     page_size: 6,
   })}`;
-
-  const userKey = dangerouslyGetItemDoNotUse(id, {});
+  const [activeChild, setActiveChild] = useState('Loading');
+  const userKey = dangerouslyGetItemDoNotUse(id, null);
+  let defaultChecked = false;
   const isThumbnailsEnabled = isFeatureEnabled(FeatureFlag.Thumbnails);
-  const defaultChecked = isThumbnailsEnabled
-      ? userKey?.thumbnails ?? true
-      : false;
-  
+  if (isThumbnailsEnabled) {
+    defaultChecked =
+      userKey?.thumbnails === undefined ? true : userKey?.thumbnails;
+  }
   const [checked, setChecked] = useState(defaultChecked);
-  
-  const handleToggle = () => {
-    const userKey = dangerouslyGetItemDoNotUse(id, {});
-    dangerouslySetItemDoNotUse(id, {
-      ...userKey,
-      thumbnails: !(userKey?.thumbnails ?? true),
-    });
-  };
-  
-  const lastTab = dangerouslyGetItemDoNotUse(
-    user?.userId?.toString(),
-    null,
-  )?.last_tab ?? 'favorite';
-
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [chartData, setChartData] = useState<object[] | null>(null);
   const [queryData, setQueryData] = useState<object[] | null>(null);
   const [dashboardData, setDashboardData] = useState<object[] | null>(null);
   const [isFetchingActivityData, setIsFetchingActivityData] = useState(true);
-
   const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, []);
-  const [activeState, setActiveState] = useState<string[]>(
-    collapseState.length ? collapseState : DEFAULT_TAB_ARR,
-  );
+  const [activeState, setActiveState] = useState<string[]>(collapseState);
+  const [otherTabTitle, otherTabFilters] = useMemo(() => {
 
-  const handlePanelChange = (keys: string | string[]) => {
-    const currentKeys = typeof keys === 'string' ? [keys] : keys;
-    setActiveState(currentKeys);
-    setItem(LocalStorageKeys.HomepageCollapseState, currentKeys);
-
-    if (currentKeys.includes('2') && !dashboardData) {
-      getUserOwnedObjects(id, 'dashboard')
-        .then(r => setDashboardData(r))
-        .catch(() => setDashboardData([]));
+  const lastTab = bootstrapData.common?.conf
+      .WELCOME_PAGE_LAST_TAB as WelcomePageLastTab;
+    const [customTitle, customFilter] = Array.isArray(lastTab)
+      ? lastTab
+      : [undefined, undefined];
+    if (customTitle && customFilter) {
+      return [t(customTitle), customFilter];
     }
-    if (currentKeys.includes('3') && !chartData) {
-      getUserOwnedObjects(id, 'chart')
-        .then(r => setChartData(r))
-        .catch(() => setChartData([]));
+    if (lastTab === 'all') {
+      return [t('All'), []];
     }
-    if (currentKeys.includes('4') && !queryData && canReadSavedQueries) {
-      getUserOwnedObjects(id, 'saved_query', [
-        { col: 'created_by', opr: 'rel_o_m', value: `${id}` },
-      ])
-        .then(r => setQueryData(r))
-        .catch(() => setQueryData([]));
-    }
-  };
-
+    return [
+      t('Examples'),
+      [
+        {
+          col: 'created_by',
+          opr: 'rel_o_m',
+          value: 0,
+        },
+      ],
+    ];
+  }, []);
+  
   useEffect(() => {
+    const activeTab = getItem(LocalStorageKeys.HomepageActivityFilter, null);
+    setActiveState(collapseState.length > 0 ? collapseState : DEFAULT_TAB_ARR);
     getRecentActivityObjs(
       user.userId!,
       recent,
+      otherTabFilters,
       addDangerToast,
       [],
     )
-      .then(res => {
-        const data: ActivityData = {};
-        data[TableTab.Other] = res.other;
-        if (res.viewed) {
-          data[TableTab.Viewed] = res.viewed.filter(
-            r => r.item_url !== null,
-          );
-          setActivityData(data);
-        } else {
-          setActivityData(data);
-        }
-      })
+    .then(res => {
+      const data: ActivityData | null = {};
+      data[TableTab.Other] = res.other;
+      if (res.viewed) {
+        const filtered = reject(res.viewed, ['item_url', null]).map(r => r);
+        data[TableTab.Viewed] = filtered;
+        if (!activeTab && data[TableTab.Viewed]) {
+          setActiveChild(TableTab.Viewed);
+        } else if (!activeTab && !data[TableTab.Viewed]) {
+          setActiveChild(TableTab.Created);
+        } else setActiveChild(activeTab || TableTab.Created);
+      } else if (!activeTab) setActiveChild(TableTab.Created);
+      else setActiveChild(activeTab);
+      setActivityData(activityData => ({ ...activityData, ...data }));
+    })
       .catch(
         createErrorHandler(errMsg => {
+          setActivityData(activityData => ({
+            ...activityData,
+            [TableTab.Viewed]: [],
+          }));
           addDangerToast(
             t('There was an issue fetching recent activity: %s', errMsg),
           );
         }),
-      )
-      .finally(() => setIsFetchingActivityData(false));
-  }, []);
+      );
+    const ownSavedQueryFilters = [
+      {
+        col: 'created_by',
+        opr: 'rel_o_m',
+        value: `${id}`,
+      },
+    ];
+    Promise.all([
+      getUserOwnedObjects(id, 'dashboard')
+        .then(r => {
+          setDashboardData(r);
+          return Promise.resolve();
+        })
+        .catch((err: unknown) => {
+          setDashboardData([]);
+          addDangerToast(
+            t('There was an issue fetching your dashboards: %s', err),
+          );
+          return Promise.resolve();
+        }),
+      getUserOwnedObjects(id, 'chart')
+        .then(r => {
+          setChartData(r);
+          return Promise.resolve();
+        })
+        .catch((err: unknown) => {
+          setChartData([]);
+          addDangerToast(t('There was an issue fetching your chart: %s', err));
+          return Promise.resolve();
+        }),
+      canReadSavedQueries
+        ? getUserOwnedObjects(id, 'saved_query', ownSavedQueryFilters)
+            .then(r => {
+              setQueryData(r);
+              return Promise.resolve();
+            })
+            .catch((err: unknown) => {
+              setQueryData([]);
+              addDangerToast(
+                t('There was an issue fetching your saved queries: %s', err),
+              );
+              return Promise.resolve();
+            })
+        : Promise.resolve(),
+    ]).then(() => {
+      setIsFetchingActivityData(false);
+    });
+  }, [otherTabFilters]);
+
+  const handleToggle = () => {
+    setChecked(!checked);
+    dangerouslySetItemDoNotUse(id, { thumbnails: !checked });
+  };
+  useEffect(() => {
+    if (!collapseState && queryData?.length) {
+      setActiveState(activeState => [...activeState, '4']);
+    }
+    setActivityData(activityData => ({
+      ...activityData,
+      Created: [
+        ...(chartData?.slice(0, 3) || []),
+        ...(dashboardData?.slice(0, 3) || []),
+        ...(queryData?.slice(0, 3) || []),
+      ],
+    }));
+  }, [chartData, queryData, dashboardData]);
 
   useEffect(() => {
-    if (dashboardData === null && chartData === null && queryData === null) {
-      setActiveState(DEFAULT_TAB_ARR);
-      const prev = dangerouslyGetItemDoNotUse(id, {});
-      dangerouslySetItemDoNotUse(id, {
-        ...prev,
-        collapseState: DEFAULT_TAB_ARR,
-      });
+    if (!collapseState && activityData?.[TableTab.Viewed]?.length) {
+      setActiveState(activeState => ['1', ...activeState]);
     }
-  }, [dashboardData, chartData, queryData]);
+  }, [activityData]);
+
+  const isRecentActivityLoading =
+    !activityData?.[TableTab.Other] && !activityData?.[TableTab.Viewed];
+
   const menuData: SubMenuProps = {
     activeChild: 'Home',
     name: t('Home'),
@@ -261,7 +324,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       <WelcomeContainer>
         <Collapse
           activeKey={activeState}
-          onChange={handlePanelChange}
+          onChange={handleCollapse}
           ghost
           bigger
         >
