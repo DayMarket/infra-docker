@@ -285,8 +285,10 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
                 mine={dashboardData}
                 showThumbnails={checked}
                 otherTabData={[]}
-                otherTabFilters={[]}
-                otherTabTitle={t('All')}
+                otherTabFilters={[
+                  { col: 'id', opr: 'dashboard_is_fav', value: true },
+                ]}
+                otherTabTitle={t('Favorite')}
               />
             )}
           </Collapse.Panel>
