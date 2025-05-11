@@ -147,10 +147,10 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const [checked, setChecked] = useState(defaultChecked);
   
   const handleToggle = () => {
-    const newValue = !checked;
+    const userKey = dangerouslyGetItemDoNotUse(id, {});
     dangerouslySetItemDoNotUse(id, {
-      ...dangerouslyGetItemDoNotUse(id, {}),
-      thumbnails: newValue,
+      ...userKey,
+      thumbnails: !(userKey?.thumbnails ?? true),
     });
   };
   
