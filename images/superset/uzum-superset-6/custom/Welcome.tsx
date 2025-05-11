@@ -157,6 +157,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
     });
   };
   
+  
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [chartData, setChartData] = useState<object[] | null>(null);
   const [queryData, setQueryData] = useState<object[] | null>(null);
@@ -190,11 +191,6 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         .then(r => setQueryData(r))
         .catch(() => setQueryData([]));
     }
-  };
-
-  const handleToggle = () => {
-    setChecked(!checked);
-    dangerouslySetItemDoNotUse(id, { thumbnails: !checked });
   };
 
   useEffect(() => {
