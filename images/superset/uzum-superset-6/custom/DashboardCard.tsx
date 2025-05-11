@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import {
   isFeatureEnabled,
@@ -66,10 +66,10 @@ function DashboardCard({
         return;
       }
       setFetchingThumbnail(true);
-      SupersetClient.get({
+      SupersetClient.get<{ thumbnail_url?: string }>({
         endpoint: `/api/v1/dashboard/${dashboard.id}`,
-      }).then(({ json = {} }) => {
-        setThumbnailUrl(json.thumbnail_url || '');
+      }).then(({ json }) => {
+        setThumbnailUrl(json?.thumbnail_url || '');
         setFetchingThumbnail(false);
       });
     }
@@ -136,31 +136,17 @@ function DashboardCard({
           <Label>{dashboard.published ? t('published') : t('draft')}</Label>
         }
         cover={
-          showThumbnails && dashboard.thumbnail_url ? (
-            <div
-              style={{
-                width: '100%',
-                height: '160px',
-                overflow: 'hidden',
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
-              }}
-            >
-              <img
-                src={dashboard.thumbnail_url}
-                loading="lazy"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ) : undefined
+          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
+            <></>
+          ) : null
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
+        imgURL={
+          showThumbnails && dashboard.thumbnail_url
+            ? dashboard.thumbnail_url
+            : undefined
+        }
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
