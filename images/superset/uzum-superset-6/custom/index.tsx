@@ -617,9 +617,7 @@ function DashboardList(props: DashboardListProps) {
         hasPerm={hasPerm}
         bulkSelectEnabled={bulkSelectEnabled}
         showThumbnails={
-          userKey
-            ? userKey.thumbnails
-            : isFeatureEnabled(FeatureFlag.Thumbnails)
+          dangerouslyGetItemDoNotUse(user?.userId?.toString(), null)?.thumbnails ?? true
         }
         userId={user?.userId}
         loading={loading}
@@ -758,9 +756,7 @@ function DashboardList(props: DashboardListProps) {
                 addSuccessToast={addSuccessToast}
                 addDangerToast={addDangerToast}
                 showThumbnails={
-                  userKey
-                    ? userKey.thumbnails
-                    : isFeatureEnabled(FeatureFlag.Thumbnails)
+                  dangerouslyGetItemDoNotUse(user?.userId?.toString(), null)?.thumbnails ?? true
                 }
                 renderCard={renderCard}
                 defaultViewMode={showThumbnails ? 'card' : 'table'}

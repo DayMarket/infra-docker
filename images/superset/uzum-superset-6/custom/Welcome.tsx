@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   isFeatureEnabled,
   FeatureFlag,
@@ -32,7 +32,6 @@ import getBootstrapData from 'src/utils/getBootstrapData';
 import { TableTab } from 'src/views/CRUD/types';
 import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
 import { userHasPermission } from 'src/dashboard/util/permissionUtils';
-import { WelcomePageLastTab } from 'src/features/home/types';
 import ActivityTable from 'src/features/home/ActivityTable';
 import ChartTable from 'src/features/home/ChartTable';
 import SavedQueries from 'src/features/home/SavedQueries';
@@ -287,7 +286,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
                 showThumbnails={checked}
                 otherTabData={[]}
                 otherTabFilters={[]}
-                otherTabTitle=""
+                otherTabTitle={t('All')}
               />
             )}
           </Collapse.Panel>
