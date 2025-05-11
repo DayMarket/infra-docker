@@ -139,7 +139,6 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
     page_size: 6,
   })}`;
 
-  const userKey = dangerouslyGetItemDoNotUse(id, null);
   const userKey = dangerouslyGetItemDoNotUse(id, {});
   const isThumbnailsEnabled = isFeatureEnabled(FeatureFlag.Thumbnails);
   const defaultChecked = isThumbnailsEnabled
