@@ -140,12 +140,24 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   })}`;
 
   const userKey = dangerouslyGetItemDoNotUse(id, null);
+  const userKey = dangerouslyGetItemDoNotUse(id, {});
   const isThumbnailsEnabled = isFeatureEnabled(FeatureFlag.Thumbnails);
   const defaultChecked = isThumbnailsEnabled
-    ? userKey?.thumbnails ?? true
-    : false;
-
+      ? userKey?.thumbnails ?? true
+      : false;
+  
   const [checked, setChecked] = useState(defaultChecked);
+  
+  const handleToggle = () => {
+    const newValue = !checked;
+    setChecked(newValue);
+    const prev = dangerouslyGetItemDoNotUse(id, {});
+    dangerouslySetItemDoNotUse(id, {
+      ...prev,
+      thumbnails: newValue,
+    });
+  };
+  
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [chartData, setChartData] = useState<object[] | null>(null);
   const [queryData, setQueryData] = useState<object[] | null>(null);
