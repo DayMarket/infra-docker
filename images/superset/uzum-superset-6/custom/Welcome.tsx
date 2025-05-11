@@ -214,9 +214,9 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
       )
       .finally(() => setIsFetchingActivityData(false));
   }, []);
-  
+
   useEffect(() => {
-    if (!dashboardData && !chartData && !queryData) {
+    if (dashboardData === null && chartData === null && queryData === null) {
       setActiveState(DEFAULT_TAB_ARR);
       const prev = dangerouslyGetItemDoNotUse(id, {});
       dangerouslySetItemDoNotUse(id, {
