@@ -148,10 +148,8 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   
   const handleToggle = () => {
     const newValue = !checked;
-    setChecked(newValue);
-    const prev = dangerouslyGetItemDoNotUse(id, {});
     dangerouslySetItemDoNotUse(id, {
-      ...prev,
+      ...dangerouslyGetItemDoNotUse(id, {}),
       thumbnails: newValue,
     });
   };
@@ -285,7 +283,9 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               <LoadingCards cover={checked} />
             ) : (
               <DashboardTable
-                showThumbnails={checked}
+                showThumbnails={
+                  userKey?.thumbnails ?? true
+                }
                 user={user}
                 selectedTab={lastTab}   
                 mine={dashboardData}
@@ -300,7 +300,9 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               <LoadingCards cover={checked} />
             ) : (
               <ChartTable
-                showThumbnails={checked}
+                showThumbnails={
+                  userKey?.thumbnails ?? true
+                }
                 user={user}
                 mine={chartData}
                 otherTabData={[]}
@@ -315,7 +317,9 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
                 <LoadingCards cover={checked} />
               ) : (
                 <SavedQueries
-                  showThumbnails={checked}
+                  showThumbnails={
+                    userKey?.thumbnails ?? true
+                  }
                   user={user}
                   mine={queryData}
                   featureFlag={isThumbnailsEnabled}
