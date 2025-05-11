@@ -161,6 +161,12 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, []);
   const [activeState, setActiveState] = useState<string[]>(collapseState);
 
+  const handleCollapse = (keys: string[] | string) => {
+    const keysArray = Array.isArray(keys) ? keys : [keys];
+    setActiveState(keysArray);
+    setItem(LocalStorageKeys.HomepageCollapseState, keysArray);
+  };
+
   const [otherTabTitle, otherTabFilters] = useMemo(() => {
     const [customTitle, customFilter] = Array.isArray(lastTab)
       ? lastTab
