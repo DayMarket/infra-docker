@@ -1,3 +1,9 @@
+## v0.446.75 (2025-05-11)
+
+### Fix
+
+- use default placeholder like fav
+
 ## v0.446.74 (2025-05-11)
 
 ### Fix
