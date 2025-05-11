@@ -133,6 +133,7 @@ function DashboardCard({
           <Label>{dashboard.published ? t('published') : t('draft')}</Label>
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
+        imgURL={showThumbnails ? dashboard.thumbnail_url : undefined}
         linkComponent={Link}
         cover={
           showThumbnails && thumbnailUrl ? (
