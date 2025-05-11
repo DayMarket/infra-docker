@@ -357,9 +357,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               <LoadingCards cover={checked} />
             ) : (
               <DashboardTable
-                showThumbnails={
-                  userKey?.thumbnails ?? true
-                }
+                showThumbnails={checked}
                 user={user}
                 selectedTab={lastTab}   
                 mine={dashboardData}
