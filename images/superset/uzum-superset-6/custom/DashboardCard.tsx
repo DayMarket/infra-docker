@@ -137,7 +137,7 @@ function DashboardCard({
         imgURL={dashboard.thumbnail_url}
         imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
         cover={
-          !isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails ? (
+          showThumbnails && thumbnailUrl ? (
             <div
               style={{
                 width: '100%',
@@ -158,7 +158,7 @@ function DashboardCard({
                 }}
               />
             </div>
-          ) : null
+          ) : undefined
         }
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
