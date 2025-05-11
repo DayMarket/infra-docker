@@ -137,7 +137,7 @@ function DashboardCard({
         imgURL={dashboard.thumbnail_url}
         imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
         cover={
-          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
+          !isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails ? (
             <div
               style={{
                 width: '100%',
