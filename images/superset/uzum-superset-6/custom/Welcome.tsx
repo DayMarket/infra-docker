@@ -284,7 +284,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
                 mine={chartData}
                 otherTabData={[]}
                 otherTabFilters={[]}
-                otherTabTitle=""
+                otherTabTitle={t('All')}
               />
             )}
           </Collapse.Panel>
