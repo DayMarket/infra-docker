@@ -1,3 +1,9 @@
+## v0.447.0 (2025-05-12)
+
+### Feat
+
+- **trino**: MAI-1502 new version of container
+
 ## v0.446.89 (2025-05-11)
 
 ### Fix
