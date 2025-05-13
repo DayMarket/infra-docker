@@ -1,3 +1,9 @@
+## v0.448.0 (2025-05-13)
+
+### Feat
+
+- **trino**: MAI-1502 inject eclipse-temurin 23 jdk (#240)
+
 ## v0.447.0 (2025-05-12)
 
 ### Feat
