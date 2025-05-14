@@ -10,13 +10,14 @@ RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harn
 # ------------------------------------------
 # Stage 2: build frontend
 # ------------------------------------------
-FROM node:16-slim AS frontend
-
+FROM node:16-slim AS drone-ui-build
 WORKDIR /drone-ui
 
-COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
+RUN git clone --single-branch --branch v2.12.0 --depth 1 https://github.com/drone/drone-ui.git .
 
-RUN yarn install --frozen-lockfile && yarn build
+RUN rm -rf node_modules yarn.lock package-lock.json && \
+    yarn install --frozen-lockfile && \
+    yarn build
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
