@@ -25,7 +25,6 @@ FROM golang:1.18 AS backend
 WORKDIR /go/src/github.com/harness/drone
 
 COPY --from=builder /go/src/github.com/harness/drone .
-COPY --from=frontend /drone-ui/build ./static/
 
 ENV GOOS=linux
 RUN go mod tidy && \
