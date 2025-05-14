@@ -24,7 +24,7 @@ COPY --from=builder /go/src/github.com/DayMarket/drone/drone-ui .
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-RUN yarn install --frozen-lockfile && yarn add swiper && yarn build
+RUN yarn install --frozen-lockfile && yarn add swiper @monaco-editor/react@4.4.6 && yarn build
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
