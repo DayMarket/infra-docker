@@ -74,6 +74,6 @@ ENV DRONE_DATADOG_ENABLED=false
 
 COPY --from=backend /go/src/github.com/DayMarket/drone/release/linux/amd64/drone-server /usr/local/bin/drone-server
 
-USER 1000:1000
+USER root
 ENTRYPOINT ["drone-server"]
     
