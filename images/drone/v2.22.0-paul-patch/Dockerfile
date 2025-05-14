@@ -8,8 +8,8 @@ ENV SASS_VERBOSITY=quiet
 
 WORKDIR /go/src/github.com/DayMarket/drone
 
-RUN git clone https://github.com/DayMarket/drone.git . && \
-    git clone --single-branch --branch daymarket-drone-ui-performance-patch https://github.com/DayMarket/drone-ui.git ./drone-ui
+RUN git clone https://github.com/DayMarket/drone.git . \
+    && git clone --single-branch --branch daymarket-drone-ui-performance-patch https://github.com/DayMarket/drone-ui.git .
 
 # ------------------------------------------
 # Stage 2: build frontend
@@ -20,7 +20,7 @@ ENV SASS_VERBOSITY=quiet
 
 WORKDIR /drone-ui
 
-COPY --from=builder /go/src/github.com/DayMarket/drone/drone-ui .
+COPY --from=builder /go/src/github.com/DayMarket/drone-ui .
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN sed -i 's/ && sh .\/script\/generate-go-server.sh//' package.json
