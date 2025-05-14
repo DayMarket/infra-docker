@@ -14,6 +14,7 @@ RUN git clone https://github.com/DayMarket/drone.git . \
 # ------------------------------------------
 # Stage 2: build frontend
 # ------------------------------------------
+
 FROM node:18 as frontend
 
 ENV SASS_VERBOSITY=quiet
