@@ -15,6 +15,9 @@ FROM node:18 as frontend
 
 WORKDIR /drone-ui
 COPY --from=builder /go/src/github.com/DayMarket/drone/drone-ui .
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 RUN yarn install --frozen-lockfile && yarn build
 
 # ------------------------------------------
