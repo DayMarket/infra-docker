@@ -42,7 +42,7 @@ ENV CGO_ENABLED=1
 ENV GO111MODULE=on
 
 RUN go mod tidy && \
-    go build -tags nolimit -ldflags "-extldflags \"-static\"" -o release/linux/${GOARCH}/drone-server github.com/DayMarket/drone/cmd/drone-server
+    go build -tags nolimit -ldflags "-extldflags=-static" -o release/linux/${GOARCH}/drone-server ./cmd/drone-server
 
 # ------------------------------------------
 # Stage 4: final runtime image
