@@ -18,6 +18,8 @@ COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
+RUN apk add --no-cache python3 make g++
+
 RUN yarn install --frozen-lockfile && yarn build
 
 # ------------------------------------------
