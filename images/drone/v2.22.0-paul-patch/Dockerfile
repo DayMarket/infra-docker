@@ -10,7 +10,7 @@ RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harn
 # ------------------------------------------
 # Stage 2: build frontend
 # ------------------------------------------
-FROM node:16-slim AS drone-ui-build
+FROM node:14-slim AS drone-ui-build
 WORKDIR /drone-ui
 COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
 RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
