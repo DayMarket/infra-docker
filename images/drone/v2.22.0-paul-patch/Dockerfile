@@ -1,7 +1,10 @@
 # ------------------------------------------
 # Stage 1: clone backend + drone-ui
 # ------------------------------------------
+
 FROM golang:1.18 as builder
+
+ENV SASS_VERBOSITY=quiet
 
 WORKDIR /go/src/github.com/DayMarket/drone
 
@@ -13,12 +16,15 @@ RUN git clone https://github.com/DayMarket/drone.git . && \
 # ------------------------------------------
 FROM node:18 as frontend
 
+ENV SASS_VERBOSITY=quiet
+
 WORKDIR /drone-ui
+
 COPY --from=builder /go/src/github.com/DayMarket/drone/drone-ui .
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-RUN yarn install --frozen-lockfile && yarn build
+RUN yarn install --frozen-lockfile && yarn add swiper && yarn build
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
@@ -43,6 +49,8 @@ RUN go mod tidy && \
 # ------------------------------------------
 FROM alpine:3.11
 
+ENV SASS_VERBOSITY=quiet
+
 LABEL maintainer="core-infra-team@daymarket"
 
 EXPOSE 80 443
@@ -50,6 +58,7 @@ VOLUME /data
 
 WORKDIR /app
 
+# hadolint ignore=DL3018
 RUN apk add -U --no-cache ca-certificates tzdata && \
     [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
