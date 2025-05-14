@@ -33,6 +33,7 @@ FROM golang:1.18 as backend
 
 WORKDIR /go/src/github.com/DayMarket/drone
 COPY --from=builder /go/src/github.com/DayMarket/drone .
+
 COPY --from=frontend /drone-ui/dist/files ./static/
 
 ENV GOOS=linux
