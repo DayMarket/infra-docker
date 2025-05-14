@@ -16,8 +16,6 @@ WORKDIR /drone-ui
 
 COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
 
-RUN apk add --no-cache python2 make g++
-
 RUN yarn install --frozen-lockfile && yarn build
 
 # ------------------------------------------
