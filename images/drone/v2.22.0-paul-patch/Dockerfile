@@ -47,6 +47,7 @@ RUN go mod tidy && \
 # ------------------------------------------
 # Stage 4: final runtime image
 # ------------------------------------------
+
 FROM alpine:3.11
 
 ENV SASS_VERBOSITY=quiet
@@ -54,6 +55,7 @@ ENV SASS_VERBOSITY=quiet
 LABEL maintainer="core-infra-team@daymarket"
 
 EXPOSE 80 443
+
 VOLUME /data
 
 WORKDIR /app
