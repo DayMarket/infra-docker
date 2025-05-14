@@ -13,8 +13,6 @@ RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harn
 FROM node:16-slim AS drone-ui-build
 WORKDIR /drone-ui
 
-RUN git clone --single-branch --branch v2.12.0 --depth 1 https://github.com/drone/drone-ui.git .
-
 RUN rm -rf node_modules yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
