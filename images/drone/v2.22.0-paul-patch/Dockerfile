@@ -10,7 +10,7 @@ RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harn
 # ------------------------------------------
 # Stage 2: build frontend
 # ------------------------------------------
-FROM node:16-alpine AS frontend
+FROM node:16-slim AS frontend
 
 WORKDIR /drone-ui
 
