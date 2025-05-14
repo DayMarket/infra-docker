@@ -20,7 +20,7 @@ ENV SASS_VERBOSITY=quiet
 
 WORKDIR /drone-ui
 
-COPY --from=builder /go/src/github.com/DayMarket/drone-ui .
+COPY --from=builder /go/src/github.com/DayMarket/drone/drone-ui .
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN sed -i 's/ && sh .\/script\/generate-go-server.sh//' package.json
