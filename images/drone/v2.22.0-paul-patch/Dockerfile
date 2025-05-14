@@ -25,10 +25,11 @@ FROM golang:1.18 AS backend
 WORKDIR /go/src/github.com/harness/drone
 
 COPY --from=builder /go/src/github.com/harness/drone .
+COPY --from=drone-ui-build /drone-ui/build ./static
 
 ENV GOOS=linux
 RUN go mod tidy && \
-    go build -tags nolimit -ldflags "-extldflags \"-static\"" -o release/linux/amd64/drone-server github.com/harness/drone/cmd/drone-server
+    go build -tags nolimit -ldflags='-extldflags=-static' -o release/linux/amd64/drone-server ./cmd/drone-server
 
 # ------------------------------------------
 # Final Stage: minimal runtime image
