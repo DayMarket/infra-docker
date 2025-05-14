@@ -9,7 +9,7 @@ ENV SASS_VERBOSITY=quiet
 WORKDIR /go/src/github.com/DayMarket/drone
 
 RUN git clone https://github.com/DayMarket/drone.git . \
-    && git clone --single-branch --branch daymarket-drone-ui-performance-patch https://github.com/DayMarket/drone-ui.git .
+    && git clone --single-branch --branch daymarket-drone-ui-performance-patch https://github.com/DayMarket/drone-ui.git ./drone-ui
 
 # ------------------------------------------
 # Stage 2: build frontend
