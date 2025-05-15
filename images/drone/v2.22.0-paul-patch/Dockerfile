@@ -38,7 +38,7 @@ WORKDIR /go/src/github.com/harness/drone
 
 COPY --from=builder /go/src/github.com/harness/drone .
 
-COPY --from=drone-ui-build /drone-ui/build ./static
+COPY --from=drone-ui-build /drone-ui/dist/files ./static
 
 ENV GOOS=linux
 RUN go mod tidy && \
