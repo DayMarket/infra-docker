@@ -23,6 +23,8 @@ RUN npm install swiper
 
 RUN cd /drone-ui && npm uninstall @monaco-editor/react
 
+ENV CI=false
+
 RUN rm -rf node_modules yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
