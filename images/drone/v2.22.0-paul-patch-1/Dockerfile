@@ -22,6 +22,7 @@ COPY --from=builder /go/src/github.com/harness/drone/drone-ui/ .
 
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
+COPY custom/home.jsx src/pages/home/home.jsx
 
 RUN npm install swiper
 
