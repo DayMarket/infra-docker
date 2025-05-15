@@ -17,7 +17,9 @@ RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/pyth
 
 COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
 
-RUN sed -i '/@monaco-editor\\/react/d;/MonacoEditor/d' src/pages/settings/templates/templates.jsx
+RUN sed -i '/@monaco-editor\\/react/d;/MonacoEditor/d' src/pages/settings/templates/templates.jsx && \
+    sed -i '/@monaco-editor\\/react/d;/MonacoEditor/d' src/pages/settings/templates/editor.jsx && \
+    sed -i '/@monaco-editor\\/react/d;/MonacoEditor/d' src/pages/settings/templates/viewer.jsx
 
 RUN npm install swiper
 
