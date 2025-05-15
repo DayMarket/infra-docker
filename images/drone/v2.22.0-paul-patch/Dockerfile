@@ -51,7 +51,12 @@ FROM alpine:3.11
 
 RUN apk --no-cache add ca-certificates dumb-init tzdata
 
-WORKDIR /app
+EXPOSE 80 443
+VOLUME /data
+
+RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+ENV GODEBUG netdns=go
+#WORKDIR /app
 
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
 
