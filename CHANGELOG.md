@@ -1,3 +1,9 @@
+## v0.450.0 (2025-05-15)
+
+### Feat
+
+- add jdk24 with maven for trinodb (#244)
+
 ## v0.449.34 (2025-05-15)
 
 ### Fix
