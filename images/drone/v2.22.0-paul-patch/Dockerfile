@@ -15,7 +15,7 @@ WORKDIR /drone-ui
 
 RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
 
-COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
+COPY --from=builder /go/src/github.com/harness/drone/drone-ui/ .
 
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
