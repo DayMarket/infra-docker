@@ -55,4 +55,4 @@ WORKDIR /app
 
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
 
-ENTRYPOINT ["/bin/drone-server"]
+ENTRYPOINT ["./drone-server"]
