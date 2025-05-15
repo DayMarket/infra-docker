@@ -27,7 +27,12 @@ export default function Home() {
   const { hasSyncReqFiredOff, isError: syncError } = useSyncAccount(shouldStartSync);
   const { isSynced, isSyncing, isError: viewerError } = useViewer({ withPolling: hasSyncReqFiredOff });
 
-  const { repos, error, reload, reloadOnce } = useStore();
+  const {
+    repos,
+    error,
+    reload,
+    reloadOnce
+  } = useStore();
   const data = repos ? Object.values(repos) : undefined;
   const isLoading = !data && !error;
 
@@ -37,21 +42,9 @@ export default function Home() {
   useEffect(() => reloadOnce(), [reloadOnce]);
   useCustomTitle();
 
-  const filtered = useMemo(
-    () =>
-      data?.filter(repo => repo.slug.includes(filter)) ?? [],
-    [data, filter],
-  );
+  const filtered = useMemo(() => data?.filter(repo => repo.slug.includes(filter)) ?? [], [data, filter]);
 
-  const recent = useMemo(
-    () =>
-      data
-        ?.slice(0)
-        .sort(byBuildCreatedAtDesc)
-        .filter(repo => repo.build)
-        .slice(0, 6) ?? [],
-    [data],
-  );
+  const recent = useMemo(() => data?.slice(0).sort(byBuildCreatedAtDesc).filter(repo => repo.build).slice(0, 6) ?? [], [data]);
 
   useEffect(() => {
     if (syncError || viewerError) {
