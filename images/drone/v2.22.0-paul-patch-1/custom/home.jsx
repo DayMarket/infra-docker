@@ -48,15 +48,14 @@ export default function Home() {
   useCustomTitle();
 
   const filtered = useMemo(() => data
-        ?.filter(repo => repo.slug.includes(filter)) ?? [], [data, filter]);
+    ?.filter(repo => repo.slug.includes(filter)) ?? [], [data, filter]);
 
   const recent = useMemo(() => data
-        ?.slice(0)
-        .sort(byBuildCreatedAtDesc)
-        .filter(repo => repo.build)
-        .slice(0, 6) ?? [],
-    [data],
-  );
+    ?.slice(0)
+    .sort(byBuildCreatedAtDesc)
+    .filter(repo => repo.build)
+    .slice(0, 6) ?? [],
+  [data],);
 
   useEffect(() => {
     if (syncError || viewerError) {
