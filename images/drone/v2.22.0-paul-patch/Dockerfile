@@ -5,15 +5,21 @@ FROM golang:1.18 AS builder
 WORKDIR /go/src/github.com/harness/drone
 
 RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . && \
-    git clone --single-branch --branch v2.10.0 --depth 1 https://github.com/drone/drone-ui.git ./drone-ui
+    git clone --single-branch --branch v2.12.0 --depth 1 https://github.com/drone/drone-ui.git ./drone-ui
 
 # ------------------------------------------
 # Stage 2: build frontend
 # ------------------------------------------
 FROM node:14-slim AS drone-ui-build
 WORKDIR /drone-ui
-COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
+
 RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
+
+COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
+
+# Фикс swiper (официальный workaround)
+RUN npm install swiper
+
 RUN rm -rf node_modules yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
@@ -26,6 +32,7 @@ FROM golang:1.18 AS backend
 WORKDIR /go/src/github.com/harness/drone
 
 COPY --from=builder /go/src/github.com/harness/drone .
+
 COPY --from=drone-ui-build /drone-ui/build ./static
 
 ENV GOOS=linux
