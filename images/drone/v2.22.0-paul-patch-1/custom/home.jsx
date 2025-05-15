@@ -1,11 +1,6 @@
 import classNames from 'classnames/bind';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useContext,
-} from 'react';
+import React, { useEffect, useState, useMemo, useContext,} from 'react';
 import Repos from 'components/pages/home/repos';
 import ReposRecent from 'components/pages/home/repos-recent';
 import Button from 'components/shared/button';
