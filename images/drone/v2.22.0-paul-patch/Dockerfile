@@ -5,7 +5,7 @@ FROM golang:1.18 AS builder
 WORKDIR /go/src/github.com/harness/drone
 
 RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . && \
-    git clone --single-branch --branch v2.9.0 --depth 1 https://github.com/drone/drone-ui.git ./drone-ui
+    git clone --single-branch --branch v2.10.1 --depth 1 https://github.com/drone/drone-ui.git ./drone-ui
 
 # ------------------------------------------
 # Stage 2: build frontend
