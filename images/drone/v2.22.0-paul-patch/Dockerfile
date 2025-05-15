@@ -17,8 +17,7 @@ RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/pyth
 
 COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
 
-# Фикс swiper (официальный workaround)
-RUN npm install swiper
+RUN sed -i '/@monaco-editor\\/react/d;/MonacoEditor/d' src/pages/Settings.js
 
 RUN rm -rf node_modules yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
