@@ -1,6 +1,11 @@
 import classNames from 'classnames/bind';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import React, { useEffect, useState, useMemo, useContext } from 'react';
+import React, { 
+  useEffect, 
+  useState, 
+  useMemo, 
+  useContext 
+} from 'react';
 import Repos from 'components/pages/home/repos';
 import ReposRecent from 'components/pages/home/repos-recent';
 import Button from 'components/shared/button';
@@ -28,7 +33,12 @@ export default function Home() {
   const { hasSyncReqFiredOff, isError: syncError } = useSyncAccount(shouldStartSync);
   const { isSynced, isSyncing, isError: viewerError } = useViewer({ withPolling: hasSyncReqFiredOff });
 
-  const { repos, error, reload, reloadOnce } = useStore();
+  const { 
+    repos, 
+    error, 
+    reload, 
+    reloadOnce 
+  } = useStore();
   const data = repos ? Object.values(repos) : undefined;
   const isLoading = !data && !error;
 
