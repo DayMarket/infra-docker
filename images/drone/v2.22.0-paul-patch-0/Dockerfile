@@ -12,6 +12,7 @@ COPY custom/repos.go /go/src/github.com/harness/drone/handler/api/user/repos.go
 # ------------------------------------------
 # Stage 2: build frontend
 # ------------------------------------------
+
 FROM node:14-slim AS drone-ui-build
 WORKDIR /drone-ui
 

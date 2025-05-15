@@ -32,16 +32,26 @@ func HandleRepos(repos core.RepositoryStore) http.HandlerFunc {
 		var list []*core.Repository
 		var err error
 
-		// ✅ ПАТЧ:
-		// Всегда используем List, игнорируем latest=true
-		list, err = repos.List(r.Context(), viewer.ID)
+		// NEW LOGIC: accelerate loading for all=false or latest=true + all=false
+		all := r.FormValue("all")
+		latest := r.FormValue("latest")
+
+		if all == "false" {
+			list, err = repos.List(r.Context(), viewer.ID)
+		} else if latest == "true" && all == "false" {
+			list, err = repos.List(r.Context(), viewer.ID)
+		} else if latest == "true" {
+			list, err = repos.ListLatest(r.Context(), viewer.ID)
+		} else {
+			list, err = repos.List(r.Context(), viewer.ID)
+		}
 
 		if err != nil {
 			render.InternalError(w, err)
 			logger.FromRequest(r).WithError(err).
 				Debugln("api: cannot list repositories")
-		} else {
-			render.JSON(w, list, 200)
+			return
 		}
+		render.JSON(w, list, 200)
 	}
 }
