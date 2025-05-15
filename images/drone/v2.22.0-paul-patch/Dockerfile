@@ -19,7 +19,7 @@ COPY --from=builder /go/src/github.com/harness/drone/drone-ui .
 
 RUN npm install swiper
 
-RUN cd /drone-ui && yarn remove @monaco-editor/react
+RUN cd /drone-ui && npm uninstall @monaco-editor/react
 
 RUN rm -rf node_modules yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
