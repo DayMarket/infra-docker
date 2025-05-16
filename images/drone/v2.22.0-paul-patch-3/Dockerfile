@@ -33,7 +33,8 @@ RUN yarn add react-infinite-scroll-component
 RUN echo "=== CHECK home.jsx ===" && grep UZUM src/pages/home/home.jsx || echo "NO CUSTOM FILE"
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
-    yarn build && \
+    yarn build
+RUN grep UZUM dist/files/static/js/*.js || echo "NO UZUM IN BUNDLE" && \
     mkdir -p ./dist && \
     mv ./build ./dist/files || mkdir -p ./dist/files
 
