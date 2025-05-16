@@ -21,6 +21,7 @@ const CHUNK_SIZE = 20;
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 
 export default function Welcome() {
+  console.log('>>> CUSTOM WELCOME JSX ACTIVE');
   const [context, setContext] = useContext(AppContext);
   const [shouldStartSync, setShouldStartSync] = useState(context.isAccSyncing);
   const { showError } = useToast();
