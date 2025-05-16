@@ -35,7 +35,7 @@ RUN rm -rf node_modules .cache dist yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build && \
     mkdir -p ./dist && \
-    mv ./build ./dist/files
+    [ -d build ] && mv ./build ./dist/files || echo "build/ not found, skipping move"
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
