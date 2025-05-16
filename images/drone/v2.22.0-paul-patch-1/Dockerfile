@@ -8,7 +8,7 @@ RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harn
     git clone --single-branch --branch v2.12.0 --depth 1 https://github.com/drone/drone-ui.git ./drone-ui
 
 COPY custom/repos.go /go/src/github.com/harness/drone/handler/api/user/repos.go
-COPY custom/home.jsx src/pages/home/home.jsx
+
 # ------------------------------------------
 # Stage 2: build frontend
 # ------------------------------------------

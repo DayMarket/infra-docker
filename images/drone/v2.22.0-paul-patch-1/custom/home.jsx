@@ -33,6 +33,7 @@ export default function Home() {
     reload,
     reloadOnce
   } = useStore();
+  console.log('>>> UZUM CUSTOM home.jsx ACTIVE <<<');
   const data = repos ? Object.values(repos) : undefined;
   const isLoading = !data && !error;
 
