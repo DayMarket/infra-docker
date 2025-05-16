@@ -50,7 +50,7 @@ COPY --from=builder /go/src/github.com/harness/drone /go/src/github.com/harness/
 COPY --from=drone-ui-build /drone-ui/dist/files ./static
 
 ENV GOOS=linux
-
+RUN go mod edit -droprequire github.com/drone/drone-ui || true
 RUN go mod tidy && \
     go build -tags nolimit -ldflags='-extldflags=-static' -o release/linux/amd64/drone-server ./cmd/drone-server
 
