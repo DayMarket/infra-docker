@@ -15,9 +15,9 @@ COPY custom/repos.go /go/src/github.com/harness/drone/handler/api/user/repos.go
 
 FROM node:14-slim AS drone-ui-build
 WORKDIR /drone-ui
-RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git .
-RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
 
+RUN apt-get update && apt-get install -y git python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
+RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git .
 COPY --from=builder /go/src/github.com/harness/drone/drone-ui/ .
 
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
