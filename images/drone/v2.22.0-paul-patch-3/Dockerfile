@@ -1,6 +1,7 @@
 # ------------------------------------------
 # Stage 1: clone backend + drone-ui
 # ------------------------------------------
+
 FROM golang:1.18 AS builder
 WORKDIR /go/src/github.com/harness/drone
 
@@ -34,7 +35,7 @@ RUN yarn add react-infinite-scroll-component
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile
 
-RUN yarn build && mkdir -p dist/files && cp -r build/* dist/files/
+RUN yarn build && rm -rf ./dist/files && mv ./build ./dist/files
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
