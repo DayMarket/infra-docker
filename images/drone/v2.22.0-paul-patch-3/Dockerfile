@@ -33,7 +33,8 @@ RUN yarn add react-infinite-scroll-component
 
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
-    yarn build
+    yarn build && \
+    mv build dist/files
 
 RUN mkdir -p ./dist/files && \
     cp -r ./dist/* ./dist/files/
