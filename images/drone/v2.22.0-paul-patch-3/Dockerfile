@@ -36,8 +36,6 @@ RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
 
 RUN echo "[DEBUG] ls -la after build:" && ls -la && echo "[DEBUG] ls dist:" && ls -la dist || echo "NO dist"
 
-RUN mkdir -p dist/files && cp -r build/* dist/files/
-
 RUN grep UZUM dist/files/static/js/*.js || echo "NO UZUM"
 
 # ------------------------------------------
