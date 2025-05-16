@@ -27,7 +27,12 @@ export default function Welcome() {
   const { hasSyncReqFiredOff, isError: syncError } = useSyncAccount(shouldStartSync);
   const { isSynced, isSyncing, isError: viewerError } = useViewer({ withPolling: hasSyncReqFiredOff });
 
-  const { repos, error, reload, reloadOnce } = useStore();
+  const {
+    repos,
+    error,
+    reload,
+    reloadOnce
+  } = useStore();
   const data = repos ? Object.values(repos) : undefined;
   const isLoading = !data && !error;
 
@@ -49,14 +54,10 @@ export default function Welcome() {
     );
   }, [data, filter]);
 
-  const sorted = useMemo(
-    () =>
-      filtered
-        .slice()
-        .sort(byBuildCreatedAtDesc)
-        .slice(0, itemsToShow),
-    [filtered, itemsToShow],
-  );
+  const sorted = useMemo(() => {
+    return filtered.slice().sort(byBuildCreatedAtDesc).slice(0, itemsToShow);
+  }, [filtered, itemsToShow]);
+  
 
   useEffect(() => {
     if (syncError || viewerError) {
