@@ -46,6 +46,7 @@ FROM golang:1.18 AS backend
 
 WORKDIR /go/src/github.com/harness/drone
 
+COPY --from=builder /go/src/github.com/harness/drone /go/src/github.com/harness/drone
 COPY --from=drone-ui-build /drone-ui/dist/files ./static
 
 ENV GOOS=linux
