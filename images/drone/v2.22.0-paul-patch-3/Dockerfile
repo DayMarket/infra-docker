@@ -6,7 +6,7 @@ FROM golang:1.18 AS builder
 WORKDIR /go/src/github.com/harness/drone
 
 RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . 
-
+RUN rm -rf ./drone-ui
 COPY custom/repos.go /go/src/github.com/harness/drone/handler/api/user/repos.go
 
 # ------------------------------------------
@@ -33,6 +33,8 @@ RUN yarn add react-infinite-scroll-component
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
+
+RUN mkdir -p dist/files && cp -r build/* dist/files/
 
 RUN grep UZUM dist/files/static/js/*.js || echo "NO UZUM"
 
