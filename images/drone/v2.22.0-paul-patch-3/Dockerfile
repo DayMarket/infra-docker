@@ -8,6 +8,9 @@ WORKDIR /go/src/github.com/harness/drone
 RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . 
 RUN rm -rf ./drone-ui
 COPY custom/repos.go /go/src/github.com/harness/drone/handler/api/user/repos.go
+COPY custom/web.go /go/src/github.com/harness/drone/handler/web/web.go
+COPY custom/logout.go /go/src/github.com/harness/drone/handler/web/logout.go
+COPY custom/pages.go /go/src/github.com/harness/drone/handler/web/pages.go
 
 # ------------------------------------------
 # Stage 2: build frontend
@@ -50,8 +53,7 @@ COPY --from=builder /go/src/github.com/harness/drone /go/src/github.com/harness/
 COPY --from=drone-ui-build /drone-ui/dist/files ./static
 
 ENV GOOS=linux
-RUN go mod edit -replace github.com/drone/drone-ui=example.com/null@v0.0.0 && \
-    go mod edit -droprequire github.com/drone/drone-ui || true
+
 RUN go mod tidy && \
     go build -tags nolimit -ldflags='-extldflags=-static' -o release/linux/amd64/drone-server ./cmd/drone-server
 
