@@ -30,6 +30,7 @@ RUN cd /drone-ui && npm uninstall @monaco-editor/react
 ENV CI=false
 RUN yarn add react-infinite-scroll-component
 
+RUN echo "=== CHECK home.jsx ===" && grep UZUM src/pages/home/home.jsx || echo "NO CUSTOM FILE"
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build && \
@@ -44,8 +45,8 @@ FROM golang:1.18 AS backend
 
 WORKDIR /go/src/github.com/harness/drone
 
-COPY --from=builder /go/src/github.com/harness/drone .
 COPY --from=drone-ui-build /drone-ui/dist/files ./static
+COPY --from=builder /go/src/github.com/harness/drone .
 
 ENV GOOS=linux
 
