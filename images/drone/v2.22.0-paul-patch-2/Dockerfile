@@ -31,10 +31,10 @@ RUN cd /drone-ui && npm uninstall @monaco-editor/react
 ENV CI=false
 RUN yarn add react-infinite-scroll-component
 
-RUN rm -rf node_modules .cache build dist yarn.lock package-lock.json && \
+RUN rm -rf node_modules .cache dist yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build && \
-    mkdir -p ./dist/files && \
+    mkdir -p ./dist && \
     mv ./build ./dist/files
 
 # ------------------------------------------
