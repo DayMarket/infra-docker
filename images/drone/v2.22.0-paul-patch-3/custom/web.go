@@ -15,9 +15,15 @@
 package web
 
 import (
+	"bytes"
+	"crypto/md5"
+	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/drone/drone-ui/dist"
 	"github.com/drone/drone/core"
+
 	"github.com/drone/drone/handler/web/link"
 	"github.com/drone/drone/logger"
 	"github.com/drone/go-login/login"
@@ -130,15 +136,12 @@ func (s Server) Handler() http.Handler {
 	r.Get("/logout", HandleLogout())
 	r.Post("/logout", HandleLogout())
 
-	// Fallbacks
-	h := http.FileServer(http.Dir("./static"))
+	h := http.FileServer(dist.New())
 	h = setupCache(h)
 	r.Handle("/favicon.png", h)
 	r.Handle("/manifest.json", h)
 	r.Handle("/asset-manifest.json", h)
 	r.Handle("/static/*filepath", h)
-
-	// Index fallback
 	r.NotFound(HandleIndex(s.Host, s.Session, s.Licenses))
 
 	return r
@@ -146,16 +149,52 @@ func (s Server) Handler() http.Handler {
 
 func HandleIndex(host string, session core.Session, license core.LicenseService) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
+		user, _ := session.Get(r)
+		if user == nil && r.URL.Path == "/" {
+			http.Redirect(rw, r, "/welcome", 303)
+			return
+		}
+
+		content, err := dist.Lookup("/index.html")
+		if err != nil {
+			http.Error(rw, "Drone UI is unavailable", http.StatusServiceUnavailable)
+			return
+		}
+
+		ctx := r.Context()
+
+		if ok, _ := license.Exceeded(ctx); ok {
+			content = bytes.Replace(content, head, exceeded, 1)
+		} else if license.Expired(ctx) {
+			content = bytes.Replace(content, head, expired, 1)
+		}
+
 		rw.Header().Set("Content-Type", "text/html; charset=UTF-8")
 		rw.WriteHeader(http.StatusOK)
-		_, _ = rw.Write([]byte(`<!DOCTYPE html>
-<html lang="en">
-  <head><meta charset="UTF-8"><title>Drone</title></head>
-  <body><h1>Drone UI is unavailable</h1></body>
-</html>`))
+		_, _ = rw.Write(content)
 	}
 }
 
+var (
+	head     = []byte(`<head>`)
+	expired  = []byte(`<head><script>window.LICENSE_EXPIRED=true</script>`)
+	exceeded = []byte(`<head><script>window.LICENSE_LIMIT_EXCEEDED=true</script>`)
+)
+
 func setupCache(h http.Handler) http.Handler {
-	return h
+	data := []byte(time.Now().String())
+	etag := fmt.Sprintf("%x", md5.Sum(data))
+
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", "public, max-age=31536000")
+			w.Header().Del("Expires")
+			w.Header().Del("Pragma")
+			w.Header().Set("ETag", etag)
+			h.ServeHTTP(w, r)
+		},
+	)
 }
+
+var landingPage = `
+`
