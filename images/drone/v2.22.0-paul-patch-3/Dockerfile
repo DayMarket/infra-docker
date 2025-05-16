@@ -33,7 +33,7 @@ RUN yarn add react-infinite-scroll-component
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
-RUN mv build dist/files
+
 RUN grep UZUM dist/files/static/js/*.js || echo "NO UZUM"
 
 # ------------------------------------------
