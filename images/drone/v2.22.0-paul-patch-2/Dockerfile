@@ -34,8 +34,8 @@ RUN yarn add react-infinite-scroll-component
 RUN rm -rf node_modules .cache dist yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build && \
-    mkdir -p ./dist && \
-    [ -d build ] && cp -Rf build ./dist/files || echo "build/ not found, skipping copy"
+    mkdir -p ./dist/files && \
+    cp -r ./build/* ./dist/files/
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
