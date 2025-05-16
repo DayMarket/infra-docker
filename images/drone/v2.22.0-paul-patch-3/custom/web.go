@@ -29,28 +29,6 @@ import (
 	"github.com/unrolled/secure"
 )
 
-// Server is a http.Handler which exposes drone functionality over HTTP.
-type Server struct {
-	Admitter  core.AdmissionService
-	Builds    core.BuildStore
-	Client    *scm.Client
-	Hooks     core.HookParser
-	License   *core.License
-	Licenses  core.LicenseService
-	Linker    core.Linker
-	Login     login.Middleware
-	Repos     core.RepositoryStore
-	Session   core.Session
-	Syncer    core.Syncer
-	Triggerer core.Triggerer
-	Users     core.UserStore
-	Userz     core.UserService
-	Webhook   core.WebhookSender
-	Options   secure.Options
-	Host      string
-}
-
-// New returns a new http server.
 func New(
 	admitter core.AdmissionService,
 	builds core.BuildStore,
@@ -89,6 +67,27 @@ func New(
 		Options:   options,
 		Host:      system.Host,
 	}
+}
+
+// Server is a http.Handler which exposes drone functionality over HTTP.
+type Server struct {
+	Admitter  core.AdmissionService
+	Builds    core.BuildStore
+	Client    *scm.Client
+	Hooks     core.HookParser
+	License   *core.License
+	Licenses  core.LicenseService
+	Linker    core.Linker
+	Login     login.Middleware
+	Repos     core.RepositoryStore
+	Session   core.Session
+	Syncer    core.Syncer
+	Triggerer core.Triggerer
+	Users     core.UserStore
+	Userz     core.UserService
+	Webhook   core.WebhookSender
+	Options   secure.Options
+	Host      string
 }
 
 // Handler returns an http.Handler
@@ -131,7 +130,32 @@ func (s Server) Handler() http.Handler {
 	r.Get("/logout", HandleLogout())
 	r.Post("/logout", HandleLogout())
 
+	// Fallbacks
+	h := http.FileServer(http.Dir("./static"))
+	h = setupCache(h)
+	r.Handle("/favicon.png", h)
+	r.Handle("/manifest.json", h)
+	r.Handle("/asset-manifest.json", h)
+	r.Handle("/static/*filepath", h)
+
+	// Index fallback
 	r.NotFound(HandleIndex(s.Host, s.Session, s.Licenses))
 
 	return r
+}
+
+func HandleIndex(host string, session core.Session, license core.LicenseService) http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set("Content-Type", "text/html; charset=UTF-8")
+		rw.WriteHeader(http.StatusOK)
+		_, _ = rw.Write([]byte(`<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8"><title>Drone</title></head>
+  <body><h1>Drone UI is unavailable</h1></body>
+</html>`))
+	}
+}
+
+func setupCache(h http.Handler) http.Handler {
+	return h
 }
