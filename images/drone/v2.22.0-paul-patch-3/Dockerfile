@@ -36,9 +36,6 @@ RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
 
 RUN yarn build && mkdir -p dist/files && cp -r build/* dist/files/
 
-RUN mkdir -p ./dist/files && \
-    cp -r ./dist/* ./dist/files/
-
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
 # ------------------------------------------
