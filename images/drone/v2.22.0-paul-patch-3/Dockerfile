@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/pyth
 COPY --from=builder /go/src/github.com/harness/drone/drone-ui/ .
 
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
+COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
 
 RUN npm install swiper
@@ -34,6 +35,7 @@ RUN echo "=== CHECK home.jsx ===" && grep UZUM src/pages/home/home.jsx || echo "
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
+
 RUN grep UZUM dist/files/static/js/*.js || echo "NO UZUM IN BUNDLE" && \
     mkdir -p ./dist && \
     mv ./build ./dist/files || mkdir -p ./dist/files
@@ -69,4 +71,3 @@ ENV GODEBUG netdns=go
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
 
 ENTRYPOINT ["./drone-server"]
-    
