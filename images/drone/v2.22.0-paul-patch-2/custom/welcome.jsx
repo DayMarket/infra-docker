@@ -57,7 +57,7 @@ export default function Welcome() {
   const sorted = useMemo(() => {
     return filtered.slice().sort(byBuildCreatedAtDesc).slice(0, itemsToShow);
   }, [filtered, itemsToShow]);
-  
+
 
   useEffect(() => {
     if (syncError || viewerError) {
