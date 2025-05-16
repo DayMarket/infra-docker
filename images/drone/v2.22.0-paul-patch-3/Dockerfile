@@ -33,9 +33,8 @@ ENV CI=false
 RUN yarn add react-infinite-scroll-component
 
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
-    yarn install --frozen-lockfile
-
-RUN yarn build && rm -rf ./dist/files && mv ./build ./dist/files
+    yarn install --frozen-lockfile && \
+    yarn build 
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
