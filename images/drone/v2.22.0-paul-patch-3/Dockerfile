@@ -35,11 +35,8 @@ RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
 
-RUN grep UZUM dist/files/static/js/*.js || echo "NO UZUM IN BUNDLE" && \
-    mkdir -p ./dist
-
-RUN echo "=== FILES ===" && ls -la && ls -la build || echo "NO BUILD DIR" && \
-    mv ./build ./dist/files || mkdir -p ./dist/files
+RUN mkdir -p ./dist/files && \
+    cp -r ./dist/* ./dist/files/
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
