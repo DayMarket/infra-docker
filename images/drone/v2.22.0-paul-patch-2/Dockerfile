@@ -17,11 +17,12 @@ FROM node:14-slim AS drone-ui-build
 WORKDIR /drone-ui
 
 RUN apt-get update && apt-get install -y python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
-COPY custom/welcome.jsx src/pages/welcome/welcome.jsx
+
 COPY --from=builder /go/src/github.com/harness/drone/drone-ui/ .
 
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
+COPY custom/welcome.jsx src/pages/welcome/welcome.jsx
 
 RUN npm install swiper
 
@@ -29,7 +30,8 @@ RUN cd /drone-ui && npm uninstall @monaco-editor/react
 
 ENV CI=false
 RUN yarn add react-infinite-scroll-component
-RUN rm -rf node_modules yarn.lock package-lock.json && \
+
+RUN rm -rf node_modules .cache build dist yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
 
