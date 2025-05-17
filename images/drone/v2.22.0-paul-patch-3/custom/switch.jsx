@@ -11,6 +11,7 @@ export default function Switch({
   label = '',
 }) {
   const id = `switch-${Math.random().toString(36).substring(2, 8)}`;
+  const ariaLabel = label || 'Toggle switch';
 
   return (
     <div className={cx('switch-wrapper', className)}>
@@ -22,8 +23,15 @@ export default function Switch({
         checked={checked}
         onChange={event => onChange(event.target.checked)}
       />
-      <label htmlFor={id} className="switch-slider" />
-      {label && <label htmlFor={id} className="switch-label">{label}</label>}
+      <label
+        htmlFor={id}
+        className="switch-slider"
+        aria-label={ariaLabel}
+        title={ariaLabel}
+      />
+      {label && (
+        <span className="switch-label">{label}</span>
+      )}
     </div>
   );
 }
