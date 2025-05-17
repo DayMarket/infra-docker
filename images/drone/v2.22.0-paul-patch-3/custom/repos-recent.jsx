@@ -29,19 +29,18 @@ const ReposRecent = ({ repos, fetchNextPage, hasMore }) => (
             <div style={{ fontSize: '0.875rem', color: '#666' }}>
               {repo.build ? (
                 <>
-                  Last build: #
+                  <span>Last build: #</span>
                   {repo.build.number}
-                  {' '}
-                  (
+                  <span>{' ('}</span>
                   {repo.build.status}
-                  )
+                  <span>{')'}</span>
                 </>
               ) : (
                 <>No recent builds</>
               )}
               <span>{' — '}</span>
               <span>Updated:</span>
-              {' '}
+              <span>{' '}</span>
               {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
             </div>
           </li>
