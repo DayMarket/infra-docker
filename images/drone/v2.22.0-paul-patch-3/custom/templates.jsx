@@ -15,7 +15,7 @@ import { ReactComponent as EditIcon } from 'svg/edit.svg';
 import { ReactComponent as TrashIcon } from 'svg/trash.svg';
 import { axiosWrapper } from 'utils';
 
-//import styles from './templates.module.scss';
+// import styles from './templates.module.scss';
 
 const cx = classNames.bind(styles);
 
