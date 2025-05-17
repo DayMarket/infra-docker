@@ -64,6 +64,9 @@ RUN rm -f web/dist.go web/dist_gen.go && \
 
 FROM alpine:3.11
 
+RUN apk update && apk add --no-cache curl ca-certificates && \
+    echo 'text/css css;\napplication/javascript js;' > /etc/mime.types
+
 EXPOSE 80 443
 
 VOLUME /data
@@ -79,9 +82,6 @@ ENV DRONE_RUNNER_ARCH amd64
 ENV DRONE_SERVER_PORT :80
 ENV DRONE_SERVER_HOST localhost
 ENV DRONE_DATADOG_ENABLED false
-
-RUN apk add --no-cache wget && \
-    wget -qO /etc/mime.types https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
 
 COPY --from=backend /static /static
 
