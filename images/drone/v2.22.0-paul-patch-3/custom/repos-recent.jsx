@@ -14,16 +14,21 @@ export default function ReposRecent({ repos }) {
             <div className="recent-repos-meta">
               {repo.build ? (
                 <>
-                  Last build:
-                  <span> #{repo.build.number}</span>
-                  <span> (</span>
+                  <span>Last build:</span>
+                  <span> </span>
+                  <span>#</span>
+                  <span>{repo.build.number}</span>
+                  <span> </span>
+                  <span>(</span>
                   <span>{repo.build.status}</span>
                   <span>)</span>
                 </>
               ) : (
-                <>No recent builds</>
+                <span>No recent builds</span>
               )}
-              <span> — </span>
+              <span> </span>
+              <span>—</span>
+              <span> </span>
               <span>{format(repo.updated)}</span>
             </div>
           </li>
