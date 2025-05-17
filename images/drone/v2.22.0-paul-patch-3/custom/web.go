@@ -1,11 +1,9 @@
 package web
 
 import (
-	"bytes"
 	"crypto/md5"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/drone/drone/core"
@@ -60,7 +58,6 @@ func New(
 	}
 }
 
-// Server is a http.Handler which exposes drone functionality over HTTP.
 type Server struct {
 	Admitter  core.AdmissionService
 	Builds    core.BuildStore
@@ -81,7 +78,6 @@ type Server struct {
 	Host      string
 }
 
-// Handler returns an http.Handler
 func (s Server) Handler() http.Handler {
 	r := chi.NewRouter()
 	m := chiprometheus.NewMiddleware("web")
@@ -118,13 +114,23 @@ func (s Server) Handler() http.Handler {
 			),
 		),
 	)
+
 	r.Get("/logout", HandleLogout())
 	r.Post("/logout", HandleLogout())
 
+	// Cтатика
 	fs := http.FileServer(http.Dir("/static"))
 	fs = setupCache(fs)
+	r.Handle("/favicon.png", fs)
+	r.Handle("/manifest.json", fs)
+	r.Handle("/asset-manifest.json", fs)
+	r.Handle("/robots.txt", fs)
+	r.Handle("/static/*", fs)
 
-	r.NotFound(HandleIndex(s.Host))
+	// Всё остальное — index.html
+	r.NotFound(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "/static/index.html")
+	}))
 
 	return r
 }
@@ -133,36 +139,11 @@ func setupCache(h http.Handler) http.Handler {
 	data := []byte(time.Now().String())
 	etag := fmt.Sprintf("%x", md5.Sum(data))
 
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Cache-Control", "public, max-age=31536000")
-			w.Header().Del("Expires")
-			w.Header().Del("Pragma")
-			w.Header().Set("ETag", etag)
-			h.ServeHTTP(w, r)
-		},
-	)
-}
-
-func HandleIndex(host string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		indexBytes, err := os.ReadFile("/static/index.html")
-		if err != nil {
-			http.Error(w, "index.html not found", http.StatusInternalServerError)
-			return
-		}
-
-		// Вставляем window.DRONE_* перед </head>
-		patch := fmt.Sprintf(`<script>
-window.DRONE_SERVER="%s";
-window.DRONE_SERVER_HOST="%s";
-window.DRONE_SERVER_PORT="80";
-window.DRONE_RPC_PROTO="http";
-</script></head>`, host, host)
-
-		modified := bytes.Replace(indexBytes, []byte("</head>"), []byte(patch), 1)
-
-		w.Header().Set("Content-Type", "text/html")
-		w.Write(modified)
-	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=31536000")
+		w.Header().Del("Expires")
+		w.Header().Del("Pragma")
+		w.Header().Set("ETag", etag)
+		h.ServeHTTP(w, r)
+	})
 }
