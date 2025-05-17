@@ -1,42 +1,26 @@
+// custom/repos-recent.jsx
+
 import React from 'react';
+import timeago from 'timeago.js';
 
 export default function ReposRecent({ repos }) {
   return (
     <div className="recent-repos">
-      {repos.length === 0 ? (
-        <p>No recent repositories.</p>
-      ) : (
-        <ul className="repo-list">
-          {repos.map(repo => (
-            <li key={repo.id} className="repo-item">
-              <div className="repo-name">
-                <a href={`/${repo.namespace}/${repo.name}`}>
-                  {repo.namespace}
-                  {' / '}
-                  {repo.name}
-                </a>
-              </div>
-              <div className="repo-meta">
-                {repo.build ? (
-                  <>
-                    {'Last build: #'}
-                    {repo.build.number}
-                    {' ('}
-                    {repo.build.status}
-                    {')'}
-                  </>
-                ) : (
-                  'No recent builds'
-                )}
-                {' — '}
-                <span>Updated:</span>
-                {' '}
-                {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <h2 className="recent-repos-title">Recent Repositories</h2>
+      <ul className="recent-repos-list">
+        {repos.map(repo => (
+          <li key={repo.slug} className="recent-repos-item">
+            <a href={`/${repo.slug}`} className="recent-repos-link">
+              {repo.name}
+              {' '}
+              ({repo.build.status})
+            </a>
+            <span className="recent-repos-meta">
+              {repo.build.event} — {timeago().format(repo.updated)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
