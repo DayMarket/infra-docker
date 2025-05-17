@@ -10,12 +10,22 @@ export default function ReposRecent({ repos }) {
           <li key={repo.slug} className="recent-repos-item">
             <a href={`/${repo.slug}`} className="recent-repos-link">
               {repo.name}
-              {' '}
-              ({repo.build.status})
             </a>
-            <span className="recent-repos-meta">
-              {repo.build.event} — {format(repo.updated)}
-            </span>
+            <div className="recent-repos-meta">
+              {repo.build ? (
+                <>
+                  Last build:
+                  <span> #{repo.build.number}</span>
+                  <span> (</span>
+                  <span>{repo.build.status}</span>
+                  <span>)</span>
+                </>
+              ) : (
+                <>No recent builds</>
+              )}
+              <span> — </span>
+              <span>{format(repo.updated)}</span>
+            </div>
           </li>
         ))}
       </ul>
