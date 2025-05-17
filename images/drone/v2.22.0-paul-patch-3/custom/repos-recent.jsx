@@ -13,12 +13,14 @@ export default function ReposRecent({ repos }) {
             </a>
           </div>
           <div className={styles.repoMeta}>
-            {repo.build
-              ? `Last build: #${repo.build.number} (${repo.build.status})`
-              : 'No recent builds'}
-            {' — '}
-            <span>Updated:</span>{' '}
-            {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
+            <div>
+              {repo.build
+                ? `Last build: #${repo.build.number} (${repo.build.status})`
+                : 'No recent builds'}
+            </div>
+            <div>
+              Updated: {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
+            </div>
           </div>
         </div>
       ))}
