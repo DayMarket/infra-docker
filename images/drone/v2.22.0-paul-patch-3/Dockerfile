@@ -28,7 +28,7 @@ COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
 COPY custom/repos-recent.jsx src/components/pages/home/repos-recent.jsx
 
-RUN yarn add swiper react-infinite-scroll-component yarn timeago.js
+RUN yarn add swiper react-infinite-scroll-component timeago.js
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build

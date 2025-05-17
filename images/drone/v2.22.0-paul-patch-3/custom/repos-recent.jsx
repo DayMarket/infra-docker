@@ -1,7 +1,5 @@
-// custom/repos-recent.jsx
-
 import React from 'react';
-import timeago from 'timeago.js';
+import { format } from 'timeago.js';
 
 export default function ReposRecent({ repos }) {
   return (
@@ -16,7 +14,7 @@ export default function ReposRecent({ repos }) {
               ({repo.build.status})
             </a>
             <span className="recent-repos-meta">
-              {repo.build.event} — {timeago().format(repo.updated)}
+              {repo.build.event} — {format(repo.updated)}
             </span>
           </li>
         ))}
