@@ -11,19 +11,26 @@ export default function ReposRecent({ repos }) {
             <li key={repo.id} className="repo-item">
               <div className="repo-name">
                 <a href={`/${repo.namespace}/${repo.name}`}>
-                  {repo.namespace} / {repo.name}
+                  {repo.namespace}
+                  {' / '}
+                  {repo.name}
                 </a>
               </div>
               <div className="repo-meta">
                 {repo.build ? (
                   <>
-                    Last build: #{repo.build.number} ({repo.build.status})
+                    {'Last build: #'}
+                    {repo.build.number}
+                    {' ('}
+                    {repo.build.status}
+                    {')'}
                   </>
                 ) : (
                   'No recent builds'
                 )}
                 {' — '}
-                <span>Updated:</span>{' '}
+                <span>Updated:</span>
+                {' '}
                 {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
               </div>
             </li>
