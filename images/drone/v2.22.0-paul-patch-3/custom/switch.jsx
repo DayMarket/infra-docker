@@ -1,50 +1,26 @@
-import classNames from 'classnames/bind';
-import PropTypes from 'prop-types';
 import React from 'react';
+import classNames from 'classnames/bind';
 
-import css from './switch.module.scss';
+const cx = classNames.bind({});
 
-const cx = classNames.bind(css);
-
-const Switch = (props) => {
-  const {
-    id, className, checked, onChange, children, disabled,
-  } = props;
+export default function Switch({
+  checked,
+  disabled,
+  onChange,
+  className = '',
+  label = '',
+}) {
   return (
-    <div className={cx('wrapper', className)}>
+    <label className={cx('wrapper', className)}>
       <input
-        className={cx('switch-input')}
-        id={id}
+        type="checkbox"
+        className="switch-input"
         disabled={disabled}
         checked={checked}
-        type="checkbox"
-        onChange={({ target: { checked: check } }) => onChange(check)}
+        onChange={event => onChange(event.target.checked)}
       />
-      <label className={cx('switch-label')} htmlFor={id}>
-        <span style={{ display: 'none' }}>Toggle Switch</span>
-        <i className={cx('switch-toggler')} />
-      </label>
-      {children && (
-        <span className={cx('switch-label-fake')}>{children}</span>
-      )}
-    </div>
+      <span className="switch-slider" />
+      {label && <span className="switch-label">{label}</span>}
+    </label>
   );
-};
-
-export default Switch;
-
-Switch.propTypes = {
-  checked: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
-  children: PropTypes.node,
-  id: PropTypes.string.isRequired,
-  disabled: PropTypes.bool,
-  className: PropTypes.string,
-};
-
-Switch.defaultProps = {
-  checked: false,
-  children: undefined,
-  disabled: false,
-  className: '',
-};
+}
