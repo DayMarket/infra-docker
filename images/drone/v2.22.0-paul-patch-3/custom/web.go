@@ -124,10 +124,11 @@ func (s Server) Handler() http.Handler {
 	fs := http.FileServer(http.Dir("/static"))
 	fs = setupCache(fs)
 
-	// Serve all other routes with index.html (SPA fallback)
-	r.NotFound(HandleIndex(fs, s.Host))
+	// Поддержка отдачи статики — корректный способ с chi
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("/static"))))
+	// SPA fallback
+	r.NotFound(HandleIndex(fs, s.Host))
 
 	return r
 }
@@ -149,13 +150,12 @@ func HandleIndex(fs http.Handler, host string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 
-		// Serve static assets directly (e.g. /static/*.js)
+		// Статические файлы напрямую
 		if strings.Contains(path, ".") || strings.HasPrefix(path, "/static/") {
 			fs.ServeHTTP(w, r)
 			return
 		}
 
-		// Serve index.html with injected window.DRONE_* variables
 		data, err := os.ReadFile("/static/index.html")
 		if err != nil {
 			http.Error(w, "index.html not found", http.StatusInternalServerError)
