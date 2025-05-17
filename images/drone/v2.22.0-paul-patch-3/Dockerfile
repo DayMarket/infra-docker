@@ -74,13 +74,13 @@ ENV GODEBUG netdns=go
 ENV XDG_CACHE_HOME /data
 ENV DRONE_DATABASE_DRIVER sqlite3
 ENV DRONE_DATABASE_DATASOURCE /data/database.sqlite
-ENV DRONE_RUNNER_OS=linux
-ENV DRONE_RUNNER_ARCH=amd64
-ENV DRONE_SERVER_PORT=:80
-ENV DRONE_SERVER_HOST=localhost
-ENV DRONE_DATADOG_ENABLED=false
+ENV DRONE_RUNNER_OS linux
+ENV DRONE_RUNNER_ARCH amd64
+ENV DRONE_SERVER_PORT :80
+ENV DRONE_SERVER_HOST localhost
+ENV DRONE_DATADOG_ENABLED false
 
-RUN RUN apk add --no-cache wget && \
+RUN apk add --no-cache wget && \
     wget -qO /etc/mime.types https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
 
 COPY --from=backend /static /static
