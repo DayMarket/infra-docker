@@ -71,7 +71,6 @@ VOLUME /data
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 ENV GODEBUG netdns=go
 
-COPY --from=backend /go/src/github.com/harness/drone/static /static
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
 
 ENTRYPOINT ["./drone-server"]
