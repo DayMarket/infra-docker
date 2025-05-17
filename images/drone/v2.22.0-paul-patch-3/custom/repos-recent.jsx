@@ -13,7 +13,14 @@ const ReposRecent = ({ repos, fetchNextPage, hasMore }) => (
     >
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {repos.map(repo => (
-          <li key={repo.id} style={{ marginBottom: '1rem', borderBottom: '1px solid #ccc', paddingBottom: '0.5rem' }}>
+          <li
+            key={repo.id}
+            style={{
+              marginBottom: '1rem',
+              borderBottom: '1px solid #ccc',
+              paddingBottom: '0.5rem',
+            }}
+          >
             <div style={{ fontWeight: 'bold' }}>
               {repo.owner}
               {' / '}
@@ -22,13 +29,19 @@ const ReposRecent = ({ repos, fetchNextPage, hasMore }) => (
             <div style={{ fontSize: '0.875rem', color: '#666' }}>
               {repo.build ? (
                 <>
-                  Last build: #{repo.build.number} ({repo.build.status})
+                  Last build: #
+                  {repo.build.number}
+                  {' '}
+                  (
+                  {repo.build.status}
+                  )
                 </>
               ) : (
-                'No recent builds'
+                <>No recent builds</>
               )}
               <span>{' — '}</span>
-              <span>Updated:</span>{' '}
+              <span>Updated:</span>
+              {' '}
               {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
             </div>
           </li>
