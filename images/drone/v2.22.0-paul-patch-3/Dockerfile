@@ -57,7 +57,7 @@ FROM golang:1.18 AS backend
 WORKDIR /go/src/github.com/harness/drone
 
 COPY --from=builder /go/src/github.com/harness/drone /go/src/github.com/harness/drone
-COPY --from=drone-ui-build /drone-ui/dist/files ./static
+COPY --from=drone-ui-build /drone-ui/dist ./static
 
 RUN echo "[STAGE 3] Contents of /static after COPY:" && ls -la /go/src/github.com/harness/drone/static || echo "/static not found"
 
@@ -78,6 +78,7 @@ VOLUME /data
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 ENV GODEBUG netdns=go
 
+COPY --from=backend /go/src/github.com/harness/drone/static /static
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
 
 RUN echo "[FINAL STAGE] Contents of root:" && ls -la / && echo "[FINAL STAGE] Check static folder:" && ls -la /static || echo "NO /static"
