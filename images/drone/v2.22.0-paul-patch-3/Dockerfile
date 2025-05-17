@@ -80,9 +80,11 @@ ENV DRONE_SERVER_PORT=:80
 ENV DRONE_SERVER_HOST=localhost
 ENV DRONE_DATADOG_ENABLED=false
 
-RUN wget -qO /etc/mime.types https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+RUN RUN apk add --no-cache wget && \
+    wget -qO /etc/mime.types https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
 
 COPY --from=backend /static /static
+
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
 
 ENTRYPOINT ["./drone-server"]
