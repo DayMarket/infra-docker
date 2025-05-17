@@ -121,7 +121,10 @@ func (s Server) Handler() http.Handler {
 
 	fs := http.FileServer(http.Dir("/static"))
 	fs = setupCache(fs)
-	r.NotFound(fs)
+
+	r.NotFound(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
+	}))
 
 	return r
 }
