@@ -10,7 +10,7 @@ RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harn
     rm -rf ./drone-ui && \
     rm -f ./handler/web/pages.go
 
-COPY custom/repos.go /go/src/github.com/harness/drone/handler/api/user/repos.go
+COPY custom/repos.go /go/src/github.com/harness/drone/handler/web/repos.go
 COPY custom/web.go /go/src/github.com/harness/drone/handler/web/web.go
 COPY custom/logout.go /go/src/github.com/harness/drone/handler/web/logout.go
 #COPY custom/pages.go /go/src/github.com/harness/drone/handler/web/pages.go
