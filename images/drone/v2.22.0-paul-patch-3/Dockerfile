@@ -28,6 +28,8 @@ RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git .
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
+COPY custom/repos-recent.jsx /go/src/github.com/harness/drone/drone-ui/src/components/pages/home/repos-recent.jsx
+COPY custom/repos-recent.module.scss /go/src/github.com/harness/drone/drone-ui/src/components/pages/home/repos-recent.module.scss
 
 RUN npm install swiper
 
@@ -39,10 +41,6 @@ RUN yarn add react-infinite-scroll-component
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
-
-RUN echo "[DEBUG] ls -la after build:" && ls -la && echo "[DEBUG] ls dist:" && ls -la dist || echo "NO dist"
-
-RUN grep UZUM dist/files/static/js/*.js || echo "NO UZUM"
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend

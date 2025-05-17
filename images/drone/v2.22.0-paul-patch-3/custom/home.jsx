@@ -13,8 +13,6 @@ import { useStore } from 'hooks/store';
 import { useViewer, useSyncAccount } from 'hooks/swr';
 import { byBuildCreatedAtDesc } from 'utils';
 
-import styles from './home.module.scss';
-
 const cx = classNames.bind(styles);
 const CHUNK_SIZE = 5;
 
