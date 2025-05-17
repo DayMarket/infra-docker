@@ -1,9 +1,11 @@
 package web
 
 import (
+	"bytes"
 	"crypto/md5"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/drone/drone/core"
@@ -122,9 +124,7 @@ func (s Server) Handler() http.Handler {
 	fs := http.FileServer(http.Dir("/static"))
 	fs = setupCache(fs)
 
-	r.NotFound(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fs.ServeHTTP(w, r)
-	}))
+	r.NotFound(HandleIndex(s.Host))
 
 	return r
 }
@@ -142,4 +142,27 @@ func setupCache(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 		},
 	)
+}
+
+func HandleIndex(host string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		indexBytes, err := os.ReadFile("/static/index.html")
+		if err != nil {
+			http.Error(w, "index.html not found", http.StatusInternalServerError)
+			return
+		}
+
+		// Вставляем window.DRONE_* перед </head>
+		patch := fmt.Sprintf(`<script>
+window.DRONE_SERVER="%s";
+window.DRONE_SERVER_HOST="%s";
+window.DRONE_SERVER_PORT="80";
+window.DRONE_RPC_PROTO="http";
+</script></head>`, host, host)
+
+		modified := bytes.Replace(indexBytes, []byte("</head>"), []byte(patch), 1)
+
+		w.Header().Set("Content-Type", "text/html")
+		w.Write(modified)
+	}
 }
