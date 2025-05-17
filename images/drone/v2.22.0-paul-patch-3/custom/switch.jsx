@@ -10,17 +10,20 @@ export default function Switch({
   className = '',
   label = '',
 }) {
+  const id = `switch-${Math.random().toString(36).substring(2, 8)}`;
+
   return (
-    <label className={cx('wrapper', className)}>
+    <div className={cx('switch-wrapper', className)}>
       <input
+        id={id}
         type="checkbox"
         className="switch-input"
         disabled={disabled}
         checked={checked}
         onChange={event => onChange(event.target.checked)}
       />
-      <span className="switch-slider" />
-      {label && <span className="switch-label">{label}</span>}
-    </label>
+      <label htmlFor={id} className="switch-slider" />
+      {label && <label htmlFor={id} className="switch-label">{label}</label>}
+    </div>
   );
 }
