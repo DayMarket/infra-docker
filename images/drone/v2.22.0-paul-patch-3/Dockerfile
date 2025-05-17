@@ -37,7 +37,8 @@ COPY custom/repos-recent.jsx src/components/pages/home/repos-recent.jsx
 RUN yarn add swiper react-infinite-scroll-component timeago.js
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
-    yarn build
+    yarn build && \
+    mv dist/files/static/* dist/files/ && rmdir dist/files/static
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
@@ -49,7 +50,6 @@ WORKDIR /go/src/github.com/harness/drone
 
 COPY --from=builder /go/src/github.com/harness/drone /go/src/github.com/harness/drone
 
-RUN mv dist/files/static/* dist/files/ && rmdir dist/files/static
 COPY --from=drone-ui-build /drone-ui/dist/files/ /static/
 
 ENV GOOS=linux
