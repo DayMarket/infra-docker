@@ -127,6 +127,8 @@ func (s Server) Handler() http.Handler {
 	// Serve all other routes with index.html (SPA fallback)
 	r.NotFound(HandleIndex(fs, s.Host))
 
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("/static"))))
+
 	return r
 }
 
