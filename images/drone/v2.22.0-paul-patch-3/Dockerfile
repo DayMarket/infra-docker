@@ -41,7 +41,7 @@ RUN echo "[CHECK] grep for styles usage:" && grep styles src/components/pages/ho
 # ------------------------------------------
 # Сборка frontend
 # ------------------------------------------
-
+RUN yarn add swiper react-infinite-scroll-component
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
