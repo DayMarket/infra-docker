@@ -17,7 +17,8 @@ export default function ReposRecent({ repos }) {
               ? `Last build: #${repo.build.number} (${repo.build.status})`
               : 'No recent builds'}
             {' — '}
-            Updated: {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
+            <span>Updated:</span>{' '}
+            {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
           </div>
         </div>
       ))}
