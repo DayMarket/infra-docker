@@ -43,8 +43,10 @@ RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
 
-RUN echo "[STAGE 2] Check dist structure:" && ls -la /drone-ui/dist && echo "[STAGE 2] Static files list:" && find /drone-ui/dist -type f
-RUN echo "[STAGE 2] Check for UZUM markers in JS:" && grep 'UZUM' /drone-ui/dist/*.js || echo "UZUM NOT FOUND"
+RUN echo "[DEBUG] Search for built index.html:" && find /drone-ui -type f -name index.html
+RUN echo "[DEBUG] Output JS files:" && find /drone-ui -type f -name '*.js'
+RUN echo "[DEBUG] Output folders:" && find /drone-ui -type d -name dist -o -name build -o -name files
+RUN echo "[DEBUG] Inspect home.jsx:" && head -n 5 src/pages/home/home.jsx || echo "NO home.jsx"
 
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
