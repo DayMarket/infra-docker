@@ -1,17 +1,3 @@
-// Copyright 2019 Drone IO, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package web
 
 import (
@@ -21,7 +7,6 @@ import (
 	"time"
 
 	"github.com/drone/drone/core"
-
 	"github.com/drone/drone/handler/web/link"
 	"github.com/drone/drone/logger"
 	"github.com/drone/go-login/login"
@@ -134,21 +119,12 @@ func (s Server) Handler() http.Handler {
 	r.Get("/logout", HandleLogout())
 	r.Post("/logout", HandleLogout())
 
-	h := http.FileServer(http.Dir("/static"))
-	h = setupCache(h)
-	r.Handle("/favicon.png", h)
-	r.Handle("/manifest.json", h)
-	r.Handle("/asset-manifest.json", h)
-	r.Handle("/static/*filepath", h)
-	r.NotFound(HandleIndex(s.Host, s.Session, s.Licenses))
+	// Новый универсальный обработчик статики
+	fs := http.FileServer(http.Dir("/static"))
+	fs = setupCache(fs)
+	r.PathPrefix("/").Handler(fs)
 
 	return r
-}
-
-func HandleIndex(host string, session core.Session, license core.LicenseService) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "/static/index.html")
-	}
 }
 
 func setupCache(h http.Handler) http.Handler {
@@ -165,6 +141,3 @@ func setupCache(h http.Handler) http.Handler {
 		},
 	)
 }
-
-var landingPage = `
-`
