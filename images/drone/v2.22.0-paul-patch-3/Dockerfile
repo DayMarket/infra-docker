@@ -80,6 +80,7 @@ ENV DRONE_SERVER_PORT=:80
 ENV DRONE_SERVER_HOST=localhost
 ENV DRONE_DATADOG_ENABLED=false
 
+COPY --from=backend /static /static
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
 
 ENTRYPOINT ["./drone-server"]
