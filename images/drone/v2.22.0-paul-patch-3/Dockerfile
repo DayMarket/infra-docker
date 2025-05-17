@@ -62,7 +62,7 @@ COPY --from=drone-ui-build /drone-ui/dist ./static
 RUN echo "[STAGE 3] Contents of /static after COPY:" && ls -la /go/src/github.com/harness/drone/static || echo "/static not found"
 
 ENV GOOS=linux
-
+RUN rm -f web/dist.go web/dist_gen.go
 RUN go mod tidy && \
     go build -tags nolimit -ldflags='-extldflags=-static' -o release/linux/amd64/drone-server ./cmd/drone-server
 

@@ -15,13 +15,11 @@
 package web
 
 import (
-	"bytes"
 	"crypto/md5"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/drone/drone-ui/dist"
 	"github.com/drone/drone/core"
 
 	"github.com/drone/drone/handler/web/link"
@@ -136,7 +134,7 @@ func (s Server) Handler() http.Handler {
 	r.Get("/logout", HandleLogout())
 	r.Post("/logout", HandleLogout())
 
-	h := http.FileServer(dist.New())
+	h := http.FileServer(http.Dir("/static"))
 	h = setupCache(h)
 	r.Handle("/favicon.png", h)
 	r.Handle("/manifest.json", h)
@@ -148,38 +146,10 @@ func (s Server) Handler() http.Handler {
 }
 
 func HandleIndex(host string, session core.Session, license core.LicenseService) http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
-		user, _ := session.Get(r)
-		if user == nil && r.URL.Path == "/" {
-			http.Redirect(rw, r, "/welcome", 303)
-			return
-		}
-
-		content, err := dist.Lookup("/index.html")
-		if err != nil {
-			http.Error(rw, "Drone UI is unavailable", http.StatusServiceUnavailable)
-			return
-		}
-
-		ctx := r.Context()
-
-		if ok, _ := license.Exceeded(ctx); ok {
-			content = bytes.Replace(content, head, exceeded, 1)
-		} else if license.Expired(ctx) {
-			content = bytes.Replace(content, head, expired, 1)
-		}
-
-		rw.Header().Set("Content-Type", "text/html; charset=UTF-8")
-		rw.WriteHeader(http.StatusOK)
-		_, _ = rw.Write(content)
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "/static/index.html")
 	}
 }
-
-var (
-	head     = []byte(`<head>`)
-	expired  = []byte(`<head><script>window.LICENSE_EXPIRED=true</script>`)
-	exceeded = []byte(`<head><script>window.LICENSE_LIMIT_EXCEEDED=true</script>`)
-)
 
 func setupCache(h http.Handler) http.Handler {
 	data := []byte(time.Now().String())
