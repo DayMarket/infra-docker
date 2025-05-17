@@ -14,6 +14,7 @@ COPY custom/repos.go /go/src/github.com/harness/drone/handler/api/user/repos.go
 COPY custom/web.go /go/src/github.com/harness/drone/handler/web/web.go
 COPY custom/logout.go /go/src/github.com/harness/drone/handler/web/logout.go
 #COPY custom/pages.go /go/src/github.com/harness/drone/handler/web/pages.go
+RUN echo "[STAGE 1] Contents of backend src:" && ls -la /go/src/github.com/harness/drone/handler/web && ls -la /go/src/github.com/harness/drone/handler/api/user
 
 # ------------------------------------------
 # Stage 2: build frontend
@@ -42,6 +43,9 @@ RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
     yarn build
 
+RUN echo "[STAGE 2] Check dist structure:" && ls -la /drone-ui/dist && echo "[STAGE 2] Static files list:" && find /drone-ui/dist -type f
+RUN echo "[STAGE 2] Check for UZUM markers in JS:" && grep 'UZUM' /drone-ui/dist/*.js || echo "UZUM NOT FOUND"
+
 # ------------------------------------------
 # Stage 3: build backend + embed frontend
 # ------------------------------------------
@@ -52,6 +56,8 @@ WORKDIR /go/src/github.com/harness/drone
 
 COPY --from=builder /go/src/github.com/harness/drone /go/src/github.com/harness/drone
 COPY --from=drone-ui-build /drone-ui/dist/files ./static
+
+RUN echo "[STAGE 3] Contents of /static after COPY:" && ls -la /go/src/github.com/harness/drone/static || echo "/static not found"
 
 ENV GOOS=linux
 
@@ -71,5 +77,8 @@ RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 ENV GODEBUG netdns=go
 
 COPY --from=backend /go/src/github.com/harness/drone/release/linux/amd64/drone-server .
+
+RUN echo "[FINAL STAGE] Contents of root:" && ls -la / && echo "[FINAL STAGE] Check static folder:" && ls -la /static || echo "NO /static"
+RUN echo "[FINAL STAGE] Search for index.html:" && find / -name index.html || echo "NO index.html"
 
 ENTRYPOINT ["./drone-server"]
