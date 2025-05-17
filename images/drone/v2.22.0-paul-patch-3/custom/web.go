@@ -119,10 +119,9 @@ func (s Server) Handler() http.Handler {
 	r.Get("/logout", HandleLogout())
 	r.Post("/logout", HandleLogout())
 
-	// Новый универсальный обработчик статики
 	fs := http.FileServer(http.Dir("/static"))
 	fs = setupCache(fs)
-	r.PathPrefix("/").Handler(fs)
+	r.NotFound(fs)
 
 	return r
 }
