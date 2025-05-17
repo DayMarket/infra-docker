@@ -1,43 +1,35 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import styles from './repos-recent.module.scss';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
-export default function ReposRecent({ repos }) {
-  return (
-    <div className={styles.reposList}>
-      {repos.map(repo => (
-        <div key={repo.uid} className={styles.repoItem}>
-          <div className={styles.repoName}>
-            <a href={`/${repo.slug}`} target="_blank" rel="noopener noreferrer">
-              {repo.slug}
-            </a>
-          </div>
-          <div className={styles.repoMeta}>
-            <div>
+const ReposRecent = ({ repos, fetchNextPage, hasMore }) => (
+  <div style={{ padding: '1rem' }}>
+    <h3 style={{ marginBottom: '1rem' }}>Recent Repositories</h3>
+    <InfiniteScroll
+      dataLength={repos.length}
+      next={fetchNextPage}
+      hasMore={hasMore}
+      loader={<p>Loading...</p>}
+      scrollableTarget="scroll-container"
+    >
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {repos.map(repo => (
+          <li key={repo.id} style={{ marginBottom: '1rem', borderBottom: '1px solid #ccc', paddingBottom: '0.5rem' }}>
+            <div style={{ fontWeight: 'bold' }}>
+              {repo.owner}/{repo.name}
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#666' }}>
               {repo.build
                 ? `Last build: #${repo.build.number} (${repo.build.status})`
                 : 'No recent builds'}
+              {' — '}
+              <span>Updated:</span>{' '}
+              {new Date(repo.last_activity_at || repo.updated).toLocaleString()}
             </div>
-            <div>
-              <span>Updated: </span>
-              <span>{new Date(repo.last_activity_at || repo.updated).toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
+          </li>
+        ))}
+      </ul>
+    </InfiniteScroll>
+  </div>
+);
 
-ReposRecent.propTypes = {
-  repos: PropTypes.arrayOf(PropTypes.shape({
-    uid: PropTypes.string.isRequired,
-    slug: PropTypes.string.isRequired,
-    build: PropTypes.shape({
-      number: PropTypes.number,
-      status: PropTypes.string,
-    }),
-    last_activity_at: PropTypes.string,
-    updated: PropTypes.string,
-  })).isRequired,
-};
+export default ReposRecent;

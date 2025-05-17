@@ -30,7 +30,7 @@ COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
 COPY custom/repos-recent.jsx src/components/pages/home/repos-recent.jsx
-COPY custom/repos-recent.module.scss src/components/pages/home/repos-recent.module.scss
+#COPY custom/repos-recent.module.scss src/components/pages/home/repos-recent.module.scss
 
 RUN npm install swiper
 
