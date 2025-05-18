@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import './repos-recent.scss';
 
 import Button from 'components/shared/button';
-import RepoBuild from 'components/shared/repo-build';
 
 export default function ReposRecent({ repos }) {
   return (
