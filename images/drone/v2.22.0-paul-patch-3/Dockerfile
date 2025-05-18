@@ -6,7 +6,6 @@ FROM golang:1.18 AS builder
 WORKDIR /go/src/github.com/harness/drone
 
 RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . && \
-    rm -rf ./drone-ui && \
     rm -f ./handler/web/pages.go
 
 COPY custom/repos.go /go/src/github.com/harness/drone/handler/web/repos.go
@@ -21,7 +20,9 @@ FROM node:14-slim AS drone-ui-build
 WORKDIR /drone-ui
 
 RUN apt-get update && apt-get install -y git python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
-RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git .
+RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git . && \
+    ls -la src/pages/home && \
+    echo "✅ DONE: listing contents of src/pages/home"
 
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
