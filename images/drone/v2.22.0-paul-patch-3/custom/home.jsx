@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames/bind';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import styles from './home.module.scss';
 
 import ReposRecent from 'components/pages/home/repos-recent';
 import Input from 'components/shared/form/input';
@@ -13,6 +12,8 @@ import { useCustomTitle, useToast } from 'hooks';
 import { useStore } from 'hooks/store';
 import { useViewer, useSyncAccount } from 'hooks/swr';
 import { byBuildCreatedAtDesc } from 'utils';
+
+import styles from './home.module.scss';
 
 const cx = classNames.bind(styles);
 const CHUNK_SIZE = 5;
@@ -67,7 +68,7 @@ export default function Home() {
         syncError?.message || viewerError?.message,
       );
     }
-  }, [syncError, viewerError, context, setContext, showError]);
+  }, [syncError, viewerError]);
 
   useEffect(() => {
     if (isSynced) {
@@ -77,7 +78,7 @@ export default function Home() {
         setContext({ ...context, isAccSyncing: false });
       }
     }
-  }, [isSynced, context, reload, setContext]);
+  }, [isSynced]);
 
   const handleSyncClick = () => setShouldStartSync(true);
   const handleLoadMore = () => setItemsToShow(prev => prev + CHUNK_SIZE);
