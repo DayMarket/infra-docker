@@ -4,8 +4,13 @@ import React, {
 } from 'react';
 
 import ReposRecent from 'components/pages/home/repos-recent';
+import Button from 'components/shared/button';
+import Input from 'components/shared/form/input';
+import Select from 'components/shared/form/select';
+import Switch from 'components/shared/switch';
+import ZeroState from 'components/shared/zero-state';
 import { AppContext } from 'context';
-import { useCustomTitle, useToast } from 'hooks';
+import { useLocalStorage, useCustomTitle, useToast } from 'hooks';
 import { useStore } from 'hooks/store';
 import { useViewer, useSyncAccount } from 'hooks/swr';
 import { byBuildCreatedAtDesc } from 'utils';
@@ -41,7 +46,7 @@ export default function Home() {
       showError('Sync error has occurred, please, try again');
       console.error('Sync error:', syncError?.message || viewerError?.message); // eslint-disable-line no-console
     }
-  }, [syncError, viewerError, showError, context, setContext]);
+  }, [syncError, viewerError]);
 
   useEffect(() => {
     if (isSynced) {
@@ -51,7 +56,7 @@ export default function Home() {
         setContext({ ...context, isAccSyncing: false });
       }
     }
-  }, [isSynced, context, setContext, reload]);
+  }, [isSynced]);
 
   const handleSyncClick = () => setShouldStartSync(true);
 
@@ -72,12 +77,17 @@ export default function Home() {
         </button>
       </header>
       <section className={cx('wrapper')}>
-        {!!recent.length && (
+        {!!recent.length ? (
           <>
             <h2 className={cx('section-title', 'section-title-recent')}>Recent Activity</h2>
             <ReposRecent repos={recent} />
           </>
-        )}
+        ) : !isLoading ? (
+          <ZeroState
+            title="No Recent Builds"
+            message="No repositories with recent builds found."
+          />
+        ) : null}
       </section>
     </>
   );
