@@ -3,22 +3,19 @@ package web
 import (
 	"bytes"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	chiprometheus "github.com/766b/chi-prometheus"
 	"github.com/drone/drone/core"
-	"github.com/drone/drone/handler/web/hook"
-	"github.com/drone/drone/handler/web/link"
-	"github.com/drone/drone/handler/web/login"
-	"github.com/drone/drone/handler/web/varz"
-	"github.com/drone/drone/handler/web/version"
 	"github.com/drone/drone/logger"
 	"github.com/drone/go-login/login"
 	"github.com/drone/go-scm/scm"
+
+	chiprometheus "github.com/766b/chi-prometheus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/unrolled/secure"
@@ -50,7 +47,6 @@ func New(
 		Hooks:     hooks,
 		License:   license,
 		Licenses:  licenses,
-		Linker:    linker,
 		Login:     login,
 		Repos:     repos,
 		Session:   session,
@@ -71,7 +67,6 @@ type Server struct {
 	Hooks     core.HookParser
 	License   *core.License
 	Licenses  core.LicenseService
-	Linker    core.Linker
 	Login     login.Middleware
 	Repos     core.RepositoryStore
 	Session   core.Session
@@ -96,41 +91,76 @@ func (s Server) Handler() http.Handler {
 	sec := secure.New(s.Options)
 	r.Use(sec.Handler)
 
-	r.Route("/static", func(r chi.Router) {
-		r.Get("/*", http.StripPrefix("/static/", setupCache(http.FileServer(http.Dir("/static")))).ServeHTTP)
-	})
-
 	r.Route("/hook", func(r chi.Router) {
-		r.Post("/", hook.Handle(s.Repos, s.Builds, s.Triggerer, s.Hooks))
+		r.Post("/", s.HandleHook())
 	})
 
-	r.Get("/link/{namespace}/{name}/tree/*", link.HandleTree(s.Linker))
-	r.Get("/link/{namespace}/{name}/src/*", link.HandleTree(s.Linker))
-	r.Get("/link/{namespace}/{name}/commit/{commit}", link.HandleCommit(s.Linker))
-	r.Get("/version", version.Handle)
-	r.Get("/varz", varz.Handle(s.Client, s.License))
+	r.Get("/version", s.HandleVersion())
+	r.Get("/varz", s.HandleVarz())
 
 	r.Handle("/login",
 		s.Login.Handler(
 			http.HandlerFunc(
-				login.Handle(
-					s.Users,
-					s.Userz,
-					s.Syncer,
-					s.Session,
-					s.Admitter,
-					s.Webhook,
-				),
+				s.HandleLogin(),
 			),
 		),
 	)
 
-	r.Get("/logout", HandleLogout())
-	r.Post("/logout", HandleLogout())
+	r.Get("/logout", s.HandleLogout())
+	r.Post("/logout", s.HandleLogout())
 
-	r.NotFound(HandleIndex(http.FileServer(http.Dir("/static")), s.Host))
+	fs := http.FileServer(http.Dir("/static"))
+	fs = setupCache(fs)
+
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+	r.NotFound(HandleIndex(fs, s.Host))
 
 	return r
+}
+
+func (s Server) HandleHook() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+func (s Server) HandleLogin() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func (s Server) HandleLogout() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "user_sess",
+			Value:    "",
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+			Secure:   true,
+		})
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func (s Server) HandleVersion() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"version": "v2.22.0-custom",
+		})
+	}
+}
+
+func (s Server) HandleVarz() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"status": "ok",
+			"time":   time.Now().Format(time.RFC3339),
+		})
+	}
 }
 
 func setupCache(h http.Handler) http.Handler {
@@ -149,7 +179,6 @@ func setupCache(h http.Handler) http.Handler {
 func HandleIndex(fs http.Handler, host string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-
 		if strings.Contains(path, ".") || strings.HasPrefix(path, "/static/") {
 			fs.ServeHTTP(w, r)
 			return
