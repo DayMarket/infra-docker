@@ -24,11 +24,11 @@ RUN apt-get update && apt-get install -y git python2 g++ make && ln -s /usr/bin/
 RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git .
 
 RUN rm -f \
-    src/components/pages/home/repos-recent.* \
-    src/pages/home/home.* \
-    src/components/shared/switch/switch.* \
-    src/pages/settings/templates/templates.*
-
+    src/components/pages/home/repos-recent.jsx \
+    src/pages/home/home.jsx \
+    src/pages/settings/templates/templates.jsx \
+    src/components/shared/switch/switch.jsx
+  
 #COPY custom/home.module.scss src/pages/home/home.module.scss    
 #COPY custom/repos-recent.module.scss src/components/pages/home/repos-recent.module.scss
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
