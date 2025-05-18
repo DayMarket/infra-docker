@@ -34,7 +34,7 @@ RUN rm -f \
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
-COPY custom/repos-recent.jsx src/components/pages/home/repos-recent.jsx
+#COPY custom/repos-recent.jsx src/components/pages/home/repos-recent.jsx
 
 RUN yarn add swiper react-infinite-scroll-component timeago.js
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \

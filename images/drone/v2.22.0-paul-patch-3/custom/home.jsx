@@ -1,14 +1,13 @@
+import classNames from 'classnames/bind';
 import React, {
   useEffect, useState, useMemo, useContext,
 } from 'react';
-import classNames from 'classnames/bind';
-import InfiniteScroll from 'react-infinite-scroll-component';
 
 import ReposRecent from 'components/pages/home/repos-recent';
+import Button from 'components/shared/button';
 import Input from 'components/shared/form/input';
-import ZeroState from 'components/shared/zero-state';
 import { AppContext } from 'context';
-import { useCustomTitle, useToast } from 'hooks';
+import { useLocalStorage, useCustomTitle, useToast } from 'hooks';
 import { useStore } from 'hooks/store';
 import { useViewer, useSyncAccount } from 'hooks/swr';
 import { byBuildCreatedAtDesc } from 'utils';
@@ -16,7 +15,8 @@ import { byBuildCreatedAtDesc } from 'utils';
 import styles from './home.module.scss';
 
 const cx = classNames.bind(styles);
-const CHUNK_SIZE = 5;
+
+const REPOS_CHUNK_SIZE = 50;
 
 export default function Home() {
   const [context, setContext] = useContext(AppContext);
@@ -26,49 +26,26 @@ export default function Home() {
   const { isSynced, isSyncing, isError: viewerError } = useViewer({ withPolling: hasSyncReqFiredOff });
 
   const {
-    repos,
-    error,
-    reload,
-    reloadOnce,
+    repos, error, reload, reloadOnce,
   } = useStore();
   const data = repos ? Object.values(repos) : undefined;
   const isLoading = !data && !error;
 
-  const [itemsToShow, setItemsToShow] = useState(CHUNK_SIZE);
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    reloadOnce();
-  }, [reloadOnce]);
-
+  useEffect(() => reloadOnce(), [reloadOnce]);
   useCustomTitle();
 
-  const filtered = useMemo(() => {
-    const now = Date.now();
-    return (
-      data?.filter(repo => {
-        const activeWithin2h = repo.last_activity_at
-          ? new Date(repo.last_activity_at).getTime() >= now - 2 * 60 * 60 * 1000
-          : false;
-        return (repo.build || activeWithin2h) && repo.slug.includes(filter);
-      }) ?? []
-    );
-  }, [data, filter]);
-
-  const sorted = useMemo(() => {
-    return filtered.slice().sort(byBuildCreatedAtDesc).slice(0, itemsToShow);
-  }, [filtered, itemsToShow]);
+  const recent = useMemo(
+    () => data?.slice(0).sort(byBuildCreatedAtDesc).filter((repo) => !!repo.build)?.slice(0, 6) ?? [],
+    [data],
+  );
 
   useEffect(() => {
     if (syncError || viewerError) {
       setContext({ ...context, isAccSyncing: false });
       showError('Sync error has occurred, please, try again');
-      console.error(
-        'Sync error:',
-        syncError?.message || viewerError?.message,
-      );
+      console.error('Sync error:', syncError?.message || viewerError?.message); // eslint-disable-line no-console
     }
-  }, [syncError, viewerError]);
+  }, [syncError, viewerError, showError, context, setContext]);
 
   useEffect(() => {
     if (isSynced) {
@@ -78,11 +55,9 @@ export default function Home() {
         setContext({ ...context, isAccSyncing: false });
       }
     }
-  }, [isSynced]);
+  }, [isSynced, context, setContext, reload]);
 
   const handleSyncClick = () => setShouldStartSync(true);
-  const handleLoadMore = () => setItemsToShow(prev => prev + CHUNK_SIZE);
-  const handleFilter = e => setFilter(e.target.value.trim());
 
   return (
     <>
@@ -94,38 +69,18 @@ export default function Home() {
           disabled={isSyncing || hasSyncReqFiredOff}
           onClick={handleSyncClick}
         >
-          {(isSyncing || hasSyncReqFiredOff) && <span className={cx('btn-sync-spinner')} />}
+          {(isSyncing || hasSyncReqFiredOff) && (
+            <span className={cx('btn-sync-spinner')} />
+          )}
           {(isSyncing || hasSyncReqFiredOff) ? 'Syncing' : 'Sync'}
         </button>
       </header>
       <section className={cx('wrapper')}>
-        <div className={cx('subheader')}>
-          <h2 className={cx('section-title')}>Recent Builds</h2>
-          <div className={cx('actions')}>
-            <Input
-              placeholder="Filter …"
-              icon="search"
-              className={cx('search')}
-              width={300}
-              name="repo-search"
-              onChange={handleFilter}
-            />
-          </div>
-        </div>
-        {isLoading ? null : sorted.length === 0 ? (
-          <ZeroState
-            title="No Recent Builds"
-            message="No repositories with builds or recent activity match your criteria."
-          />
-        ) : (
-          <InfiniteScroll
-            dataLength={sorted.length}
-            next={handleLoadMore}
-            hasMore={itemsToShow < filtered.length}
-            loader={<h4 className={cx('loader')}>Loading more…</h4>}
-          >
-            <ReposRecent repos={sorted} />
-          </InfiniteScroll>
+        {!!recent.length && (
+          <>
+            <h2 className={cx('section-title', 'section-title-recent')}>Recent Activity</h2>
+            <ReposRecent repos={recent} />
+          </>
         )}
       </section>
     </>
