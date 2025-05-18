@@ -9,13 +9,16 @@ import (
 	"strings"
 	"time"
 
+	chiprometheus "github.com/766b/chi-prometheus"
 	"github.com/drone/drone/core"
+	"github.com/drone/drone/handler/web/hook"
 	"github.com/drone/drone/handler/web/link"
+	"github.com/drone/drone/handler/web/login"
+	"github.com/drone/drone/handler/web/varz"
+	"github.com/drone/drone/handler/web/version"
 	"github.com/drone/drone/logger"
 	"github.com/drone/go-login/login"
 	"github.com/drone/go-scm/scm"
-
-	chiprometheus "github.com/766b/chi-prometheus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/unrolled/secure"
@@ -93,20 +96,24 @@ func (s Server) Handler() http.Handler {
 	sec := secure.New(s.Options)
 	r.Use(sec.Handler)
 
+	r.Route("/static", func(r chi.Router) {
+		r.Get("/*", http.StripPrefix("/static/", setupCache(http.FileServer(http.Dir("/static")))).ServeHTTP)
+	})
+
 	r.Route("/hook", func(r chi.Router) {
-		r.Post("/", HandleHook(s.Repos, s.Builds, s.Triggerer, s.Hooks))
+		r.Post("/", hook.Handle(s.Repos, s.Builds, s.Triggerer, s.Hooks))
 	})
 
 	r.Get("/link/{namespace}/{name}/tree/*", link.HandleTree(s.Linker))
 	r.Get("/link/{namespace}/{name}/src/*", link.HandleTree(s.Linker))
 	r.Get("/link/{namespace}/{name}/commit/{commit}", link.HandleCommit(s.Linker))
-	r.Get("/version", HandleVersion)
-	r.Get("/varz", HandleVarz(s.Client, s.License))
+	r.Get("/version", version.Handle)
+	r.Get("/varz", varz.Handle(s.Client, s.License))
 
 	r.Handle("/login",
 		s.Login.Handler(
 			http.HandlerFunc(
-				HandleLogin(
+				login.Handle(
 					s.Users,
 					s.Userz,
 					s.Syncer,
@@ -121,14 +128,7 @@ func (s Server) Handler() http.Handler {
 	r.Get("/logout", HandleLogout())
 	r.Post("/logout", HandleLogout())
 
-	fs := http.FileServer(http.Dir("/static"))
-	fs = setupCache(fs)
-
-	// Поддержка отдачи статики — корректный способ с chi
-	r.Handle("/static/*", http.StripPrefix("/static/", fs))
-
-	// SPA fallback
-	r.NotFound(HandleIndex(fs, s.Host))
+	r.NotFound(HandleIndex(http.FileServer(http.Dir("/static")), s.Host))
 
 	return r
 }
@@ -150,7 +150,6 @@ func HandleIndex(fs http.Handler, host string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 
-		// Статические файлы напрямую
 		if strings.Contains(path, ".") || strings.HasPrefix(path, "/static/") {
 			fs.ServeHTTP(w, r)
 			return
