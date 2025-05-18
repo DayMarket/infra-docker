@@ -5,9 +5,7 @@ FROM golang:1.18 AS builder
 
 WORKDIR /go/src/github.com/harness/drone
 
-RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . && \
-    rm -rf ./drone-ui && \
-    rm -f ./handler/web/pages.go
+RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . 
 
 COPY custom/repos.go /go/src/github.com/harness/drone/handler/web/repos.go
 COPY custom/web.go /go/src/github.com/harness/drone/handler/web/web.go
