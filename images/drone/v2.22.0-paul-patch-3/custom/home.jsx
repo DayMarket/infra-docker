@@ -13,21 +13,30 @@ import { AppContext } from 'context';
 import { useLocalStorage, useCustomTitle, useToast } from 'hooks';
 import { useStore } from 'hooks/store';
 import { useViewer, useSyncAccount } from 'hooks/swr';
-import { byBuildCreatedAtDesc } from 'utils';
+import { byBuildCreatedAtDesc, byRepoNameAsc } from 'utils';
 
 import styles from './home.module.scss';
 
 const cx = classNames.bind(styles);
 
+const REPOS_CHUNK_SIZE = 50;
+
+const RECENT_ACTIVITY = 'Sort by Recent activity';
+const NAME = 'Sort by Name';
+const sortEnums = [RECENT_ACTIVITY, NAME];
+
 export default function Home() {
   const [context, setContext] = useContext(AppContext);
   const [shouldStartSync, setShouldStartSync] = useState(context.isAccSyncing);
+  const [isActiveOnly, setIsActiveOnly] = useLocalStorage('home_show_active_only_repos', false);
+  const [sortBy, setSortBy] = useLocalStorage('home_sort_repos_by', sortEnums[0]);
+  const [filterOrg, setFilterOrg] = useLocalStorage('home_org_repos', '');
   const { showError } = useToast();
   const { hasSyncReqFiredOff, isError: syncError } = useSyncAccount(shouldStartSync);
   const { isSynced, isSyncing, isError: viewerError } = useViewer({ withPolling: hasSyncReqFiredOff });
 
   const {
-    repos, error, reload, reloadOnce,
+    repos, orgs, error, reload, reloadOnce,
   } = useStore();
   const data = repos ? Object.values(repos) : undefined;
   const isLoading = !data && !error;
@@ -35,10 +44,20 @@ export default function Home() {
   useEffect(() => reloadOnce(), [reloadOnce]);
   useCustomTitle();
 
+  const [filter, setFilter] = useState('');
+
   const recent = useMemo(
     () => data?.slice(0).sort(byBuildCreatedAtDesc).filter((repo) => !!repo.build) ?? [],
     [data],
   );
+
+  const orgOptions = useMemo(() => {
+    if (!orgs) return [{ value: '', key: 'All Organizations' }];
+    const returnOrgs = orgs?.map((org) => ({ value: org, key: org }));
+    return [{ value: '', key: 'All Organizations' }, ...returnOrgs];
+  }, [orgs]);
+
+  const sortOptions = sortEnums.map((option) => ({ value: option, key: option }));
 
   useEffect(() => {
     if (syncError || viewerError) {
@@ -46,7 +65,7 @@ export default function Home() {
       showError('Sync error has occurred, please, try again');
       console.error('Sync error:', syncError?.message || viewerError?.message); // eslint-disable-line no-console
     }
-  }, [syncError, viewerError]);
+  }, [syncError, viewerError, showError, context, setContext]);
 
   useEffect(() => {
     if (isSynced) {
@@ -56,7 +75,7 @@ export default function Home() {
         setContext({ ...context, isAccSyncing: false });
       }
     }
-  }, [isSynced]);
+  }, [isSynced, context, setContext, reload]);
 
   const handleSyncClick = () => setShouldStartSync(true);
 
