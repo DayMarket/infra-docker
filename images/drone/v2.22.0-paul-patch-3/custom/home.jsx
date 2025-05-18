@@ -1,7 +1,7 @@
-import classNames from 'classnames/bind';
 import React, {
   useEffect, useState, useMemo, useContext,
 } from 'react';
+import classNames from 'classnames/bind';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './home.module.scss';
 

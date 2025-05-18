@@ -1,19 +1,21 @@
 import React from 'react';
 import { format } from 'timeago.js';
+import classNames from 'classnames/bind';
 import styles from './repos-recent.module.scss';
 
 const cx = classNames.bind(styles);
+
 export default function ReposRecent({ repos }) {
   return (
-    <div className="recent-repos">
-      <h2 className="recent-repos-title">Recent Repositories</h2>
-      <ul className="recent-repos-list">
+    <div className={cx('recent-repos')}>
+      <h2 className={cx('recent-repos-title')}>Recent Repositories</h2>
+      <ul className={cx('recent-repos-list')}>
         {repos.map(repo => (
-          <li key={repo.slug} className="recent-repos-item">
-            <a href={`/${repo.slug}`} className="recent-repos-link">
+          <li key={repo.slug} className={cx('recent-repos-item')}>
+            <a href={`/${repo.slug}`} className={cx('recent-repos-link')}>
               {repo.name}
             </a>
-            <div className="recent-repos-meta">
+            <div className={cx('recent-repos-meta')}>
               {repo.build ? (
                 <>
                   <span>Last build:</span>
