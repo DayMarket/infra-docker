@@ -1,43 +1,37 @@
 import React from 'react';
-import { format } from 'timeago.js';
-import classNames from 'classnames/bind';
-import styles from './repos-recent.module.scss';
+import PropTypes from 'prop-types';
+import './repos-recent.scss';
 
-const cx = classNames.bind(styles);
+import Button from 'components/shared/button';
+import RepoBuild from 'components/shared/repo-build';
 
 export default function ReposRecent({ repos }) {
   return (
-    <div className={cx('recent-repos')}>
-      <h2 className={cx('recent-repos-title')}>Recent Repositories</h2>
-      <ul className={cx('recent-repos-list')}>
-        {repos.map(repo => (
-          <li key={repo.slug} className={cx('recent-repos-item')}>
-            <a href={`/${repo.slug}`} className={cx('recent-repos-link')}>
-              {repo.name}
-            </a>
-            <div className={cx('recent-repos-meta')}>
-              {repo.build ? (
-                <>
-                  <span>Last build:</span>
-                  <span> </span>
-                  <span>#</span>
-                  <span>{repo.build.number}</span>
-                  <span> </span>
-                  <span>(</span>
-                  <span>{repo.build.status}</span>
-                  <span>)</span>
-                </>
-              ) : (
-                <span>No recent builds</span>
-              )}
-              <span> </span>
-              <span>—</span>
-              <span> </span>
-              <span>{format(repo.updated)}</span>
+    <div className="repos-recent">
+      {repos.map((repo) => (
+        <div key={repo.uid} className="repo-card">
+          <div className="repo-header">
+            <div className="repo-meta">
+              <span className="repo-owner">{repo.namespace}</span>
+              <span className="repo-name">{repo.name}</span>
             </div>
-          </li>
-        ))}
-      </ul>
+            <div className="repo-action">
+              <Button href={`/${repo.slug}`}>Details</Button>
+            </div>
+          </div>
+          <RepoBuild repo={repo} />
+        </div>
+      ))}
     </div>
   );
 }
+
+ReposRecent.propTypes = {
+  repos: PropTypes.arrayOf(PropTypes.shape({
+    uid: PropTypes.string.isRequired,
+    namespace: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    slug: PropTypes.string.isRequired,
+    build: PropTypes.object,
+  })).isRequired,
+};

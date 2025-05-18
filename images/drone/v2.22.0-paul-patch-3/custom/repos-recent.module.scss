@@ -1,71 +1,32 @@
-@import "styles/_variables";
-@import "styles/mixins";
-
-.repo {
+.recent-repos {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  margin: 0 10px 10px;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.repo-item {
+  padding: 1rem;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  background-color: var(--color-bg-2);
-  box-shadow: 0 0 0 1px var(--border-color), 0 1px 2px var(--shadow-2);
-  color: var(--color-primary);
-  font-size: 14px;
+  background-color: #fff;
+}
 
-  &:hover {
-    background-color: var(--color-bg-hover);
-  }
+.repo-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
 
-  .name {
-    font-weight: 500;
-    margin-right: 10px;
-  }
+.repo-meta {
+  font-size: 0.9rem;
+  color: #777;
+}
 
-  .meta {
-    display: flex;
-    align-items: center;
-    font-size: 12px;
-    color: var(--color-summary);
-
-    & > * + * {
-      margin-left: 10px;
-    }
-  }
-
-  .status {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 10px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background-color: currentColor;
-
-    &.success {
-      color: var(--color-success);
-    }
-
-    &.failure {
-      color: var(--color-danger);
-    }
-
-    &.running {
-      color: var(--color-warning);
-    }
-
-    &.skipped {
-      color: var(--color-muted);
-    }
-
-    &.canceled {
-      color: var(--color-disabled);
-    }
-
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
+.branch {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #eee;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
 }
