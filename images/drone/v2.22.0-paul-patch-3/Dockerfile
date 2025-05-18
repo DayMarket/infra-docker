@@ -22,7 +22,7 @@ WORKDIR /drone-ui
 RUN apt-get update && apt-get install -y git python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
 RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git .
 
-#COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
+COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 #COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
 #COPY custom/repos-recent.jsx src/components/pages/home/repos-recent.jsx
