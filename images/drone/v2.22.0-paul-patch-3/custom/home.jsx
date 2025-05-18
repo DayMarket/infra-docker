@@ -1,8 +1,10 @@
 import React, {
   useEffect, useState, useMemo, useContext,
 } from 'react';
+import classNames from 'classnames/bind';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import './home.scss';
+import styles from './home.module.scss';
+
 import ReposRecent from 'components/pages/home/repos-recent';
 import Input from 'components/shared/form/input';
 import ZeroState from 'components/shared/zero-state';
@@ -12,6 +14,7 @@ import { useStore } from 'hooks/store';
 import { useViewer, useSyncAccount } from 'hooks/swr';
 import { byBuildCreatedAtDesc } from 'utils';
 
+const cx = classNames.bind(styles);
 const CHUNK_SIZE = 5;
 
 export default function Home() {
@@ -76,33 +79,32 @@ export default function Home() {
     }
   }, [isSynced, context, reload, setContext]);
 
-
   const handleSyncClick = () => setShouldStartSync(true);
   const handleLoadMore = () => setItemsToShow(prev => prev + CHUNK_SIZE);
   const handleFilter = e => setFilter(e.target.value.trim());
 
   return (
     <>
-      <header className="header">
+      <header className={cx('header')}>
         <h1>Dashboard</h1>
         <button
           type="button"
-          className="btn btn-sync"
+          className={cx('btn', 'btn-sync')}
           disabled={isSyncing || hasSyncReqFiredOff}
           onClick={handleSyncClick}
         >
-          {(isSyncing || hasSyncReqFiredOff) && <span className="btn-sync-spinner" />}
+          {(isSyncing || hasSyncReqFiredOff) && <span className={cx('btn-sync-spinner')} />}
           {(isSyncing || hasSyncReqFiredOff) ? 'Syncing' : 'Sync'}
         </button>
       </header>
-      <section className="wrapper">
-        <div className="subheader">
-          <h2 className="section-title">Recent Builds</h2>
-          <div className="actions">
+      <section className={cx('wrapper')}>
+        <div className={cx('subheader')}>
+          <h2 className={cx('section-title')}>Recent Builds</h2>
+          <div className={cx('actions')}>
             <Input
               placeholder="Filter …"
               icon="search"
-              className="search"
+              className={cx('search')}
               width={300}
               name="repo-search"
               onChange={handleFilter}
@@ -119,7 +121,7 @@ export default function Home() {
             dataLength={sorted.length}
             next={handleLoadMore}
             hasMore={itemsToShow < filtered.length}
-            loader={<h4 className="loader">Loading more…</h4>}
+            loader={<h4 className={cx('loader')}>Loading more…</h4>}
           >
             <ReposRecent repos={sorted} />
           </InfiniteScroll>

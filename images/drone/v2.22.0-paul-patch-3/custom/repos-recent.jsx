@@ -1,20 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './repos-recent.scss';
+import classNames from 'classnames/bind';
+import styles from './repos-recent.module.scss';
 
 import Button from 'components/shared/button';
+import RepoBuild from 'components/shared/repo-build';
+
+const cx = classNames.bind(styles);
 
 export default function ReposRecent({ repos }) {
   return (
-    <div className="repos-recent">
+    <div className={cx('repos-recent')}>
       {repos.map((repo) => (
-        <div key={repo.uid} className="repo-card">
-          <div className="repo-header">
-            <div className="repo-meta">
-              <span className="repo-owner">{repo.namespace}</span>
-              <span className="repo-name">{repo.name}</span>
+        <div key={repo.uid} className={cx('repo-card')}>
+          <div className={cx('repo-header')}>
+            <div className={cx('repo-meta')}>
+              <span className={cx('repo-owner')}>{repo.namespace}</span>
+              <span className={cx('repo-name')}>{repo.name}</span>
             </div>
-            <div className="repo-action">
+            <div className={cx('repo-action')}>
               <Button href={`/${repo.slug}`}>Details</Button>
             </div>
           </div>

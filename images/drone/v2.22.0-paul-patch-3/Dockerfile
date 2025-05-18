@@ -29,8 +29,8 @@ RUN rm -f \
     src/components/shared/switch/switch.* \
     src/pages/settings/templates/templates.*
 
-COPY custom/home.module.scss src/pages/home/home.scss    
-COPY custom/repos-recent.module.scss src/components/pages/home/repos-recent.scss
+COPY custom/home.module.scss src/pages/home/home.module.scss    
+COPY custom/repos-recent.module.scss src/components/pages/home/repos-recent.module.scss
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
