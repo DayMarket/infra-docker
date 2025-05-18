@@ -2,6 +2,7 @@ import React from 'react';
 import { format } from 'timeago.js';
 import styles from './repos-recent.module.scss';
 
+const cx = classNames.bind(styles);
 export default function ReposRecent({ repos }) {
   return (
     <div className="recent-repos">
