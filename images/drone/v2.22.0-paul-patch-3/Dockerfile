@@ -30,7 +30,7 @@ COPY custom/home.jsx src/pages/home/home.jsx
 RUN yarn add swiper react-infinite-scroll-component timeago.js
 RUN rm -rf node_modules .cache yarn.lock package-lock.json && \
     yarn install --frozen-lockfile && \
-    yarn build && \
+    CI=false yarn build && \
     mv dist/files/static/* dist/files/ && rmdir dist/files/static
 
 # ------------------------------------------
