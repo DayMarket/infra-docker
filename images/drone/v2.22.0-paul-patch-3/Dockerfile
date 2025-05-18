@@ -5,7 +5,9 @@ FROM golang:1.18 AS builder
 
 WORKDIR /go/src/github.com/harness/drone
 
-RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . 
+RUN git clone --single-branch --branch v2.22.0 --depth 1 https://github.com/harness/drone.git . && \
+    rm -rf ./drone-ui && \
+    rm -f ./handler/web/pages.go
 
 COPY custom/repos.go /go/src/github.com/harness/drone/handler/web/repos.go
 COPY custom/web.go /go/src/github.com/harness/drone/handler/web/web.go
@@ -21,14 +23,6 @@ WORKDIR /drone-ui
 RUN apt-get update && apt-get install -y git python2 g++ make && ln -s /usr/bin/python2 /usr/bin/python
 RUN git clone --branch v2.12.0 https://github.com/drone/drone-ui.git .
 
-RUN rm -f \
-    src/components/pages/home/repos-recent.jsx \
-    src/pages/home/home.jsx \
-    src/pages/settings/templates/templates.jsx \
-    src/components/shared/switch/switch.jsx
-  
-#COPY custom/home.module.scss src/pages/home/home.module.scss    
-#COPY custom/repos-recent.module.scss src/components/pages/home/repos-recent.module.scss
 COPY custom/templates.jsx src/pages/settings/templates/templates.jsx
 COPY custom/switch.jsx src/components/shared/switch/switch.jsx
 COPY custom/home.jsx src/pages/home/home.jsx
@@ -52,7 +46,7 @@ COPY --from=builder /go/src/github.com/harness/drone /go/src/github.com/harness/
 
 COPY --from=drone-ui-build /drone-ui/dist/files/ /static/
 
-ENV GOOS=linux
+ENV GOOS linux
 
 RUN rm -f web/dist.go web/dist_gen.go && \
     go mod tidy && \
