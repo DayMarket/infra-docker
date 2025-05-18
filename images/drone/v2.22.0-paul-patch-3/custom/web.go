@@ -113,7 +113,7 @@ func (s Server) Handler() http.Handler {
 	fs = setupCache(fs)
 
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
-	r.NotFound(HandleIndex(fs, s.Host))
+	r.Get("/*", HandleIndex(fs, s.Host))
 
 	return r
 }
