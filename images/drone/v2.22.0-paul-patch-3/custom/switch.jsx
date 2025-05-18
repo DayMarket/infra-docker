@@ -22,10 +22,10 @@ const Switch = (props) => {
       />
       <label className={cx('switch-label')} htmlFor={id}>
         <i className={cx('switch-toggler')} />
+        {children && (
+          <span className={cx('switch-label-fake')}>{children}</span>
+        )}
       </label>
-      {children && (
-        <span className={cx('switch-label-fake')}>{children}</span>
-      )}
     </div>
   );
 };
