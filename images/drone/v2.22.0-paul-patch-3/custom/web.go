@@ -112,7 +112,10 @@ func (s Server) Handler() http.Handler {
 	fs := http.FileServer(http.Dir("/static"))
 	fs = setupCache(fs)
 
-	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+	r.Route("/static", func(r chi.Router) {
+		r.Get("/*", http.StripPrefix("/static/", fs).ServeHTTP)
+		r.Head("/*", http.StripPrefix("/static/", fs).ServeHTTP)
+	})
 	r.Get("/*", HandleIndex(fs, s.Host))
 
 	return r
