@@ -3,6 +3,7 @@ import React, {
   useEffect, useState, useMemo, useContext,
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import styles from './home.module.scss';
 
 import ReposRecent from 'components/pages/home/repos-recent';
 import Input from 'components/shared/form/input';

@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from 'timeago.js';
+import styles from './repos-recent.module.scss';
 
 export default function ReposRecent({ repos }) {
   return (
