@@ -4,10 +4,8 @@ import React, {
 } from 'react';
 
 import ReposRecent from 'components/pages/home/repos-recent';
-import Button from 'components/shared/button';
-import Input from 'components/shared/form/input';
 import { AppContext } from 'context';
-import { useLocalStorage, useCustomTitle, useToast } from 'hooks';
+import { useCustomTitle, useToast } from 'hooks';
 import { useStore } from 'hooks/store';
 import { useViewer, useSyncAccount } from 'hooks/swr';
 import { byBuildCreatedAtDesc } from 'utils';
@@ -15,8 +13,6 @@ import { byBuildCreatedAtDesc } from 'utils';
 import styles from './home.module.scss';
 
 const cx = classNames.bind(styles);
-
-const REPOS_CHUNK_SIZE = 50;
 
 export default function Home() {
   const [context, setContext] = useContext(AppContext);
@@ -35,7 +31,7 @@ export default function Home() {
   useCustomTitle();
 
   const recent = useMemo(
-    () => data?.slice(0).sort(byBuildCreatedAtDesc).filter((repo) => !!repo.build)?.slice(0, 6) ?? [],
+    () => data?.slice(0).sort(byBuildCreatedAtDesc).filter((repo) => !!repo.build) ?? [],
     [data],
   );
 
