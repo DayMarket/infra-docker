@@ -64,7 +64,7 @@ export default function Home() {
         syncError?.message || viewerError?.message,
       );
     }
-  }, [syncError, viewerError]);
+  }, [syncError, viewerError, context, setContext, showError]);
 
   useEffect(() => {
     if (isSynced) {
@@ -74,7 +74,8 @@ export default function Home() {
         setContext({ ...context, isAccSyncing: false });
       }
     }
-  }, [isSynced]);
+  }, [isSynced, context, reload, setContext]);
+
 
   const handleSyncClick = () => setShouldStartSync(true);
   const handleLoadMore = () => setItemsToShow(prev => prev + CHUNK_SIZE);
