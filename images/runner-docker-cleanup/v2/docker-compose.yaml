@@ -1,0 +1,11 @@
+version: '3'
+services:
+  cleanup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    privileged: false
+    container_name: cleanup
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
