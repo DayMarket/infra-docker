@@ -1,3 +1,9 @@
+## v0.455.0 (2025-06-02)
+
+### Feat
+
+- add Docker-based cleanup v2 service with cron job (#249)
+
 ## v0.454.0 (2025-05-20)
 
 ### Feat
