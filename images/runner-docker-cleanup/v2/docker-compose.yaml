@@ -9,3 +9,4 @@ services:
     container_name: cleanup
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
