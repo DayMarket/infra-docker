@@ -12,7 +12,7 @@ RUN mkdir "${HIVE_HOME}" && \
     mkdir "${HADOOP_HOME}" && \
     apt-get update && \
     apt-get -y --no-install-recommends upgrade && \
-    apt-get -y --no-install-recommends install curl=7.88.1-10+deb12u12 && \
+    apt-get -y --no-install-recommends install curl=7.74.0-1.3+deb11u3 && \
     curl -L "https://dlcdn.apache.org/hive/hive-${HIVE_VERSION}/apache-hive-${HIVE_VERSION}-bin.tar.gz" | tar zxf - && \
     mv apache-hive-"${HIVE_VERSION}"-bin/* "${HIVE_HOME}" && \
     curl -L "https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" | tar zxf - && \
