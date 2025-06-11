@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-debian:8
+FROM ghcr.io/kazanexpress/hive-metastore:1.0.0
 
 WORKDIR /opt
 
