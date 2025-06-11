@@ -1,3 +1,9 @@
+## v0.457.1 (2025-06-11)
+
+### Fix
+
+- **hive-metastore**: MAI-1590  fake commit
+
 ## v0.457.0 (2025-06-11)
 
 ### Feat
