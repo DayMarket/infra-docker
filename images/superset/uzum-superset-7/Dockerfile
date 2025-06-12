@@ -15,12 +15,11 @@ RUN apt-get update -qq && \
     git
 
 WORKDIR /app/superset-frontend
-
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
     cp /git/superset/superset-frontend/package.json ./ && \
     cp /git/superset/superset-frontend/package-lock.json ./ && \
-    npm ci --prefer-offline --verbose
+    npm ci --prefer-offline --verbose --network-timeout=600000 --fetch-timeout=600000
 
 # Копируем кастомные frontend-файлы
 COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
