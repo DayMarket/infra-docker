@@ -96,6 +96,8 @@ jobs:
   build-image:
     needs: find-changed-files
     runs-on: ubuntu-latest
+    env:
+      NPM_AUTH_LINE: ${{ secrets.NPM_AUTH_LINE }}
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.find-changed-files.outputs.matrix)}}

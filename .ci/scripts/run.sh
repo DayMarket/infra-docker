@@ -11,7 +11,11 @@ while IFS= read -r dir; do
 	image=$(basename "$(dirname "$dir")")
 	tag=$(basename "$dir")
 
-	docker build --tag "ghcr.io/daymarket/$image:$tag" --tag "ghcr.io/daymarket/$image:latest" .
+  	docker build \
+    	--build-arg NPM_AUTH_LINE="${NPM_AUTH_LINE:-}" \
+        --tag "ghcr.io/daymarket/$image:$tag" \
+        --tag "ghcr.io/daymarket/$image:latest" .
+
 	docker push --all-tags ghcr.io/daymarket/$image
 
 	cd - >/dev/null

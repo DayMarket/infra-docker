@@ -28,6 +28,7 @@ jobs:
 
       - name: Build Docker images
         env:
+          NPM_AUTH_LINE: ${{ secrets.NPM_AUTH_LINE }}
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         run: |
           .ci/scripts/run.sh
