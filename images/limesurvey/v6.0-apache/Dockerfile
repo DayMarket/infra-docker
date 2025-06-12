@@ -113,6 +113,7 @@ RUN set -ex; \
     \
     mkdir -p /var/www/html/locale/uz/LC_MESSAGES; \
     msgfmt /tmp/limesurvey-6-uz.po -o /var/www/html/locale/uz/LC_MESSAGES/limesurvey.mo; \
+    msgfmt /tmp/limesurvey-6-uz.po -o /var/www/html/locale/uz/uz.mo; \
     cp /tmp/limesurvey-6-uz.po /var/www/html/locale/uz/limesurvey.po; \
     \
     # Патчим surveytranslator_helper.php
