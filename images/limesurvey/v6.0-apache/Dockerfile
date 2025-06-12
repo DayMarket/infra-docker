@@ -106,22 +106,22 @@ RUN set -ex; \
 
 COPY limesurvey-6-uz.po /tmp/limesurvey-6-uz.po
 
+# Поддержка узбекского перевода
 RUN set -ex; \
-    # msgfmt lives in the gettext package
     apt-get update && \
     apt-get install -y --no-install-recommends gettext && \
     \
-    # Location LimeSurvey looks for translations:
-    #   /var/www/html/locale/<lang>/LC_MESSAGES/limesurvey.mo
     mkdir -p /var/www/html/locale/uz/LC_MESSAGES; \
-    msgfmt /tmp/limesurvey-6-uz.po \
-            -o /var/www/html/locale/uz/LC_MESSAGES/limesurvey.mo; \
+    msgfmt /tmp/limesurvey-6-uz.po -o /var/www/html/locale/uz/LC_MESSAGES/limesurvey.mo; \
+    cp /tmp/limesurvey-6-uz.po /var/www/html/locale/uz/limesurvey.po; \
     \
-    # permissions consistent with the rest of /var/www
-    chown -R "${USER}:root" /var/www/html/locale/uz; \
+    # Патчим surveytranslator_helper.php
+    sed -i "s|\(\$supportedLanguages\['uz']\['description'] = gT(\).*|\1'Ozbekcha');|" /var/www/html/application/helpers/surveytranslator_helper.php && \
+    sed -i "s|\(\$supportedLanguages\['uz']\['nativedescription'] = \).*|\1\"Ozbekcha\";|" /var/www/html/application/helpers/surveytranslator_helper.php; \
+    \
+    chown -R ${USER}:root /var/www/html/locale/uz; \
     chmod -R g=u /var/www/html/locale/uz; \
     \
-    # tidy up build artefacts
     rm /tmp/limesurvey-6-uz.po && \
     apt-get purge -y --auto-remove gettext && \
     rm -rf /var/lib/apt/lists/*
