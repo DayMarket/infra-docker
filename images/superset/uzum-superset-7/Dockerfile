@@ -20,7 +20,7 @@ RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /g
     cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
     cp /git/superset/superset-frontend/package.json ./ && \
     cp /git/superset/superset-frontend/package-lock.json ./ && \
-    npm ci --prefer-offline
+    npm ci --prefer-offline --verbose
 
 # Копируем кастомные frontend-файлы
 COPY custom/DashboardCard.tsx /git/superset/superset-frontend/src/features/dashboards/DashboardCard.tsx
