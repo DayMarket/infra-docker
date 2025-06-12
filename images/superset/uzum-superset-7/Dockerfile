@@ -29,6 +29,8 @@ COPY custom/ChartCard.tsx /git/superset/superset-frontend/src/views/ChartList/Ch
 COPY custom/Welcome.tsx /git/superset/superset-frontend/src/pages/Home/index.tsx
 COPY custom/cache.py /git/superset/superset/tasks/cache.py
 COPY custom/config.py /git/superset/superset/config.py
+COPY custom/excetions.py /git/superset/superset/tasks/excetions.py
+COPY custom/executors.py /git/superset/superset/tasks/executors.py
 
 #COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
 
