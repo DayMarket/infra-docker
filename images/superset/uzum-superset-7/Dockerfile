@@ -33,6 +33,7 @@ COPY custom/exceptions.py /git/superset/superset/tasks/exceptions.py
 COPY custom/executors.py /git/superset/superset/tasks/executors.py
 
 #COPY custom/fallback.png /git/superset/superset-frontend/src/static/assets/images/fallback.png
+
 # Сборка frontend
 RUN cp -Rf /git/superset/superset-frontend/* /app/superset-frontend && \
     npm run ${BUILD_CMD}
