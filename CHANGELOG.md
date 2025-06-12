@@ -1,3 +1,9 @@
+## v0.458.0 (2025-06-12)
+
+### Feat
+
+- **limesurvey**: fix lang limesurvey (#254)
+
 ## v0.457.1 (2025-06-11)
 
 ### Fix
