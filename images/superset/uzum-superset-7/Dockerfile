@@ -15,11 +15,16 @@ RUN apt-get update -qq && \
     git
 
 WORKDIR /app/superset-frontend
+
+ARG NPM_AUTH_LINE
+RUN echo "$NPM_AUTH_LINE" > ~/.npmrc
+
 RUN git clone --depth 1 --branch 4.1.2 https://github.com/apache/superset.git /git/superset && \
     cp /git/superset/docker/frontend-mem-nag.sh / && /frontend-mem-nag.sh && \
     cp /git/superset/superset-frontend/package.json ./ && \
     cp /git/superset/superset-frontend/package-lock.json ./ && \
-    npm ci --prefer-offline --verbose --network-timeout=600000 --fetch-timeout=600000
+    npm ci --prefer-offline --verbose --network-timeout=600000 --fetch-timeout=600000 && \
+    rm -f ~/.npmrc
 
 # Копируем кастомные frontend-файлы
 
