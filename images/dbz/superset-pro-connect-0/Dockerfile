@@ -1,4 +1,4 @@
-FROM quay.io/strimzi/kafka:0.40.0-kafka-3.3.2
+FROM quay.io/strimzi/kafka:0.33.2-kafka-3.3.2
 
 USER root
 
