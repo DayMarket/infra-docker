@@ -1,3 +1,9 @@
+## v0.463.0 (2025-07-03)
+
+### Feat
+
+- full-complete cdc image
+
 ## v0.462.0 (2025-06-26)
 
 ### Feat
