@@ -1,3 +1,9 @@
+## v0.467.0 (2025-07-16)
+
+### Feat
+
+- **maven**: add Dockerfile and settings.xml for Maven proxy configuration (#258)
+
 ## v0.466.2 (2025-07-03)
 
 ### Fix
