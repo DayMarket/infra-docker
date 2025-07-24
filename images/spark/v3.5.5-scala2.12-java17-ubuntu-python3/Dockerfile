@@ -15,7 +15,7 @@ COPY ./requirements ${SPARK_HOME}/requirements
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 RUN  curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
 && python3.10 - m pip install uv && python3.10 -m pip cache purge
-CMD uv pip install -r ${SPARK_HOME}/requirements --system
+CMD ["uv pip install -r ${SPARK_HOME}/requirements --system"]
 USER spark
 
 FROM pydeps
