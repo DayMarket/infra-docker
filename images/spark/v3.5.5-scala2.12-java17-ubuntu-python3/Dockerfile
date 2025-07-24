@@ -35,6 +35,5 @@ RUN chmod u+x /opt/spark/*
 
 USER spark
 WORKDIR /opt
-set -e
-EOT
+
 ENTRYPOINT ["entrypoint.sh"]
