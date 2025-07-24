@@ -29,3 +29,4 @@ RUN curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runt
 && curl -s https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.12/${SPARK_VERSION}/spark-avro_2.12-${SPARK_VERSION}.jar -Lo /opt/spark/jars/spark-avro_2.12-${SPARK_VERSION}.jar
 RUN chmod u+x /opt/spark/*
 
+USER spark
