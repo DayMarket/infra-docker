@@ -15,8 +15,8 @@ WORKDIR ${SPARK_HOME}
 COPY ./requirements ${SPARK_HOME}/requirements
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
-&& python3.10 - m pip install uv && python3.10 -m pip cache purge
-CMD uv pip install -r ${SPARK_HOME}/requirements
+&& python3.10 - m pip install --no-install-recommends uv && python3.10 -m pip cache purge
+CMD uv pip install -r ${SPARK_HOME}/requirements --system
 USER spark
 
 FROM pydeps
@@ -28,9 +28,6 @@ ENV SPARK_MAJOR_VERSION=3.5
 ENV ICEBERG_VERSION=1.9.0
 ENV AWS_SDK_VERSION=1.12.262
 ENV HADOOP_AWS_VERSION=3.3.4
-
-
-
 
 RUN curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_2.12/${ICEBERG_VERSION}/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_2.12-${ICEBERG_VERSION}.jar -Lo /opt/spark/jars/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_2.12-${ICEBERG_VERSION}.jar \
 && curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-aws-bundle/${ICEBERG_VERSION}/iceberg-aws-bundle-${ICEBERG_VERSION}.jar -Lo /opt/spark/jars/iceberg-aws-bundle-${ICEBERG_VERSION}.jar \
