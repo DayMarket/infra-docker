@@ -2,9 +2,8 @@ FROM spark:3.5.6-scala2.12-java17-ubuntu AS base
 
 USER root
 
-RUN set -ex; \
-    apt-get update; \
-    apt-get install -y python3.10 python3-psutil pip curl sudo unzip vim; \
+RUN apt-get update; \
+    apt-get install  -y  --no-install-recommends python3.10 python3-psutil pip curl sudo unzip vim; \
     rm -rf /var/lib/apt/lists/*
 USER spark
 
@@ -15,7 +14,7 @@ WORKDIR ${SPARK_HOME}
 COPY ./requirements ${SPARK_HOME}/requirements
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
-&& python3.10 - m pip install --no-install-recommends uv && python3.10 -m pip cache purge
+&& python3.10 - m pip install uv && python3.10 -m pip cache purge
 CMD uv pip install -r ${SPARK_HOME}/requirements --system
 USER spark
 
@@ -35,3 +34,7 @@ RUN curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runt
 RUN chmod u+x /opt/spark/*
 
 USER spark
+WORKDIR /opt
+set -e
+EOT
+ENTRYPOINT ["entrypoint.sh"]
