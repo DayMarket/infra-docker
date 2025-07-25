@@ -1,3 +1,9 @@
+## v0.469.0 (2025-07-25)
+
+### Feat
+
+- (spark:v3.5.5-scala2.12-java17-ubuntu-python3 and git-sync:v3.6.1) (#263)
+
 ## v0.468.0 (2025-07-25)
 
 ### Feat
