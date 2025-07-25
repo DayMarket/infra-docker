@@ -1,3 +1,9 @@
+## v0.468.0 (2025-07-25)
+
+### Feat
+
+- **dev:docker**: Revert add spark base image) (#261)" (#262)
+
 ## v0.467.0 (2025-07-16)
 
 ### Feat
