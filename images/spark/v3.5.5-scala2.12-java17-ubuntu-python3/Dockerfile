@@ -33,7 +33,7 @@ RUN curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runt
 
 WORKDIR ${SPARK_HOME}
 COPY requirements.txt requirements.txt
-RUN pip install uv \
+RUN pip install --no-cache-dir uv==0.8.3 \
 && uv pip install --system -r requirements.txt
 
 
