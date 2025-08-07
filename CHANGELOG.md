@@ -1,3 +1,9 @@
+## v0.471.0 (2025-08-07)
+
+### Feat
+
+- (spark:v3.5.5-scala2.12-java17-ubuntu-python3): new requirements.txt (#265)
+
 ## v0.470.0 (2025-07-29)
 
 ### Feat
