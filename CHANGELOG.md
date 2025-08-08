@@ -1,3 +1,9 @@
+## v0.473.0 (2025-08-08)
+
+### Feat
+
+- (spark:v3.5.5-scala2.12-java17-ubuntu-python3): add logging prod and change image ref (#267)
+
 ## v0.472.0 (2025-08-07)
 
 ### Feat
