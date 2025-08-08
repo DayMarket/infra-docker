@@ -1,7 +1,8 @@
 FROM spark:3.5.5-scala2.12-java17-python3-ubuntu
 USER root
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends kafkacat wget
+    apt-get install -y --no-install-recommends kafkacat wget && \
+    rm -rf /var/lib/apt/lists/*
 
 
 ENV SPARK_HOME=${SPARK_HOME:-"/opt/spark"}
