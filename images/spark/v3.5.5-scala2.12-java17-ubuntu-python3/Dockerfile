@@ -1,8 +1,12 @@
-FROM spark:3.5.6-scala2.12-java17-python3-ubuntu
+FROM spark:3.5.5-scala2.12-java17-python3-ubuntu
 USER root
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends kafkacat wget && \
+    rm -rf /var/lib/apt/lists/*
+
 
 ENV SPARK_HOME=${SPARK_HOME:-"/opt/spark"}
-ENV SPARK_VERSION=3.5.6
+ENV SPARK_VERSION=3.5.5
 ENV SPARK_MAJOR_VERSION=3.5
 ENV ICEBERG_VERSION=1.9.1
 ENV AWS_SDK_VERSION=1.12.262
@@ -21,7 +25,6 @@ RUN curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runt
 && curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-aws-bundle/${ICEBERG_VERSION}/iceberg-aws-bundle-${ICEBERG_VERSION}.jar -Lo /opt/spark/jars/iceberg-aws-bundle-${ICEBERG_VERSION}.jar \
 && curl -s https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar -Lo /opt/spark/jars/hadoop-aws-${HADOOP_AWS_VERSION}.jar \
 && curl -s https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.12/${SPARK_VERSION}/spark-avro_2.12-${SPARK_VERSION}.jar -Lo /opt/spark/jars/spark-avro_2.12-${SPARK_VERSION}.jar \
-&& curl -s https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/${SPARK_VERSION}/spark-sql-kafka-0-10_2.12-${SPARK_VERSION}.jar -Lo /opt/spark/jars/spark-sql-kafka-0-10_2.12-${SPARK_VERSION}.jar \
 && curl -s https://repo1.maven.org/maven2/org/apache/spark/spark-streaming-kafka-0-10_2.12/${SPARK_VERSION}/spark-streaming-kafka-0-10_2.12-${SPARK_VERSION}.jar -Lo /opt/spark/jars/spark-streaming-kafka-0-10_2.12-${SPARK_VERSION}.jar \
 && curl -s https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/${AWS_SDK_VERSION}/aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar -Lo /opt/spark/jars/aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar \
 && curl -s https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.11.0/jmx_prometheus_javaagent-0.11.0.jar -Lo /opt/spark/jars/jmx_prometheus_javaagent-0.11.0.jar \
@@ -35,9 +38,11 @@ WORKDIR ${SPARK_HOME}
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir uv==0.8.3 \
 && uv pip install --system -r requirements.txt
-
+COPY log4j2.properties /opt/spark/conf/log4j2.properties
 
 RUN chmod -R 777 /opt
+
+
 USER spark
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
