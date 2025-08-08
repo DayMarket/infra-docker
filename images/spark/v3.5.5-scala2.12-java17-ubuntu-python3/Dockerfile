@@ -42,9 +42,6 @@ COPY log4j2.properties /opt/spark/conf/log4j2.properties
 RUN chmod -R 777 /opt
 
 
-RUN wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" --output-document /opt/cert/YandexInternalRootCA.crt &&  \
-    chmod 655 /opt/cert/YandexInternalRootCA.crt
-
 USER spark
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
