@@ -1,3 +1,9 @@
+## v0.474.0 (2025-08-22)
+
+### Feat
+
+- **EIP-569**: update Dockerfile to include curl in the installation (#268)
+
 ## v0.473.0 (2025-08-08)
 
 ### Feat
