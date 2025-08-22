@@ -1,0 +1,5 @@
+FROM maven:3.9.11-amazoncorretto-21-debian
+RUN apt-get update \
+    && apt-get -y --no-install-recommends install openssh-client git curl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+COPY settings.xml /usr/share/maven/conf/
