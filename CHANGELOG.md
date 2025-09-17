@@ -1,3 +1,9 @@
+## v0.476.0 (2025-09-17)
+
+### Feat
+
+- add Dockerfile for Redis Exporter version 1.77.0-debian-12-r0 (#270)
+
 ## v0.475.0 (2025-09-17)
 
 ### Feat
