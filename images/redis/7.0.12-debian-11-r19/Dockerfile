@@ -1,1 +1,1 @@
-FROM public.ecr.aws/bitnami/redis:7.0.12-debian-11-r19
+FROM bitnamilegacy/redis:7.0.12-debian-11-r19
