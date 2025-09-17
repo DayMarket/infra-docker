@@ -1,1 +1,0 @@
-FROM bitnamilegacy/redis-cluster:6.2.7-debian-11-r3
