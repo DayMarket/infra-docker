@@ -1,3 +1,9 @@
+## v0.475.0 (2025-09-17)
+
+### Feat
+
+- add Dockerfiles for Redis, Redis Exporter, and Redis Sentinel images (#269)
+
 ## v0.474.0 (2025-08-22)
 
 ### Feat
