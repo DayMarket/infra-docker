@@ -1,0 +1,1 @@
+FROM bitnamilegacy/nginx:1.25.3-debian-11-r1
