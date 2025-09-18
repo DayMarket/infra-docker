@@ -1,3 +1,9 @@
+## v0.481.0 (2025-09-18)
+
+### Feat
+
+- add Dockerfiles for Memcached, PostgreSQL, RabbitMQ, Redis, Redis Exporter, and Redis Sentinel images (#276)
+
 ## v0.480.0 (2025-09-18)
 
 ### Feat
