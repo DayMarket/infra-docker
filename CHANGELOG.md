@@ -1,3 +1,9 @@
+## v0.484.0 (2025-09-18)
+
+### Feat
+
+- **nginx**: add Dockerfile for Nginx 1.25.3 on Debian 11 (#281)
+
 ## v0.483.0 (2025-09-18)
 
 ### Feat
