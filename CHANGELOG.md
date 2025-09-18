@@ -1,3 +1,9 @@
+## v0.483.0 (2025-09-18)
+
+### Feat
+
+- **mariadb**: add Dockerfile for MariaDB 10.6.12 on Debian 11 (#280)
+
 ## v0.482.1 (2025-09-18)
 
 ### Fix
