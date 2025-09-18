@@ -1,0 +1,1 @@
+FROM bitnamilegacy/mariadb:10.6.12-debian-11-r16
