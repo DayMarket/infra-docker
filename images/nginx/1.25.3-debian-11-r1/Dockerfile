@@ -1,1 +1,1 @@
-FROM docker.io/bitnami/nginx:1.25.3-debian-11-r1
+FROM docker.io/bitnamilegacy/nginx:1.25.3-debian-11-r1
