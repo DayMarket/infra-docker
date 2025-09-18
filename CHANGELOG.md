@@ -1,3 +1,10 @@
+## v0.477.0 (2025-09-18)
+
+### Feat
+
+- build bitnami legacy images (#273)
+- **redis**: added all redis from dev  (#271)
+
 ## v0.476.0 (2025-09-17)
 
 ### Feat
