@@ -1,0 +1,1 @@
+FROM bitnamilegacy/keycloak-config-cli:6.1.6-debian-12-r0
