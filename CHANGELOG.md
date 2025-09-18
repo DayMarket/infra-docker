@@ -1,3 +1,9 @@
+## v0.482.0 (2025-09-18)
+
+### Feat
+
+- **jmx-exporter**: MAI-2024 add dockerfile (#277)
+
 ## v0.481.0 (2025-09-18)
 
 ### Feat
