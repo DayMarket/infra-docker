@@ -1,0 +1,1 @@
+FROM docker.io/bitnamilegacy/keycloak:25.0.2-debian-12-r0
