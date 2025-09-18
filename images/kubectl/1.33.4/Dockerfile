@@ -1,0 +1,1 @@
+FROM bitnamilegacy/kubectl:1.33.4

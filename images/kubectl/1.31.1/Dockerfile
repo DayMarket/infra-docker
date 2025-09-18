@@ -18,16 +18,16 @@ RUN curl -fsSLo /tmp/kubectl \
 
 # ===== stage: runtime =====
 FROM alpine:3.20
-# Минимум нужного + сертификаты
+
 RUN apk add --no-cache ca-certificates bash
-# Non-root пользователь с фиксированным uid/gid (как любят CI/CD)
+# Non-root пользователь с фиксированным uid/gid
 RUN addgroup -g 1001 app && adduser -D -u 1001 -G app app
 # Рабочая директория (удобно монтировать kubeconfig и т.д.)
 WORKDIR /work
 # Кладём kubectl
 COPY --from=downloader /tmp/kubectl /usr/local/bin/kubectl
 RUN chmod +x /usr/local/bin/kubectl
-# Немного метаданных
+
 LABEL org.opencontainers.image.title="kubectl" \
       org.opencontainers.image.description="Minimal kubectl image (Alpine, non-root)" \
       org.opencontainers.image.source="https://kubernetes.io" \
