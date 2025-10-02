@@ -1,11 +1,9 @@
 FROM python:3.11-slim
 
-# Установим необходимые пакеты
 RUN apt-get update && \
     apt-get install -y wget && \
     rm -rf /var/lib/apt/lists/*
 
-# Скачаем сертификат Яндекса
 RUN mkdir -p /root/.opensearch && \
     wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" \
          --output-document /root/.opensearch/root.crt && \
