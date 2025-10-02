@@ -9,15 +9,10 @@ RUN mkdir -p /root/.opensearch && \
          --output-document /root/.opensearch/root.crt && \
     chmod 0600 /root/.opensearch/root.crt
 
-# Скопируем скрипты в контейнер
 WORKDIR /app
 COPY . /app
 
-# Установим зависимости
 RUN pip install --no-cache-dir opensearch-py requests
 
-# Установим переменную окружения для сертификата (если путь используется в коде)
 ENV CA=/root/.opensearch/root.crt
-
-# Запуск скрипта (можно изменить на нужный)
 CMD ["python3", "os-log-cleaner.py"]
