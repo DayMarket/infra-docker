@@ -1,3 +1,9 @@
+## v0.486.0 (2025-10-02)
+
+### Feat
+
+- **os-log-cleaner**: add Dockerfile and main script for log cleaning functionality (#283)
+
 ## v0.485.0 (2025-10-02)
 
 ### Feat
