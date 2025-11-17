@@ -1,3 +1,9 @@
+## v0.490.0 (2025-11-17)
+
+### Feat
+
+- added custom wiremock image for receipt updater service (#288)
+
 ## v0.489.0 (2025-11-06)
 
 ### Feat
