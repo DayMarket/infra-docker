@@ -1,4 +1,4 @@
-FROM dockerhub-proxy.infra.internal.daymarket.uz/bitnamilegacy/kubectl:1.30
+FROM bitnamilegacy/kubectl:1.30
 
 USER 0
 
