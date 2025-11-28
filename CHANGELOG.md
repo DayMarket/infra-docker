@@ -1,3 +1,9 @@
+## v0.491.0 (2025-11-28)
+
+### Feat
+
+- images for k6 automatisation (#289)
+
 ## v0.490.0 (2025-11-17)
 
 ### Feat
