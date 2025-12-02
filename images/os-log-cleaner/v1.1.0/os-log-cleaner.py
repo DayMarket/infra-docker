@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from opensearchpy import OpenSearch
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import sys
 
 CA = '/root/.opensearch/root.crt'
 PASS = os.environ.get('os_admin_password')
@@ -126,13 +127,40 @@ def print_progress_bar(current, total, prefix="", length=30):
         print()
 
 
+def should_rollover():
+    """Проверяет, нужно ли создавать новые индексы (только по понедельникам)"""
+    weekday = datetime.now(timezone.utc).weekday()
+    # 0 = Monday
+    return weekday == 0
+
+
+def should_delete():
+    """Проверяет, нужно ли удалять старые индексы (понедельник, среда, пятница)"""
+    weekday = datetime.now(timezone.utc).weekday()
+    # 0 = Monday, 2 = Wednesday, 4 = Friday
+    return weekday in [0, 2, 4]
+
+
 def delete_old_indices(conn, prefix=None):
     days_to_keep = int(os.environ.get('DAYS_TO_KEEP', 7))
     now = datetime.now(timezone.utc)
     streams = get_data_streams(conn, prefix)
     total_streams = len(streams)
     print(f"Найдено дата стримов: {total_streams}")
-    rollover_all_streams(conn, prefix)
+    
+    # Rollover только по понедельникам
+    if should_rollover():
+        print("Понедельник - выполняется rollover дата стримов")
+        rollover_all_streams(conn, prefix)
+    else:
+        print("Rollover пропущен (выполняется только по понедельникам)")
+    
+    # Удаление только в понедельник, среду и пятницу
+    if not should_delete():
+        print("Удаление пропущено (выполняется только в понедельник, среду и пятницу)")
+        return
+    
+    print("Выполняется удаление старых индексов")
     auth = ('admin', PASS)
     ca = CA
     indices_to_delete = []
