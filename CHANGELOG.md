@@ -1,3 +1,9 @@
+## v0.492.0 (2025-12-02)
+
+### Feat
+
+- enhance os-log-cleaner with index management logic (#290)
+
 ## v0.491.0 (2025-11-28)
 
 ### Feat
