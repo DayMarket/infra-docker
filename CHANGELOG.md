@@ -1,3 +1,9 @@
+## v0.493.0 (2025-12-02)
+
+### Feat
+
+- add os-log-cleaner Docker image and script for OpenSearch index management (#291)
+
 ## v0.492.0 (2025-12-02)
 
 ### Feat
