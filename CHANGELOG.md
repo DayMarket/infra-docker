@@ -1,3 +1,9 @@
+## v0.496.0 (2025-12-25)
+
+### Feat
+
+- add Dockerfiles for VictoriaMetrics components at versions 0.58.0, 0.66.1, and 1.131.0 (#294)
+
 ## v0.495.0 (2025-12-09)
 
 ### Feat
