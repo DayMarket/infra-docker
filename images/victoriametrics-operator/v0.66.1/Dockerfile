@@ -1,0 +1,1 @@
+FROM victoriametrics/operator:v0.66.1
