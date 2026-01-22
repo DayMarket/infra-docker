@@ -29,9 +29,7 @@ jobs:
       - name: Build Docker images
         env:
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+          PYPI_USER: ${{ secrets.NEXUS_USER }}
+          PYPI_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
           .ci/scripts/run.sh
-        with:
-          secrets: |
-            "PYPI_USER=${{ secrets.NEXUS_USER }}"
-            "PYPI_PASSWORD=${{ secrets.NEXUS_PASSWORD }}"
