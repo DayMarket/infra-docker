@@ -9,5 +9,8 @@ RUN apt-get update && \
 USER airflow
 WORKDIR /opt/airflow
 COPY requirements.txt requirements.txt
+RUN cat /etc/resolv.conf
+ENV PYPI_USER=$PYPI_USER
+ENV PYPI_PASSWORD=$PYPI_PASSWORD
 RUN pip install --no-cache-dir uv==0.8.3 \
 && uv pip install  --system -r requirements.txt
