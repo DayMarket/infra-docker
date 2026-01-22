@@ -117,5 +117,5 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           tags: test:${{ github.sha }}
           secrets: |
-            "PYPI_USER=${{ secrets.NEXUS_USER }}"
-            "PYPI_PASSWORD=${{ secrets.NEXUS_PASSWORD }}"
+            PYPI_USER=${{ secrets.NEXUS_USER }}
+            PYPI_PASSWORD=${{ secrets.NEXUS_PASSWORD }}
