@@ -111,11 +111,12 @@ jobs:
 
       - name: Build
         uses: docker/build-push-action@v3
-        env:
-          PYPI_USER: ${{ secrets.NEXUS_USER }}
-          PYPI_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         with:
           context: ${{ matrix.dockerfile }}
           push: false
           builder: ${{ steps.buildx.outputs.name }}
           tags: test:${{ github.sha }}
+          secrets: |
+            "pypi_user=${{ secrets.NEXUS_USER }}"
+            "pypi_password=${{ secrets.NEXUS_PASSWORD }}"
+

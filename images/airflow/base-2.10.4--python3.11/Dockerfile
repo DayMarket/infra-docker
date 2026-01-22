@@ -10,10 +10,10 @@ USER airflow
 WORKDIR /opt/airflow
 COPY requirements.txt requirements.txt
 COPY resolv.conf /etc/resolv.conf
-ENV PYPI_USER=$PYPI_USER
-ENV PYPI_PASSWORD=$PYPI_PASSWORD
-RUN pip install --no-cache-dir uv==0.8.3 \
+RUN --mount=type=secret,id=pypi_user \
+    --mount=type=secret,id=pypi_password \
+    pip install --no-cache-dir uv==0.8.3 \
 && uv pip install --system --extra-index-url \
-    "https://$(cat /run/secrets/PYPI_USER):$(cat /run/secrets/PYPI_PASSWORD)@nexus.infra.internal.daymarket.uz/repository/um-pypi/simple" \
+    "https://$(cat /run/secrets/pypi_user):$(cat /run/secrets/pypi_password)@nexus.infra.internal.daymarket.uz/repository/um-pypi/simple" \
     -r requirements.txt
 
