@@ -8,6 +8,5 @@ RUN apt-get update && \
 
 USER airflow
 WORKDIR /opt/airflow
-COPY requirements.txt requirements.txt
-RUN pip install --no-cache-dir uv==0.8.3 \
-&& uv pip install --system -r requirements.txt
+COPY airflow_dag_generator-0.3.7+oncallpatch-py3-none-any.whl daymarket_airflow_commons-0.5.3-py3-none-any.whl requirements.txt .
+RUN  pip install --no-cache-dir --extra-index-url  *.whl
