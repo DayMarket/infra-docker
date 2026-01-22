@@ -9,11 +9,9 @@ RUN apt-get update && \
 USER airflow
 WORKDIR /opt/airflow
 COPY requirements.txt requirements.txt
-COPY resolv.conf /etc/resolv.conf
 RUN --mount=type=secret,id=pypi_user \
     --mount=type=secret,id=pypi_password \
     pip install --no-cache-dir uv==0.8.3 \
 && uv pip install --system --extra-index-url \
-    "https://$(cat /run/secrets/pypi_user):$(cat /run/secrets/pypi_password)@nexus.infra.internal.daymarket.uz/repository/um-pypi/simple" \
+    "https://$(cat /run/secrets/pypi_user):$(cat /run/secrets/pypi_password)@nexus.infra.cluster.daymarket.uz/repository/um-pypi/simple" \
     -r requirements.txt
-
