@@ -1,0 +1,2 @@
+daymarket-airflow-commons==0.5.3
+airflow-dag-generator==0.3.7+oncallpatch
