@@ -7,6 +7,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 USER airflow
+WORKDIR /opt/airflow
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir uv==0.8.3 \
 && uv pip install --system -r requirements.txt
