@@ -10,4 +10,4 @@ USER airflow
 WORKDIR /opt/airflow
 COPY requirements.txt requirements.txt
 RUN pip install --no-install-recommends --no-cache-dir uv==0.8.3 \
-&& uv pip install --system -r requirements.txt
+&& uv pip install  --no-install-recommends --system -r requirements.txt
