@@ -6,12 +6,12 @@ USER root
 
 RUN apt-get update && \
     apt-get install -y git htop && \
-    apt-get clean
+    rm -rf /var/lib/apt/lists/*
 
 USER airflow
 
 RUN pip install --upgrade pip
 
-RUN pip install --no-cache-dir --extra-index-url https://nexus.infra.internal.daymarket.uz/repository/um-pypi/simple/ \
+RUN pip install --no-install-recommends https://nexus.infra.internal.daymarket.uz/repository/um-pypi/simple/ \
     daymarket-airflow-commons==$AIRFLOW_COMMONS_VERSION  \
     airflow-dag-generator==$AIRFLOW_DAG_GENERATOR
