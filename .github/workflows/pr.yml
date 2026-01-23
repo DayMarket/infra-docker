@@ -116,3 +116,7 @@ jobs:
           push: false
           builder: ${{ steps.buildx.outputs.name }}
           tags: test:${{ github.sha }}
+          secrets: |
+            "pypi_user=${{ secrets.NEXUS_USER }}"
+            "pypi_password=${{ secrets.NEXUS_PASSWORD }}"
+
