@@ -1,2 +1,9 @@
 daymarket-airflow-commons==0.5.3
 airflow-dag-generator==0.3.7+oncallpatch
+label-studio==1.22.0
+label-studio-sdk==2.0.16
+pytz==2022.7.1
+bs4==0.0.2
+polars==1.37.1
+dataclasses==0.8
+scrapy==2.14.1
