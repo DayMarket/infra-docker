@@ -11,8 +11,8 @@ while IFS= read -r dir; do
 	image=$(basename "$(dirname "$dir")")
 	tag=$(basename "$dir")
 
-	docker build  --secret id=PYPI_USER,env=PYPI_USER \
-                --secret id=PYPI_PASSWORD,env=PYPI_PASSWORD \
+	docker build  --secret id=pypi_user,env=PYPI_USER \
+                --secret id=pypi_password,env=PYPI_PASSWORD \
                 --tag "ghcr.io/daymarket/$image:$tag" --tag "ghcr.io/daymarket/$image:latest" .
 	docker push --all-tags ghcr.io/daymarket/$image
 
