@@ -1,3 +1,9 @@
+## v0.501.0 (2026-01-26)
+
+### Feat
+
+- airflow ml with all deps and image version [MDE-1548] (#301)
+
 ## v0.500.0 (2026-01-26)
 
 ### Feat
