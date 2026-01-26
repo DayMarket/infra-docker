@@ -13,5 +13,5 @@ WORKDIR /opt/airflow
 COPY requirements.txt requirements.txt
 RUN --mount=type=secret,id=pypi_user,uid=50000 \
     --mount=type=secret,id=pypi_password,uid=50000 \
-    uv pip install --no-cache-dir --extra-index-url  "https://$(cat /run/secrets/pypi_user):$(cat /run/secrets/pypi_password)@nexus.infra.cluster.daymarket.uz/repository/um-pypi/simple" \
+    uv pip install --no-cache-dir --extra-index-url  "https://pypi-um-reader:qKJVvXLo8PXu1WRuq130aktJM@nexus.infra.cluster.daymarket.uz/repository/um-pypi/simple" \
     -r requirements.txt
