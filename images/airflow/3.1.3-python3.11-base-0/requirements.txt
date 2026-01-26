@@ -4,7 +4,7 @@ beautifulsoup4
 polars
 dataclasses
 scrapy
-tabular
+tabulate
 python-dateutil
 joblib
 
