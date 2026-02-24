@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # ---------- STAGE 1: build strongSwan ---------- #
 FROM ubuntu:22.04 AS strongswan-builder
 
@@ -6,26 +8,24 @@ ENV STRONGSWAN_VERSION=5.9.14
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        build-essential \
-        wget \
-        pkg-config \
-        libgmp-dev \
-        libssl-dev \
-        libcurl4-openssl-dev \
-        libsystemd-dev \
-        libcap-dev \
-        libpam0g-dev \
-        bison \
-        flex \
-        ca-certificates \
-        gettext-base && \
+      build-essential \
+      ca-certificates \
+      flex \
+      bison \
+      pkg-config \
+      wget \
+      libcap-dev \
+      libcurl4-openssl-dev \
+      libgmp-dev \
+      libpam0g-dev \
+      libssl-dev \
+      libsystemd-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 
-RUN wget -q --progress=dot:giga \
-      https://download.strongswan.org/strongswan-${STRONGSWAN_VERSION}.tar.bz2 && \
-    tar -xjf strongswan-${STRONGSWAN_VERSION}.tar.bz2
+RUN wget -q --progress=dot:giga "https://download.strongswan.org/strongswan-${STRONGSWAN_VERSION}.tar.bz2" && \
+    tar -xjf "strongswan-${STRONGSWAN_VERSION}.tar.bz2"
 
 WORKDIR /build/strongswan-5.9.14
 
@@ -61,29 +61,20 @@ FROM ubuntu:22.04
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        iproute2 \
-        iptables \
-        libgmp10 \
-        libssl3 \
-        libcurl4 \
-        ca-certificates && \
+      ca-certificates \
+      iproute2 \
+      iptables \
+      libcurl4 \
+      libgmp10 \
+      libssl3 && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=strongswan-builder /usr /usr
 COPY --from=strongswan-builder /etc /etc
 COPY --from=exporter-builder /ipsec-exporter /usr/local/bin/ipsec-exporter
 
+COPY --chmod=0755 init.sh /usr/local/bin/init.sh
+
 EXPOSE 500/udp 4500/udp 9903
 
-ENTRYPOINT ["/bin/sh", "-c", "\
-  sysctl -w net.ipv4.ip_forward=1 && \
-  sysctl -w net.ipv4.conf.all.rp_filter=0 && \
-  sysctl -w net.ipv4.conf.default.rp_filter=0 && \
-  /usr/sbin/charon & \
-  sleep 2 && \
-  exec ipsec-exporter -vici-address /var/run/charon.vici \
-                      -vici-network unix \
-                      -server-host 0.0.0.0 \
-                      -server-port 9903 \
-                      -log-level info \
-"]
+ENTRYPOINT ["/usr/local/bin/init.sh"]
