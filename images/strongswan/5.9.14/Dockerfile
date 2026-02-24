@@ -17,7 +17,8 @@ RUN apt-get update && \
         libpam0g-dev \
         bison \
         flex \
-        ca-certificates && \
+        ca-certificates \
+        gettext-base && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
