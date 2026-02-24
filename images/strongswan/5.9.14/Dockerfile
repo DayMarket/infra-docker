@@ -59,6 +59,8 @@ RUN go mod vendor && \
 # ---------- FINAL IMAGE ---------- #
 FROM ubuntu:22.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates \
@@ -67,12 +69,6 @@ RUN apt-get update && \
       libcurl4 \
       libgmp10 \
       libssl3 \
-      strongswan-swanctl \
-      charon-systemd \
-      libcharon-extra-plugins \
-      libstrongswan-standard-plugins \
-      libstrongswan-extra-plugins \
-      libstrongswan \
       conntrack \
       git \
       mc && \
