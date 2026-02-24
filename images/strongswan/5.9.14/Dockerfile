@@ -69,14 +69,12 @@ RUN apt-get update && \
       libssl3 \
       strongswan-swanctl \
       charon-systemd \
-      libcharon-plugins \
       libcharon-extra-plugins \
       libstrongswan-standard-plugins \
       libstrongswan-extra-plugins \
       libstrongswan \
       conntrack \
       git \
-      vim \
       mc && \
     rm -rf /var/lib/apt/lists/*
 
