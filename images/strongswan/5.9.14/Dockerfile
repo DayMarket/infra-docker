@@ -24,9 +24,11 @@ WORKDIR /build
 
 RUN wget -q --progress=dot:giga \
       https://download.strongswan.org/strongswan-${STRONGSWAN_VERSION}.tar.bz2 && \
-    tar -xjf strongswan-${STRONGSWAN_VERSION}.tar.bz2 && \
-    cd strongswan-${STRONGSWAN_VERSION} && \
-    ./configure \
+    tar -xjf strongswan-${STRONGSWAN_VERSION}.tar.bz2
+
+WORKDIR /build/strongswan-5.9.14
+
+RUN ./configure \
       --prefix=/usr \
       --sysconfdir=/etc \
       --enable-charon \
@@ -42,9 +44,7 @@ RUN wget -q --progress=dot:giga \
 
 
 # ---------- STAGE 2: build exporter ---------- #
-FROM golang:1.24-alpine AS exporter-builder
-
-RUN apk add --no-cache git
+FROM golang:1.24 AS exporter-builder
 
 WORKDIR /src
 
