@@ -1,3 +1,9 @@
+## v0.506.0 (2026-03-24)
+
+### Feat
+
+- **ranger-sync**: initial container EID-24 (#306)
+
 ## v0.505.0 (2026-02-24)
 
 ### Feat
