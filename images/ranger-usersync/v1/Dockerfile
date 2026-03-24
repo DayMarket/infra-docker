@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY sync.py .
 
-RUN pip install --no-cache-dir requests
+RUN pip install --no-cache-dir requests==2.32.5
 
 CMD ["python", "sync.py"]
