@@ -1,3 +1,9 @@
+## v0.507.0 (2026-03-25)
+
+### Feat
+
+- **ranger-sync**: nev version with update groups, validate users, filter groups etc.. EID-24 (#307)
+
 ## v0.506.0 (2026-03-24)
 
 ### Feat
