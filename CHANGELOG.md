@@ -1,3 +1,9 @@
+## v0.508.2 (2026-03-27)
+
+### Fix
+
+- **ranger-sync**: EID-66 cleanup users without groups (#310)
+
 ## v0.508.1 (2026-03-27)
 
 ### Fix
