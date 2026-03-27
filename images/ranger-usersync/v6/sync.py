@@ -269,7 +269,7 @@ def normalize_user(u):
 
 def main():
     token = get_kc_token()
-
+    logger.info(f"Ranger user-sync from Keycloak")
     kc_users, kc_groups = get_filtered_kc_users(token)
     managed_kc_usernames = {u["username"] for u in kc_users}
     logger.info(f"Managed KC users: {len(managed_kc_usernames)}")
