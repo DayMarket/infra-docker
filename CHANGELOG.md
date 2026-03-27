@@ -1,3 +1,9 @@
+## v0.508.3 (2026-03-27)
+
+### Fix
+
+- **ranger-sync**: EID-66 builder pipeline (#312)
+
 ## v0.508.2 (2026-03-27)
 
 ### Fix
