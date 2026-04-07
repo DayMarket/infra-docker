@@ -1,3 +1,9 @@
+## v0.509.0 (2026-04-07)
+
+### Feat
+
+- **images:airflow**: add openpyxl and typo fix (#313)
+
 ## v0.508.3 (2026-03-27)
 
 ### Fix
