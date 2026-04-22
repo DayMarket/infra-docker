@@ -1,3 +1,9 @@
+## v0.509.1 (2026-04-22)
+
+### Fix
+
+- **airflow**: fake commit to fix pipeline (#316)
+
 ## v0.509.0 (2026-04-07)
 
 ### Feat
