@@ -1,3 +1,9 @@
+## v0.511.0 (2026-05-06)
+
+### Feat
+
+- **images:airflow**: Extend ml airflow images (#318)
+
 ## v0.510.0 (2026-05-06)
 
 ### Feat
