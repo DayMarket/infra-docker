@@ -1,3 +1,9 @@
+## v0.510.0 (2026-05-06)
+
+### Feat
+
+- **images:airflow**: Extend base airflow images (#317)
+
 ## v0.509.1 (2026-04-22)
 
 ### Fix
