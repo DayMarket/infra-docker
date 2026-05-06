@@ -1,0 +1,100 @@
+# Custom packages
+daymarket-airflow-commons==0.6.8
+airflow-dag-generator==0.3.18
+
+
+# Core Airflow and providers
+apache-airflow>=3.1.0,<3.2.0
+apache-airflow-providers-amazon>=9.17.0
+apache-airflow-providers-cncf-kubernetes>=10.10.0
+apache-airflow-providers-postgres>=6.5.0
+apache-airflow-providers-slack>=9.5.0
+apache-airflow-providers-telegram>=4.9.0
+apache-airflow-providers-trino>=6.4.0
+apache-airflow-providers-pagerduty>=5.2.0
+apache-airflow-providers-elasticsearch>=5.5.2
+apache-airflow-providers-google>=11.0
+airflow-provider-kafka>=0.1.1
+
+
+# Data processing
+pandas>=2.0.0,<3.0.0
+pandera>=0.13.0,<1.0.0
+numpy<3.0.0
+pyarrow>=18.0.1,<22.0.0
+pyiceberg==0.9.1
+polars>=1.26.0
+
+
+# Databases
+trino>=0.325.0
+psycopg2-binary>=2.9
+SQLAlchemy==1.4.54
+clickhouse-sqlalchemy==0.2.3
+clickhouse-driver>=0.2.9,<1.0.0
+clickhouse-connect>=0.8.5,<1.0.0
+elasticsearch>=7.13.3
+
+
+# Kafka
+confluent-kafka>=2.3.0
+
+
+# Kubernetes
+kubernetes >=32.0.0,<35.0.0
+kubernetes_asyncio >=32.0.0,<35.0.0
+
+
+# Cloud / Storage
+boto3==1.41.5
+s3fs>=2024.0.0
+aiobotocore>=2.16.0
+pycryptodome>=3.22.0
+
+
+# Google / APIs
+google-api-python-client>=2.187.0,<3.0.0
+gspread>=6.0.0
+oauth2client>=4.1.3
+
+
+# Notifications
+slack-sdk>=3.37.0,<4.0.0
+python-telegram-bot==22.5
+pagerduty==6.2.1
+
+
+# AI / ML
+openai>=2.7.2,<3.0.0
+
+
+# HTTP and Web
+beautifulsoup4>=4.8.0
+scrapy==2.14.1
+requests>=2.32.0,<3.0.0
+httpx>=0.24.0
+aiohttp>=3.9.0
+authlib>=1.5.0
+
+
+# Utilities
+growthbook>=1.3.1,<2.0.0
+python-dateutil>=2.8.0
+pytz>=2021.1
+markdown>=3.5
+tabulate==0.9.0
+joblib>=1.5.2
+pydantic==2.12.5
+psutil>=6.1.0
+tqdm>=4.54.0
+networkx>=2.8,<3.0 
+python-dotenv>=1.0.0
+Pympler>=1.1
+regex>=2024.4.16
+
+
+# Output / Reports
+plotly>=5.0.0
+openpyxl>=3.1.5
+xlsxwriter>=3.0.0
+prettytable>=3.0.0
