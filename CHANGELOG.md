@@ -1,3 +1,9 @@
+## v0.512.0 (2026-05-08)
+
+### Feat
+
+- **SC-663**: Add Postgres v17 with pg_partman extension (#319)
+
 ## v0.511.0 (2026-05-06)
 
 ### Feat
