@@ -1,0 +1,7 @@
+FROM postgres:17
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        postgresql-17-partman; \
+    rm -rf /var/lib/apt/lists/*
